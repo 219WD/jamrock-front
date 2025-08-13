@@ -1,0 +1,394 @@
+/* TurnosPaciente.css */
+
+.turnos-paciente-panel {
+  background-image: url("/src/assets/jamrock.png");
+  background-position: top;
+  background-size: cover;
+  background-repeat: no-repeat;
+  display: flex;
+  min-height: 100vh;
+  font-family: "Zen Dots", sans-serif;
+}
+
+.turnos-paciente-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  font-family: "Zen Dots", sans-serif;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  border-radius: 16px;
+  border: 1px solid #00ff00;
+  box-shadow: 0 8px 32px rgba(0, 255, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  width: 100%;
+}
+
+.title-paciente {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.title-paciente h1 {
+  color: #00ff00;
+  margin: 0;
+  text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+.filtros-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  align-items: center;
+}
+
+.search-container {
+  flex-grow: 1;
+  max-width: 400px;
+}
+
+.input-search {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 255, 0, 0.5);
+  background-color: rgba(0, 20, 40, 0.5);
+  color: #fff;
+  font-family: "Zen Dots", sans-serif;
+}
+
+.input-search:focus {
+  border-color: #00ff00;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+  outline: none;
+}
+
+.status-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-filter label {
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.status-filter select,
+.status-filter input {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 255, 0, 0.5);
+  background-color: rgba(0, 20, 40, 0.5);
+  color: #fff;
+  font-family: "Zen Dots", sans-serif;
+}
+
+.status-filter select:focus,
+.status-filter input:focus {
+  border-color: #00ff00;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+  outline: none;
+}
+
+.table-container {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.turnos-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: rgba(20, 30, 40, 0.85);
+  backdrop-filter: blur(4px);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+}
+
+.turnos-table th,
+.turnos-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(0, 255, 0, 0.2);
+  color: #fff;
+}
+
+.turnos-table thead {
+  background: linear-gradient(45deg, #006600, #00cc00);
+  color: white;
+}
+
+.turnos-table tbody tr:hover {
+  background-color: rgba(0, 255, 0, 0.1);
+}
+
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-pending {
+  background-color: #ffcc00; /* Vibrant yellow */
+  color: #1a1a1a;
+}
+
+.status-approved {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-rejected {
+  background-color: #e60000; /* Vibrant red */
+  color: #ffffff;
+}
+
+.status-completed {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.add-btn {
+  background: linear-gradient(45deg, #006600, #00cc00);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-btn:hover {
+  background: linear-gradient(45deg, #008800, #00ff00);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+}
+
+.edit-btn {
+  background: linear-gradient(45deg, #ffcc00, #ff9900); /* Yellow-orange gradient */
+  color: #1a1a1a;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 0.5rem;
+}
+
+.edit-btn:hover {
+  background: linear-gradient(45deg, #ff9900, #ff6600);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+}
+
+.cancel-btn {
+  background-color: #e60000; /* Vibrant red */
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-btn:hover {
+  background-color: #cc0000;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999999999;
+}
+
+.modal-content {
+  background-color: rgba(20, 30, 40, 0.98);
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 255, 0, 0.15);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  color: #fff;
+}
+
+.modal-content h3 {
+  color: #1f7b00;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.close-modal {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #fff;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-modal:hover {
+  color: #00ff00;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: bold;
+  color: #00ff00;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid rgba(0, 255, 0, 0.5);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 1rem;
+  background-color: rgba(0, 20, 40, 0.5);
+  color: #fff;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #00ff00;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+  outline: none;
+}
+
+.form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-group.checkbox label {
+  color: #fff;
+  margin-bottom: 0;
+  margin-left: 0.5rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.close-btn {
+  background-color: #95a5a6;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  background-color: #7f8c8d;
+}
+
+.approve-btn {
+  background: linear-gradient(45deg, #006600, #00cc00);
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.approve-btn:hover {
+  background: linear-gradient(45deg, #008800, #00ff00);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+}
+
+.loading-container,
+.error-container,
+.no-results {
+  padding: 2rem;
+  text-align: center;
+  background-color: rgba(20, 30, 40, 0.85);
+  border-radius: 8px;
+  color: #fff;
+}
+
+.error-container {
+  color: #e74c3c;
+}
+
+.access-denied {
+  padding: 2rem;
+  text-align: center;
+  background-color: rgba(20, 30, 40, 0.85);
+  border-radius: 8px;
+  color: #fff;
+}
+
+.access-denied h2 {
+  color: #e74c3c;
+}
+
+@media (max-width: 768px) {
+  .turnos-paciente-container {
+    padding: 1rem;
+    margin: 1rem;
+  }
+
+  .title-paciente {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .filtros-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .input-search {
+    max-width: 100%;
+  }
+
+  .status-filter {
+    width: 100%;
+  }
+
+  .turnos-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .actions-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .modal-content {
+    width: 95%;
+    padding: 1rem;
+  }
+}

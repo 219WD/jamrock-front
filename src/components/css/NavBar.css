@@ -1,0 +1,126 @@
+/* Estilos generales */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: none;
+  /* Transparente por defecto */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem;
+  z-index: 1111;
+  /* Alto z-index */
+  width: 100%;
+  font-family: "Zen Dots", sans-serif;
+  transition: background 0.3s ease;
+}
+
+.logo a {
+  text-decoration: none;
+}
+
+.logo img {
+  width: 100px;
+}
+
+.nav a {
+  text-decoration: none;
+  margin: 0 1rem;
+  color: #74B72C;
+  transition: color 0.3s;
+  font-family: "Zen Dots", sans-serif;
+}
+
+.nav a:hover {
+  color: #f0f0f0;
+}
+
+/* Botón del carrito */
+.cart-button {
+  background: transparent;
+  border: none;
+  color: #f0f0f0;
+  font-size: 1.5rem;
+  cursor: pointer;
+  position: relative;
+  margin-left: 1rem;
+}
+
+.cart-button .cart-count {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #74B72C;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Botón menú hamburguesa */
+.menu-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #333;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+
+/* Responsive Design para Mobile */
+@media (max-width: 768px) {
+  .header {
+    background: #222222;
+    z-index: 32324232;
+  }
+
+  .menu-toggle {
+    display: block;
+    color: #f0f0f0;
+  }
+
+  .cart-button {
+    color: #f0f0f0;
+  }
+
+  .nav {
+    display: none;
+    flex-direction: column;
+    background: none;
+    /* Transparente inicialmente */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    gap: 0;
+    padding: 1rem;
+    box-shadow: none;
+    /* Sin sombra inicialmente */
+    z-index: 32324232;
+    /* Alto z-index para el nav */
+    transition: background 0.3s ease;
+  }
+
+  .nav.open {
+    display: flex;
+    background: white;
+    /* Fondo blanco cuando se abre */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Sombra al abrir */
+  }
+
+  .nav a {
+    padding: 0.5rem 0;
+    text-align: center;
+    color: #333;
+    /* Color de texto oscuro */
+  }
+}

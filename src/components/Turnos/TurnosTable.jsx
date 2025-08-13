@@ -1,0 +1,151 @@
+import React from "react";
+import PropTypes from "prop-types";
+import useAuthStore from "../../store/authStore";
+
+const TurnosTable = ({ turnos, loading, onEstadoChange, onReprogramar }) => {
+  const user = useAuthStore((state) => state.user);
+
+  if (loading) {
+    return <p>Cargando turnos...</p>;
+  }
+
+  if (turnos.length === 0) {
+    return <p className="no-turnos">No hay turnos registrados</p>;
+  }
+
+  // Función para determinar si el usuario puede editar este turno
+  const canEditTurno = (turno) => {
+    if (!turno || !user) return false;
+    if (user.isAdmin || user.isSecretaria) return true;
+    if (user.isMedico) {
+      const especialistaUserId = turno.especialistaId?.userId?._id || turno.especialistaId?.userId;
+      return especialistaUserId?.toString() === user._id.toString();
+    }
+    return false;
+  };
+
+  // Función mejorada para obtener información del especialista
+  const getEspecialistaInfo = (turno) => {
+    if (!turno?.especialistaId) {
+      return { name: "Especialista no especificado", especialidad: "Sin especialidad" };
+    }
+    // Caso 1: Cuando el especialista está completamente poblado
+    if (turno.especialistaId?.userId?.name) {
+      return {
+        name: turno.especialistaId.userId.name,
+        especialidad: turno.especialistaId.especialidad || "Sin especialidad",
+      };
+    }
+    // Caso 2: Cuando el populate solo trajo el nombre directo
+    if (turno.especialistaId?.name) {
+      return {
+        name: turno.especialistaId.name,
+        especialidad: turno.especialistaId.especialidad || "Sin especialidad",
+      };
+    }
+    // Caso 3: Cuando solo tenemos el ID
+    return {
+      name: "Especialista no especificado",
+      especialidad: turno.especialistaId.especialidad || "Sin especialidad",
+    };
+  };
+
+  return (
+    <table className="turnos-table">
+      <thead>
+        <tr>
+          <th>Paciente</th>
+          <th>Especialista</th>
+          <th>Fecha</th>
+          <th>Motivo</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {turnos.map((turno) => {
+          const editable = canEditTurno(turno);
+          const especialistaInfo = getEspecialistaInfo(turno);
+
+          return (
+            <tr key={turno._id} className={`turno-row ${turno.estado || "pendiente"}`}>
+              <td>{turno.pacienteId?.fullName || "Paciente no especificado"}</td>
+              <td>
+                {especialistaInfo.name}
+                {especialistaInfo.especialidad && ` (${especialistaInfo.especialidad})`}
+              </td>
+              <td>
+                {turno.fecha
+                  ? new Date(turno.fecha).toLocaleString("es-AR", {
+                      dateStyle: "short",
+                      timeStyle: "short",
+                    })
+                  : "Fecha no especificada"}
+              </td>
+              <td>{turno.motivo || "Sin motivo especificado"}</td>
+              <td>
+                <span className={`status-badge ${turno.estado || "pendiente"}`}>
+                  {turno.estado || "Pendiente"}
+                </span>
+              </td>
+              <td className="acciones-turno">
+                {editable ? (
+                  <>
+                    <select
+                      value={turno.estado || "pendiente"}
+                      onChange={(e) => onEstadoChange(turno._id, e.target.value)}
+                      className="estado-select"
+                    >
+                      <option value="pendiente">Pendiente</option>
+                      <option value="confirmado">Confirmado</option>
+                      <option value="cancelado">Cancelado</option>
+                      <option value="completado">Completado</option>
+                    </select>
+                    <button
+                      onClick={() => onReprogramar(turno)}
+                      className="btn-reprogramar"
+                    >
+                      Reprogramar
+                    </button>
+                  </>
+                ) : (
+                  <span className="sin-permiso">Solo lectura</span>
+                )}
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+};
+
+TurnosTable.propTypes = {
+  turnos: PropTypes.arrayOf(
+    PropTypes.shape({
+      _id: PropTypes.string.isRequired,
+      pacienteId: PropTypes.shape({
+        fullName: PropTypes.string,
+      }),
+      especialistaId: PropTypes.shape({
+        userId: PropTypes.oneOfType([
+          PropTypes.shape({
+            _id: PropTypes.string,
+            name: PropTypes.string,
+          }),
+          PropTypes.string,
+        ]),
+        name: PropTypes.string,
+        especialidad: PropTypes.string,
+      }),
+      fecha: PropTypes.string,
+      motivo: PropTypes.string,
+      estado: PropTypes.string,
+    })
+  ).isRequired,
+  loading: PropTypes.bool.isRequired,
+  onEstadoChange: PropTypes.func.isRequired,
+  onReprogramar: PropTypes.func.isRequired,
+};
+
+export default TurnosTable;

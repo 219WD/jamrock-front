@@ -1,0 +1,32 @@
+.menu-cards-section {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    padding: 2rem;
+    background:
+        linear-gradient(rgba(24, 86, 0, 0.7), rgba(140, 189, 126, 0.7)),
+        url("https://res.cloudinary.com/dtxdv136u/image/upload/v1733412580/kvoHqmc_nbvyac.webp");
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: multiply;
+    padding-top: 5rem;
+    padding-bottom: 8rem;
+    position: relative;
+    width: 100vw;
+}
+
+.menu-cards-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.menu-cards-section h2 {
+  font-family: "Archivo Black", sans-serif;
+  text-transform: uppercase;
+  color: #E4FF00;
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}

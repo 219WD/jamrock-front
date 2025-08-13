@@ -1,0 +1,10 @@
+.productos-page-container {
+  display: flex; /* Para que el nav esté al lado */
+  flex-direction: column;
+  width: 100%; /* Ocupa todo el ancho de la pantalla */
+  height: 100%; /* Ocupa todo el alto de la pantalla */
+  background-image: url("/src/assets/jamrock.png");
+  background-position: top;
+  background-size: cover;
+  background-repeat: no-repeat;
+}

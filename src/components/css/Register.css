@@ -1,0 +1,226 @@
+.overlay-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: 
+    linear-gradient(rgba(0, 10, 20, 0.8), rgba(0, 5, 15, 0.9)),
+    url("/src/assets/jamrock.png") center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.form-container {
+  width: 320px;
+  border-radius: 12px;
+  background-color: rgba(20, 30, 40, 0.85);
+  padding: 2rem;
+  color: #fff;
+  font-family: "Zen Dots", sans-serif;
+  border: 1px solid rgba(0, 255, 0, 0.3); /* Cambiado a verde */
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.1); /* Cambiado a verde */
+  backdrop-filter: blur(5px);
+  position: relative;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.form-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(0, 255, 0, 0.05) 1px, transparent 1px), /* Cambiado a verde */
+    linear-gradient(90deg, rgba(0, 255, 0, 0.05) 1px, transparent 1px); /* Cambiado a verde */
+  background-size: 20px 20px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.title {
+  text-align: center;
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 700;
+  color: #00ff00; /* Cambiado a verde */
+  text-shadow: 0 0 10px rgba(0, 255, 0, 0.3); /* Cambiado a verde */
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.title::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00ff00, transparent); /* Cambiado a verde */
+}
+
+.form {
+  margin-top: 1.5rem;
+}
+
+.input-group {
+  margin-top: 1rem;
+  position: relative;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.input-group label {
+  display: block;
+  color: #00ff00; /* Cambiado a verde */
+  margin-bottom: 8px;
+  font-size: 0.875rem;
+}
+
+.input-group input {
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 255, 0, 0.5); /* Cambiado a verde */
+  outline: 0;
+  background-color: rgba(0, 20, 40, 0.5);
+  padding: 0.75rem 1rem;
+  color: #fff;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+  border-color: #00ff00; /* Cambiado a verde */
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3); /* Cambiado a verde */
+}
+
+.input-group input::placeholder {
+  color: rgba(200, 200, 200, 0.5);
+}
+
+.password-group {
+  position: relative;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.forgot {
+  font-size: 0.75rem;
+  align-self: flex-end;
+  margin-bottom: 1.5rem;
+  opacity: 0;
+}
+
+.sign {
+  display: block;
+  width: 100%;
+  background: linear-gradient(45deg, #006600, #00aa00); /* Cambiado a verde */
+  padding: 0.75rem;
+  text-align: center;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+  margin-top: 10px;
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.sign:hover {
+  background: linear-gradient(45deg, #008800, #00cc00); /* Cambiado a verde */
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.4); /* Cambiado a verde */
+}
+
+.sign::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: 0.5s;
+}
+
+.sign:hover::after {
+  left: 100%;
+}
+
+.signin {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+  font-size: 0.85rem;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.forgot a,
+.signin a {
+  color: #00ff00; /* Cambiado a verde */
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.forgot a:hover,
+.signin a:hover {
+  text-decoration: underline;
+  text-shadow: 0 0 8px rgba(0, 255, 0, 0.5); /* Cambiado a verde */
+}
+
+.error {
+  text-align: center;
+  color: #ff5555;
+  margin-top: 10px;
+  font-size: 0.85rem;
+  text-shadow: 0 0 5px rgba(255, 85, 85, 0.3);
+}
+
+.overlay-container::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(0, 255, 0, 0.1) 0%, /* Cambiado a verde */
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 998;
+  animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.title {
+  opacity: 0;
+  transform: translateY(-20px);
+}

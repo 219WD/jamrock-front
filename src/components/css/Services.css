@@ -1,0 +1,46 @@
+.services {
+    text-align: center;
+    padding: 1rem;
+    border-top: 30px solid #ff6a00;
+    border-bottom: 30px solid #ff6a00;
+}
+
+.service-icons {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.service {
+    text-align: center;
+    font-size: 1.5rem;
+    color: #333;
+    transition: transform 0.3s;
+}
+
+.services h3 {
+    font-size: 1rem;
+    font-family: "Raleway", sans-serif;
+    color: #ff6a00;
+}
+
+
+.service:hover {
+    transform: scale(1.1);
+}
+
+
+@media (max-width: 900px) {
+    .services {
+        padding: 4rem 0;
+    }
+    .service-icons {
+        flex-direction: column;
+        gap: 5rem;
+    }
+
+    .service {
+        font-size: 3rem;
+    }
+}

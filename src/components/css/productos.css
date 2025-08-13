@@ -1,0 +1,233 @@
+.dashboard.products {
+  display: flex;
+  height: 100%;
+  background-image: url("/src/assets/jamrock.png");
+  background-position: top;
+  background-size: cover;
+  background-repeat: no-repeat;
+  font-family: "Zen Dots", sans-serif;
+}
+
+.dashboard.products > .nav-dashboard {
+  width: 250px;
+  height: 100%;
+}
+
+.productos-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  transform: translateX(-50px);
+}
+
+.productos-container h5 {
+  font-family: "Zen Dots", sans-serif;
+  font-weight: bold;
+  font-size: 2rem;
+  color: #00ff00;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.productos-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+  padding: 2rem;
+  background-color: rgba(0, 20, 40, 0.5);
+  backdrop-filter: blur(5px);
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+  margin-bottom: 2rem;
+  border: 1px solid rgba(0, 255, 0, 0.3);
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px 15px;
+  font-size: 1rem;
+  border: 1px solid rgba(0, 255, 0, 0.5);
+  border-radius: 5px;
+  background-color: rgba(0, 20, 40, 0.5);
+  color: #fff;
+  transition: border 0.3s, box-shadow 0.3s;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.form-control:focus {
+  border: 1px solid #00ff00;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+  outline: none;
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.btn-submit {
+  background: linear-gradient(45deg, #006600, #00cc00);
+  color: white;
+  padding: 10px 15px;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-submit:hover {
+  background: linear-gradient(45deg, #008800, #00ff00);
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+}
+
+.error-message {
+  margin-top: 10px;
+  color: #ff5555;
+  font-weight: bold;
+  text-align: center;
+}
+
+.orders-table {
+  width: 100%;
+  background: none;
+  opacity: 0;
+  transform: translateY(50px);
+}
+
+.orders-table table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: rgba(20, 30, 40, 0.85);
+  backdrop-filter: blur(4px);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+}
+
+.orders-table th,
+.orders-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(0, 255, 0, 0.2);
+}
+
+.orders-table th {
+  background: linear-gradient(45deg, #006600, #00cc00);
+  color: white;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+.orders-table tr:nth-child(even) {
+  background-color: rgba(0, 255, 0, 0.05);
+}
+
+.orders-table tr:hover {
+  background-color: rgba(0, 255, 0, 0.1);
+}
+
+.orders-table td {
+  color: #fff;
+  font-size: 14px;
+}
+
+.product-image {
+  max-height: 50px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.btn {
+  padding: 8px;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.btn-edit {
+  background-color: #ffc107;
+  color: white;
+}
+
+.btn-edit:hover {
+  background-color: #e0a800;
+  transform: scale(1.1);
+}
+
+.btn-delete {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-delete:hover {
+  background-color: #c82333;
+  transform: scale(1.1);
+}
+
+.btn-toggle {
+  padding: 8px;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.btn-toggle.activo {
+  color: #00ff00;
+}
+
+.btn-toggle.inactivo {
+  color: #ff5555;
+}
+
+.orders-table .buttons {
+  padding: 10px 3px;
+  text-align: left;
+  border: 1px solid rgba(0, 255, 0, 0.2);
+}
+
+/* Loading y errores */
+.dashboard-loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #00ff00;
+}
+
+.error {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #ff5555;
+  background-color: rgba(255, 85, 85, 0.2);
+  border-radius: 8px;
+  margin: 20px;
+}

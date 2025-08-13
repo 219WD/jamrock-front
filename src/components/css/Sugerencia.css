@@ -1,0 +1,90 @@
+.sugerencia {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background:
+        linear-gradient(rgba(175, 178, 135, 0.9), rgba(153, 164, 124, 0.7)),
+        url("/src/assets/papel.jpg");
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: multiply;
+    padding: 2rem;
+}
+
+/* Contenedor de imagen y descripción al 50% */
+.image-section, .description {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Imagen ocupa toda la mitad izquierda */
+.image-section {
+    overflow: hidden;
+}
+
+.image-sugerencia {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Estilos de la descripción */
+.description {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 2rem;
+    text-align: left;
+}
+
+.description h2 {
+    text-transform: uppercase;
+    color: #1F7B00;
+    font-size: 2.5rem;
+    font-family: "Archivo Black", sans-serif;
+}
+
+.description p {
+    font-family: "DM Sans", serif;
+    color: #fff;
+    font-size: 1.2rem;
+    margin-top: 1rem;
+}
+
+.description button {
+    background: #1F7B00;
+    color: #fff;
+    padding: 0.8rem 2rem;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    margin-top: 1rem;
+}
+
+/* Responsivo */
+@media (max-width: 900px) {
+    .sugerencia {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .image-section {
+        width: 100%;
+        height: 50vh;
+    }
+
+    .description {
+        width: 100%;
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .description button {
+        width: auto;
+    }
+}
