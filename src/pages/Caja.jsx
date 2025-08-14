@@ -10,7 +10,6 @@ const Caja = () => {
   const [turnos, setTurnos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [dateFilter, setDateFilter] = useState("today"); // mantenido por compatibilidad
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [filteredTurnos, setFilteredTurnos] = useState([]);
@@ -19,6 +18,9 @@ const Caja = () => {
   const [paymentFilter, setPaymentFilter] = useState("todos");
   const [dateOrder, setDateOrder] = useState("desc");
   const [selectedTurno, setSelectedTurno] = useState(null);
+  const [showTodayOnly, setShowTodayOnly] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [turnosPerPage] = useState(10);
 
   const fetchTurnos = async () => {
     try {
@@ -37,7 +39,7 @@ const Caja = () => {
     } catch (err) {
       setError(err.message);
       notify("Error al obtener turnos: " + err.message, "error");
-      setTurnos([]); // sin placeholders
+      setTurnos([]);
     } finally {
       setLoading(false);
     }
@@ -115,9 +117,13 @@ const Caja = () => {
           paymentFilter === "todos" ||
           turno.consulta?.formaPago === paymentFilter;
 
-        const matchesDate = useRange
-          ? turnoDate >= rangeStart && turnoDate <= rangeEnd
-          : turnoDate >= todayStart && turnoDate <= todayEnd;
+        let matchesDate = true;
+        
+        if (showTodayOnly) {
+          matchesDate = turnoDate >= todayStart && turnoDate <= todayEnd;
+        } else if (useRange) {
+          matchesDate = turnoDate >= rangeStart && turnoDate <= rangeEnd;
+        }
 
         return matchesSearch && matchesStatus && matchesPayment && matchesDate;
       })
@@ -128,6 +134,18 @@ const Caja = () => {
       });
 
     return filtered;
+  };
+
+  const handleTodayClick = () => {
+    setShowTodayOnly(!showTodayOnly);
+    setDateFrom("");
+    setDateTo("");
+    setCurrentPage(1);
+  };
+
+  const handleDateRangeChange = () => {
+    setShowTodayOnly(false);
+    setCurrentPage(1);
   };
 
   const itemSubtotal = (producto) => {
@@ -176,15 +194,24 @@ const Caja = () => {
     producto.productoId?.title ||
     "Producto sin nombre";
 
+  // Paginación
+  const indexOfLastTurno = currentPage * turnosPerPage;
+  const indexOfFirstTurno = indexOfLastTurno - turnosPerPage;
+  const currentTurnos = filteredTurnos.slice(indexOfFirstTurno, indexOfLastTurno);
+  const totalPages = Math.ceil(filteredTurnos.length / turnosPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   useEffect(() => {
     fetchTurnos();
   }, []);
 
   useEffect(() => {
     setFilteredTurnos(filterTurnos());
+    setCurrentPage(1);
   }, [
     turnos,
-    dateFilter,
+    showTodayOnly,
     dateFrom,
     dateTo,
     searchTerm,
@@ -251,12 +278,21 @@ const Caja = () => {
                 <option value="asc">Más antiguos</option>
               </select>
             </div>
+            <button
+              className={`btn-filter ${showTodayOnly ? "active" : ""}`}
+              onClick={handleTodayClick}
+            >
+              HOY
+            </button>
             <div className="status-filter">
               <label>Desde:</label>
               <input
                 type="date"
                 value={dateFrom}
-                onChange={(e) => setDateFrom(e.target.value)}
+                onChange={(e) => {
+                  setDateFrom(e.target.value);
+                  handleDateRangeChange();
+                }}
               />
             </div>
             <div className="status-filter">
@@ -264,7 +300,10 @@ const Caja = () => {
               <input
                 type="date"
                 value={dateTo}
-                onChange={(e) => setDateTo(e.target.value)}
+                onChange={(e) => {
+                  setDateTo(e.target.value);
+                  handleDateRangeChange();
+                }}
               />
             </div>
           </div>
@@ -287,7 +326,7 @@ const Caja = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredTurnos.map((turno) => {
+                  {currentTurnos.map((turno) => {
                     const productos = getProductosFromTurno(turno);
                     const total = getTotalTurno(turno);
 
@@ -351,6 +390,29 @@ const Caja = () => {
                   })}
                 </tbody>
               </table>
+
+              {/* Pagination Controls */}
+              <div className="pagination-controls">
+                <button
+                  onClick={() => paginate(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="pagination-btn"
+                >
+                  Anterior
+                </button>
+
+                <span className="page-info">
+                  Página {currentPage} de {totalPages}
+                </span>
+
+                <button
+                  onClick={() => paginate(currentPage + 1)}
+                  disabled={currentPage === totalPages || totalPages === 0}
+                  className="pagination-btn"
+                >
+                  Siguiente
+                </button>
+              </div>
 
               {/* Stat Cards */}
               <div className="stats-container">
