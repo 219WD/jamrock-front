@@ -4,7 +4,7 @@ import { faUser } from "@fortawesome/free-solid-svg-icons";
 import ForgotPasswordModal from "../ForgotPasswordModal";
 import useNotify from "../../hooks/useToast";
 import useAuthStore from "../../store/authStore"; 
-import { API_URL } from "../common/constants";
+import { API_URL } from "../../common/constants";
 
 const ProfileForm = ({ user, token, formData, setFormData, setShowForgotModal, showForgotModal }) => {
   const notify = useNotify();

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import useNotify from "../../hooks/useToast";
-import { API_URL } from "../common/constants";
+import { API_URL } from "../../common/constants";
 
 const formatearNombreAntecedente = (clave) => {
   const nombres = {

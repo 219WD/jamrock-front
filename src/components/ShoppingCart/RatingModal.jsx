@@ -6,7 +6,7 @@ import { faStar, faTimes } from '@fortawesome/free-solid-svg-icons';
 import useAuthStore from '../../store/authStore';
 import useNotify from '../../hooks/useToast';
 import './css/RatingModal.css';
-import { API_URL } from '../common/constants';
+import { API_URL } from '../../common/constants';
 
 const RatingModal = ({ 
   productId, 
