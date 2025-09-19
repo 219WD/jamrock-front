@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import useAuthStore from './authStore';
-import { API_URL } from "../common/constants";
+import API_URL from "../common/constants";
 
 const useCartStore = create(
   persist(
