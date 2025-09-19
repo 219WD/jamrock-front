@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import useNotify from "../../hooks/useToast";
 
 const NuevoTurnoModal = ({
@@ -23,7 +25,6 @@ const NuevoTurnoModal = ({
   const [loading, setLoading] = useState(false);
   const notify = useNotify();
 
-  // Cargar pacientes si es admin/médico y no hay pacienteForTurno
   useEffect(() => {
     if (isAdminOrMedico && !pacienteForTurno) {
       const fetchPacientes = async () => {
@@ -48,27 +49,18 @@ const NuevoTurnoModal = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
-    // Validaciones básicas
     if (!form.especialistaId || !form.fecha || !form.motivo) {
       return setError("Todos los campos obligatorios deben completarse");
     }
-
-    // Validar fecha futura
     const fechaTurno = new Date(form.fecha);
     if (fechaTurno <= new Date()) {
       return setError("La fecha del turno debe ser futura");
     }
-
     try {
       setLoading(true);
-
-      // Determinar el endpoint según el rol
       const endpoint = isAdminOrMedico
         ? "http://localhost:4000/turnos/admin"
         : "http://localhost:4000/turnos/paciente";
-
-      // Preparar el cuerpo de la solicitud
       const requestBody = {
         especialistaId: form.especialistaId,
         fecha: form.fecha,
@@ -77,8 +69,6 @@ const NuevoTurnoModal = ({
         reprocannRelacionado: form.reprocannRelacionado,
         userId: currentUser._id,
       };
-
-      // Si es admin/médico, agregar pacienteId
       if (isAdminOrMedico) {
         const pacienteId = pacienteForTurno?._id || form.pacienteId;
         if (!pacienteId) {
@@ -86,7 +76,6 @@ const NuevoTurnoModal = ({
         }
         requestBody.pacienteId = pacienteId;
       }
-
       const response = await fetch(endpoint, {
         method: "POST",
         headers: {
@@ -95,13 +84,10 @@ const NuevoTurnoModal = ({
         },
         body: JSON.stringify(requestBody),
       });
-
       const result = await response.json();
-
       if (!response.ok) {
         throw new Error(result.error || result.message || "Error al crear turno");
       }
-
       notify("Turno creado exitosamente", "success");
       onClose();
       if (onCreate) await onCreate();
@@ -116,110 +102,120 @@ const NuevoTurnoModal = ({
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content">
-        <button onClick={onClose} className="close-modal">
-          &times;
+      <div className="modal-container">
+        <button className="modal-close-btn" onClick={onClose} disabled={loading}>
+          <FontAwesomeIcon icon={faTimes} />
         </button>
-        <h3>{pacienteForTurno ? `Nuevo Turno para ${pacienteForTurno.fullName}` : "Solicitar nuevo turno"}</h3>
-
-        {error && <p className="error-message">{error}</p>}
-
-        <form onSubmit={handleSubmit}>
-          {isAdminOrMedico && !pacienteForTurno && (
+        <div className="modal-header">
+          <h2>
+            {pacienteForTurno
+              ? `Nuevo Turno para ${pacienteForTurno.fullName}`
+              : "Solicitar nuevo turno"}
+          </h2>
+        </div>
+        <div className="modal-body">
+          {error && <p className="error-message">{error}</p>}
+          <form onSubmit={handleSubmit}>
+            {isAdminOrMedico && !pacienteForTurno && (
+              <div className="form-group">
+                <label>Paciente:</label>
+                <select
+                  value={form.pacienteId}
+                  onChange={(e) =>
+                    setForm({ ...form, pacienteId: e.target.value })
+                  }
+                  required
+                  disabled={loading}
+                >
+                  <option value="">Seleccione un paciente</option>
+                  {pacientes.map((paciente) => (
+                    <option key={paciente._id} value={paciente._id}>
+                      {paciente.fullName} ({paciente.dni})
+                    </option>
+                  ))}
+                </select>
+                {loading && <small className="modal-detail">Cargando pacientes...</small>}
+              </div>
+            )}
             <div className="form-group">
-              <label>Paciente:</label>
+              <label>Especialista:</label>
               <select
-                value={form.pacienteId}
-                onChange={(e) => setForm({ ...form, pacienteId: e.target.value })}
+                value={form.especialistaId}
+                onChange={(e) =>
+                  setForm({ ...form, especialistaId: e.target.value })
+                }
                 required
                 disabled={loading}
               >
-                <option value="">Seleccione un paciente</option>
-                {pacientes.map((paciente) => (
-                  <option key={paciente._id} value={paciente._id}>
-                    {paciente.fullName} ({paciente.dni})
+                <option value="">Seleccionar especialista</option>
+                {especialistas.map((especialista) => (
+                  <option key={especialista._id} value={especialista._id}>
+                    {especialista.especialidad} - {especialista.userId?.name}
                   </option>
                 ))}
               </select>
-              {loading && <small>Cargando pacientes...</small>}
             </div>
-          )}
-
-          <div className="form-group">
-            <label>Especialista:</label>
-            <select
-              value={form.especialistaId}
-              onChange={(e) => setForm({ ...form, especialistaId: e.target.value })}
-              required
-              disabled={loading}
-            >
-              <option value="">Seleccionar especialista</option>
-              {especialistas.map((especialista) => (
-                <option key={especialista._id} value={especialista._id}>
-                  {especialista.especialidad} - {especialista.userId?.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label>Fecha y Hora:</label>
-            <input
-              type="datetime-local"
-              value={form.fecha}
-              onChange={(e) => setForm({ ...form, fecha: e.target.value })}
-              required
-              min={new Date().toISOString().slice(0, 16)}
-              disabled={loading}
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Motivo:</label>
-            <input
-              type="text"
-              value={form.motivo}
-              onChange={(e) => setForm({ ...form, motivo: e.target.value })}
-              required
-              disabled={loading}
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Notas adicionales:</label>
-            <textarea
-              value={form.notas}
-              onChange={(e) => setForm({ ...form, notas: e.target.value })}
-              disabled={loading}
-            />
-          </div>
-
-          <div className="form-group checkbox">
-            <label>
+            <div className="form-group">
+              <label>Fecha y Hora:</label>
               <input
-                type="checkbox"
-                checked={form.reprocannRelacionado}
-                onChange={(e) => setForm({ ...form, reprocannRelacionado: e.target.checked })}
+                type="datetime-local"
+                value={form.fecha}
+                onChange={(e) => setForm({ ...form, fecha: e.target.value })}
+                required
+                min={new Date().toISOString().slice(0, 16)}
                 disabled={loading}
               />
-              Relacionado a Reprocann
-            </label>
-          </div>
-
-          <div className="modal-actions">
-            <button
-              type="button"
-              onClick={onClose}
-              className="close-btn"
-              disabled={loading}
-            >
-              Cancelar
-            </button>
-            <button type="submit" className="approve-btn" disabled={loading}>
-              {loading ? "Creando..." : "Confirmar Turno"}
-            </button>
-          </div>
-        </form>
+            </div>
+            <div className="form-group">
+              <label>Motivo:</label>
+              <input
+                type="text"
+                value={form.motivo}
+                onChange={(e) => setForm({ ...form, motivo: e.target.value })}
+                required
+                disabled={loading}
+              />
+            </div>
+            <div className="form-group">
+              <label>Notas adicionales:</label>
+              <textarea
+                value={form.notas}
+                onChange={(e) => setForm({ ...form, notas: e.target.value })}
+                disabled={loading}
+              />
+            </div>
+            <div className="form-group checkbox">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={form.reprocannRelacionado}
+                  onChange={(e) =>
+                    setForm({ ...form, reprocannRelacionado: e.target.checked })
+                  }
+                  disabled={loading}
+                />
+                Relacionado a Reprocann
+              </label>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                onClick={onClose}
+                className="modal-btn close"
+                disabled={loading}
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="modal-btn approve"
+                disabled={loading}
+              >
+                {loading ? "Creando..." : "Confirmar Turno"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

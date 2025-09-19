@@ -1,11 +1,445 @@
+/* Estilos para el modal de restablecimiento de contraseña */
+.password-reset-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 5, 10, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  margin: 0;
+  padding: 0;
+  font-family: "Zen Dots", sans-serif;
+}
+
+@supports not (backdrop-filter: blur(10px)) {
+  .password-reset-modal-overlay {
+    background-color: rgba(0, 5, 10, 0.9);
+  }
+}
+
+.password-reset-modal-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.password-reset-modal-container {
+  background: linear-gradient(145deg, #0a0e17, #0f1623);
+  border: 1px solid #00ff00;
+  border-radius: 16px;
+  padding: 2.5rem;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 0 30px rgba(0, 255, 0, 0.3), 0 0 60px rgba(0, 128, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+  transform: translateY(20px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  z-index: 10000;
+}
+
+.password-reset-modal-overlay.active .password-reset-modal-container {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.password-reset-modal-container::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to bottom right,
+    transparent 0%,
+    rgba(0, 255, 0, 0.05) 50%,
+    transparent 100%
+  );
+  animation: rotate 15s linear infinite;
+  z-index: -1;
+}
+
+.password-reset-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(0, 255, 0, 0.3);
+}
+
+.password-reset-modal-header h2 {
+  margin: 0;
+  color: #00ff00;
+  font-size: 1.8rem;
+  text-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+  letter-spacing: 1px;
+}
+
+.password-reset-modal-close-btn {
+  background: transparent;
+  border: none;
+  color: #00ff00;
+  font-size: 1.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.password-reset-modal-close-btn:hover {
+  background: rgba(255, 0, 0, 0.2);
+  color: #ff5555;
+  transform: rotate(90deg);
+}
+
+.password-reset-modal-body {
+  margin-bottom: 2.5rem;
+}
+
+.password-reset-modal-body p {
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.password-reset-input-group {
+  margin-bottom: 2rem;
+}
+
+.password-reset-input-group label {
+  display: block;
+  margin-bottom: 0.8rem;
+  color: #00ff00;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+}
+
+.password-reset-input-group input {
+  width: 100%;
+  padding: 1rem;
+  background: rgba(0, 20, 10, 0.7);
+  border: 1px solid rgba(0, 255, 0, 0.4);
+  border-radius: 8px;
+  color: white;
+  font-family: "Zen Dots", sans-serif;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.password-reset-input-group input:focus {
+  outline: none;
+  border-color: #00ff00;
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+}
+
+.password-reset-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.5rem;
+}
+
+.password-reset-modal-btn {
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-family: "Zen Dots", sans-serif;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border: none;
+  min-width: 150px;
+  text-align: center;
+}
+
+.password-reset-modal-btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.password-reset-modal-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.password-reset-modal-btn-primary {
+  background: linear-gradient(45deg, #006600, #00aa00);
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: bold;
+}
+
+.password-reset-modal-btn-primary:hover {
+  background: linear-gradient(45deg, #008800, #00cc00);
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+.password-reset-modal-btn-primary::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: 0.5s;
+}
+
+.password-reset-modal-btn-primary:hover::after {
+  left: 100%;
+}
+
+.password-reset-modal-message {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 2rem;
+  text-align: center;
+  animation: pulse 2s infinite;
+  font-size: 1rem;
+}
+
+.password-reset-modal-success {
+  background: rgba(0, 255, 0, 0.15);
+  border: 1px solid rgba(0, 255, 0, 0.4);
+  color: #00ff00;
+}
+
+.password-reset-modal-error {
+  background: rgba(255, 0, 0, 0.15);
+  border: 1px solid rgba(255, 0, 0, 0.4);
+  color: #ff5555;
+}
+
+.password-reset-loading-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.password-reset-loading-indicator::after {
+  content: "";
+  display: inline-block;
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #00ff00;
+  animation: spin 1s linear infinite;
+}
+
+/* Estilos para ChangePasswordForm */
+.change-overlay-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(rgba(0, 10, 20, 0.8), rgba(0, 5, 15, 0.9)),
+    url("/src/assets/jamrock.png") center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.change-form-container {
+  width: 320px;
+  border-radius: 12px;
+  background-color: rgba(20, 30, 40, 0.85);
+  padding: 2rem;
+  color: #fff;
+  font-family: "Zen Dots", sans-serif;
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+  backdrop-filter: blur(5px);
+  position: relative;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.change-form-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: linear-gradient(rgba(0, 255, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 0, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.change-title {
+  text-align: center;
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 700;
+  color: #00ff00;
+  text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.change-title::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00ff00, transparent);
+}
+
+.change-input-group {
+  margin-top: 1rem;
+  position: relative;
+}
+
+.change-input-group label {
+  display: block;
+  color: #00ff00;
+  margin-bottom: 8px;
+  font-size: 0.875rem;
+}
+
+.change-input-group input {
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 255, 0, 0.5);
+  outline: 0;
+  background-color: rgba(0, 20, 10, 0.5);
+  padding: 0.75rem 1rem;
+  color: #fff;
+  font-family: "Zen Dots", sans-serif;
+  transition: all 0.3s ease;
+}
+
+.change-input-group input:focus {
+  border-color: #00ff00;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+.change-input-group input::placeholder {
+  color: rgba(200, 200, 200, 0.5);
+}
+
+.change-btn-primary {
+  display: block;
+  width: 100%;
+  background: linear-gradient(45deg, #006600, #00aa00);
+  padding: 0.75rem;
+  text-align: center;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+  margin-top: 1.5rem;
+}
+
+.change-btn-primary:hover {
+  background: linear-gradient(45deg, #008800, #00cc00);
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+}
+
+.change-btn-primary::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: 0.5s;
+}
+
+.change-btn-primary:hover::after {
+  left: 100%;
+}
+
+.change-message {
+  text-align: center;
+  color: #00ff00;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  background: rgba(0, 255, 0, 0.15);
+  border: 1px solid rgba(0, 255, 0, 0.4);
+  padding: 0.75rem;
+  border-radius: 6px;
+}
+
+.change-error {
+  text-align: center;
+  color: #ff5555;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  background: rgba(255, 0, 0, 0.15);
+  border: 1px solid rgba(255, 0, 0, 0.4);
+  padding: 0.75rem;
+  border-radius: 6px;
+}
+
+.change-loading-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.change-loading-text::after {
+  content: "";
+  display: inline-block;
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #00ff00;
+  animation: spin 1s linear infinite;
+}
+
+/* Estilos originales para otros componentes (registro, login, etc.) */
 .overlay-container {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: 
-    linear-gradient(rgba(0, 10, 20, 0.8), rgba(0, 5, 15, 0.9)),
+  background: linear-gradient(rgba(0, 10, 20, 0.8), rgba(0, 5, 15, 0.9)),
     url("/src/assets/jamrock.png") center/cover no-repeat;
   display: flex;
   align-items: center;
@@ -20,8 +454,8 @@
   padding: 2rem;
   color: #fff;
   font-family: "Zen Dots", sans-serif;
-  border: 1px solid rgba(0, 255, 0, 0.3); /* Cambiado a verde */
-  box-shadow: 0 0 20px rgba(0, 255, 0, 0.1); /* Cambiado a verde */
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
   backdrop-filter: blur(5px);
   position: relative;
   overflow: hidden;
@@ -35,9 +469,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: 
-    linear-gradient(rgba(0, 255, 0, 0.05) 1px, transparent 1px), /* Cambiado a verde */
-    linear-gradient(90deg, rgba(0, 255, 0, 0.05) 1px, transparent 1px); /* Cambiado a verde */
+  background-image: linear-gradient(rgba(0, 255, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 0, 0.05) 1px, transparent 1px);
   background-size: 20px 20px;
   pointer-events: none;
   z-index: -1;
@@ -48,10 +481,12 @@
   font-size: 1.5rem;
   line-height: 2rem;
   font-weight: 700;
-  color: #00ff00; /* Cambiado a verde */
-  text-shadow: 0 0 10px rgba(0, 255, 0, 0.3); /* Cambiado a verde */
+  color: #00ff00;
+  text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
   margin-bottom: 1.5rem;
   position: relative;
+  opacity: 0;
+  transform: translateY(-20px);
 }
 
 .title::after {
@@ -62,7 +497,7 @@
   transform: translateX(-50%);
   width: 50%;
   height: 2px;
-  background: linear-gradient(90deg, transparent, #00ff00, transparent); /* Cambiado a verde */
+  background: linear-gradient(90deg, transparent, #00ff00, transparent);
 }
 
 .form {
@@ -78,7 +513,7 @@
 
 .input-group label {
   display: block;
-  color: #00ff00; /* Cambiado a verde */
+  color: #00ff00;
   margin-bottom: 8px;
   font-size: 0.875rem;
 }
@@ -86,18 +521,18 @@
 .input-group input {
   width: 100%;
   border-radius: 6px;
-  border: 1px solid rgba(0, 255, 0, 0.5); /* Cambiado a verde */
+  border: 1px solid rgba(0, 255, 0, 0.5);
   outline: 0;
   background-color: rgba(0, 20, 40, 0.5);
   padding: 0.75rem 1rem;
   color: #fff;
-  font-family: inherit;
+  font-family: "Zen Dots", sans-serif;
   transition: all 0.3s ease;
 }
 
 .input-group input:focus {
-  border-color: #00ff00; /* Cambiado a verde */
-  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3); /* Cambiado a verde */
+  border-color: #00ff00;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
 }
 
 .input-group input::placeholder {
@@ -124,7 +559,7 @@
 .sign {
   display: block;
   width: 100%;
-  background: linear-gradient(45deg, #006600, #00aa00); /* Cambiado a verde */
+  background: linear-gradient(45deg, #006600, #00aa00);
   padding: 0.75rem;
   text-align: center;
   color: white;
@@ -143,8 +578,8 @@
 }
 
 .sign:hover {
-  background: linear-gradient(45deg, #008800, #00cc00); /* Cambiado a verde */
-  box-shadow: 0 0 15px rgba(0, 255, 0, 0.4); /* Cambiado a verde */
+  background: linear-gradient(45deg, #008800, #00cc00);
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
 }
 
 .sign::after {
@@ -178,7 +613,7 @@
 
 .forgot a,
 .signin a {
-  color: #00ff00; /* Cambiado a verde */
+  color: #00ff00;
   text-decoration: none;
   transition: all 0.3s ease;
 }
@@ -186,7 +621,7 @@
 .forgot a:hover,
 .signin a:hover {
   text-decoration: underline;
-  text-shadow: 0 0 8px rgba(0, 255, 0, 0.5); /* Cambiado a verde */
+  text-shadow: 0 0 8px rgba(0, 255, 0, 0.5);
 }
 
 .error {
@@ -204,23 +639,32 @@
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(
-    circle,
-    rgba(0, 255, 0, 0.1) 0%, /* Cambiado a verde */
-    transparent 70%
-  );
+  background: radial-gradient(circle, rgba(0, 255, 0, 0.1) 0%, transparent 70%);
   pointer-events: none;
   z-index: 998;
   animation: rotate 20s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.8;
+  }
 }
 
 @keyframes rotate {
   100% {
     transform: rotate(360deg);
   }
-}
-
-.title {
-  opacity: 0;
-  transform: translateY(-20px);
 }

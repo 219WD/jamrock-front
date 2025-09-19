@@ -75,12 +75,12 @@ const Clientes = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const userData = await userRes.json();
-      if (!userRes.ok) throw new Error(userData.error);
-      
+      if (!userRes.ok) throw new Error(userData.error || "Error al obtener usuario");
+
       setSelectedUser(userData);
 
-      // Si el usuario es socio (partner), obtener sus datos de partner
-      if (userData.isPartner) {
+      // Intentar obtener datos de socio, incluso si isPartner es false
+      try {
         const partnerRes = await fetch(
           `http://localhost:4000/partners/user/getPartnerByUserId/${userId}`,
           {
@@ -88,13 +88,19 @@ const Clientes = () => {
           }
         );
         const partnerData = await partnerRes.json();
-        if (!partnerRes.ok) throw new Error(partnerData.error);
-        setPartnerDetails(partnerData);
-      } else {
+        if (partnerRes.ok) {
+          setPartnerDetails(partnerData);
+        } else {
+          setPartnerDetails(null); // No hay datos de socio
+        }
+      } catch (err) {
+        console.error("Error al obtener datos de socio:", err);
         setPartnerDetails(null);
       }
     } catch (err) {
       setError(err.message);
+      setSelectedUser(null);
+      setPartnerDetails(null);
     } finally {
       setLoading(false);
     }
@@ -293,7 +299,6 @@ const Clientes = () => {
               }}
             />
 
-            {/* Pagination Controls */}
             <div className="pagination-controls">
               <button
                 onClick={() => paginate(currentPage - 1)}
@@ -319,7 +324,6 @@ const Clientes = () => {
         </div>
       </div>
 
-      {/* Modals */}
       {selectedUser && (
         <ModalDetallesUsuario
           user={selectedUser}

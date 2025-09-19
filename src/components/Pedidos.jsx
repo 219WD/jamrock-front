@@ -28,16 +28,22 @@ const Pedidos = () => {
   const [dateOrder, setDateOrder] = useState("desc");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [showToday, setShowToday] = useState(false);
   const [visibleCount, setVisibleCount] = useState(9);
-
   const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
   const notify = useNotify();
   const navigate = useNavigate();
   const API_URL = "http://localhost:4000/cart";
   const hasAnimated = useRef(false);
-
   const fetchCalled = useRef(false);
+  const pedidosContainerRef = useRef(null);
+  const titleRef = useRef(null);
+  const searchRef = useRef(null);
+  const filtrosRef = useRef(null);
+  const tableRef = useRef(null);
+  const statsRef = useRef(null);
+  const verMasRef = useRef(null);
 
   const fetchPedidos = async () => {
     await withGlobalLoader(async () => {
@@ -46,11 +52,9 @@ const Pedidos = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-
       if (!response.ok) {
         throw new Error("Error al obtener los pedidos");
       }
-
       const data = await response.json();
       setPedidos(data);
       console.log("Pedidos:", data);
@@ -69,65 +73,71 @@ const Pedidos = () => {
     fetchPedidos();
   }
 
-  // GSAP Animation
+  // GSAP Animation for main content
   useEffect(() => {
     if (hasAnimated.current || loading) return;
-
     hasAnimated.current = true;
-
     const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
-
-    // 1. Animate pedidos-wrapper
     tl.fromTo(
-      ".pedidos-wrapper",
+      pedidosContainerRef.current,
       { opacity: 0, x: -50 },
       { opacity: 1, x: 0, duration: 0.5 }
     );
-
-    // 2. Animate h1
     tl.fromTo(
-      ".pedidos-container h1",
+      titleRef.current.querySelectorAll("h1"),
       { opacity: 0, y: -20 },
       { opacity: 1, y: 0, duration: 0.3 },
       "-=0.3"
     );
-
-    // 3. Animate filtros-container items
     tl.fromTo(
-      ".filtros-container > *",
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.3, stagger: 0.1 },
-      "-=0.2"
-    );
-
-    // 4. Animate table-container
-    tl.fromTo(
-      ".table-container",
-      { opacity: 0, y: 50 },
-      { opacity: 1, y: 0, duration: 0.5 },
-      "-=0.2"
-    );
-
-    // 5. Animate stats-container cards
-    tl.fromTo(
-      ".stat-card",
-      { opacity: 0, scale: 0.8 },
-      { opacity: 1, scale: 1, duration: 0.3, stagger: 0.1 },
-      "-=0.3"
-    );
-
-    // 6. Animate ver-mas-container
-    tl.fromTo(
-      ".ver-mas-container",
+      searchRef.current,
       { opacity: 0, y: 20 },
       { opacity: 1, y: 0, duration: 0.3 },
       "-=0.2"
     );
-
+    tl.fromTo(
+      filtrosRef.current.children,
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.3, stagger: 0.1 },
+      "-=0.2"
+    );
+    tl.fromTo(
+      tableRef.current.querySelectorAll(".pedidos-table"),
+      { opacity: 0, y: 50 },
+      { opacity: 1, y: 0, duration: 0.5 },
+      "-=0.2"
+    );
+    tl.fromTo(
+      statsRef.current.children,
+      { opacity: 0, scale: 0.8 },
+      { opacity: 1, scale: 1, duration: 0.3, stagger: 0.1 },
+      "-=0.3"
+    );
+    tl.fromTo(
+      verMasRef.current,
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.3 },
+      "-=0.2"
+    );
     return () => {
       tl.kill();
     };
   }, [loading]);
+
+  // GSAP Animation for modal
+  useEffect(() => {
+    if (!isModalOpen) return;
+    gsap.fromTo(
+      ".dashboard-modal-overlay",
+      { opacity: 0 },
+      { opacity: 1, duration: 0.3, ease: "power2.out" }
+    );
+    gsap.fromTo(
+      ".dashboard-modal-content",
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" }
+    );
+  }, [isModalOpen]);
 
   // Filtrar y ordenar pedidos
   const sortedPedidos = pedidos
@@ -137,36 +147,36 @@ const Pedidos = () => {
       const productTitles = pedido.items
         .map((item) => item.productId?.title || "")
         .join(" ");
-
       const matchesSearch =
         pedido._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
         userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
         userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         productTitles.toLowerCase().includes(searchTerm.toLowerCase());
-
       const matchesStatus =
         statusFilter === "todos" || pedido.status === statusFilter;
-
       const matchesPayment =
         paymentFilter === "todos" || pedido.paymentMethod === paymentFilter;
-
       const matchesDelivery =
         deliveryFilter === "todos" || pedido.deliveryMethod === deliveryFilter;
-
       const createdAt = new Date(pedido.createdAt);
+      const today = new Date("2025-09-03");
+      const matchesToday =
+        !showToday ||
+        (createdAt.getFullYear() === today.getFullYear() &&
+          createdAt.getMonth() === today.getMonth() &&
+          createdAt.getDate() === today.getDate());
       const fromDate = dateFrom ? new Date(dateFrom) : null;
-      const toDate = dateTo ? new Date(dateTo) : null;
-
+      const toDate = dateTo ? new Date(dateTo + "T23:59:59") : null;
       const matchesDate =
         (!fromDate || createdAt >= fromDate) &&
         (!toDate || createdAt <= toDate);
-
       return (
         matchesSearch &&
         matchesStatus &&
         matchesPayment &&
         matchesDelivery &&
-        matchesDate
+        matchesDate &&
+        matchesToday
       );
     })
     .sort((a, b) => {
@@ -187,6 +197,7 @@ const Pedidos = () => {
     dateFrom,
     dateTo,
     dateOrder,
+    showToday,
   ]);
 
   const getStatusClass = (status) => {
@@ -237,17 +248,16 @@ const Pedidos = () => {
         },
         body: JSON.stringify({ status: newStatus }),
       });
-
       if (!response.ok) {
         throw new Error("Error al actualizar el estado");
       }
-
       const updatedPedido = await response.json();
-
       setPedidos((prev) =>
         prev.map((pedido) => (pedido._id === pedidoId ? updatedPedido : pedido))
       );
-
+      if (pedidoSeleccionado && pedidoSeleccionado._id === pedidoId) {
+        setPedidoSeleccionado(updatedPedido);
+      }
       notify(`Estado actualizado a ${newStatus}`, "success");
     }).catch((err) => {
       notify(err.message, "error");
@@ -257,6 +267,10 @@ const Pedidos = () => {
   const handleViewPedido = (pedido) => {
     setPedidoSeleccionado(pedido);
     setIsModalOpen(true);
+  };
+
+  const handleResetSearch = () => {
+    setSearchTerm("");
   };
 
   if (loading && pedidos.length === 0) {
@@ -271,23 +285,55 @@ const Pedidos = () => {
   return (
     <div className="dashboard pedidos">
       <NavDashboard />
-      <div className="pedidos-wrapper">
+      <div className="pedidos-wrapper" ref={pedidosContainerRef}>
         <div className="pedidos-container">
-          <h1>Gestión de Pedidos</h1>
-
-          {/* Filtros y búsqueda */}
-          <div className="filtros-container">
-            <div className="search-box">
-              <FontAwesomeIcon icon={faSearch} className="search-icon" />
+          <div className="title-admin" ref={titleRef}>
+            <h1>Gestión de Pedidos</h1>
+            <div className="form-search" ref={searchRef}>
               <input
+                className="input-search"
                 type="text"
                 placeholder="Buscar por ID, usuario o producto..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
+              <button className="reset" onClick={handleResetSearch}>
+                <svg
+                  width="17"
+                  height="17"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18ZM7.70711 7.70711C7.31658 7.31658 6.68342 7.31658 6.29289 7.70711C5.90237 8.09763 5.90237 8.7308 6.29289 9.12132L8.17157 11L6.29289 12.8787C5.90237 13.2692 5.90237 13.9024 6.29289 14.2929C6.68342 14.6834 7.31658 14.6834 7.70711 14.2929L9.58579 12.4142L11.4142 14.2929C11.8047 14.6834 12.4379 14.6834 12.8284 14.2929C13.2189 13.9024 13.2189 13.2692 12.8284 12.8787L10.9497 11L12.8284 9.12132C13.2189 8.7308 13.2189 8.09763 12.8284 7.70711C12.4379 7.31658 11.8047 7.31658 11.4142 7.70711L9.58579 9.58579L7.70711 7.70711Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+              <button>
+                <svg
+                  width="17"
+                  height="17"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M8 4C5.79086 4 4 5.79086 4 8C4 10.2091 5.79086 12 8 12C10.2091 12 12 10.2091 12 8C12 5.79086 10.2091 4 8 4ZM2 8C2 4.68629 4.68629 2 8 2C11.3137 2 14 4.68629 14 8C14 9.29583 13.5892 10.4957 12.8907 11.4763L17.7071 16.2929C18.0976 16.6834 18.0976 17.3166 17.7071 17.7071C17.3166 18.0976 16.6834 18.0976 16.2929 17.7071L11.4763 12.8907C10.4957 13.5892 9.29583 14 8 14C4.68629 14 2 11.3137 2 8Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
             </div>
-
-            <div className="status-filter">
+          </div>
+          {/* Filtros */}
+          <div className="filtros-adicionales" ref={filtrosRef}>
+            <div className="filter-group">
               <label>Estado:</label>
               <select
                 value={statusFilter}
@@ -303,8 +349,7 @@ const Pedidos = () => {
                 <option value="entregado">Entregado</option>
               </select>
             </div>
-
-            <div className="status-filter">
+            <div className="filter-group">
               <label>Pago:</label>
               <select
                 value={paymentFilter}
@@ -316,8 +361,7 @@ const Pedidos = () => {
                 <option value="mercadopago">MercadoPago</option>
               </select>
             </div>
-
-            <div className="status-filter">
+            <div className="filter-group">
               <label>Entrega:</label>
               <select
                 value={deliveryFilter}
@@ -328,8 +372,7 @@ const Pedidos = () => {
                 <option value="retiro">Retiro</option>
               </select>
             </div>
-
-            <div className="status-filter">
+            <div className="filter-group">
               <label>Orden:</label>
               <select
                 value={dateOrder}
@@ -339,28 +382,41 @@ const Pedidos = () => {
                 <option value="asc">Más antiguos</option>
               </select>
             </div>
-
-            <div className="status-filter">
-              <label>Desde:</label>
-              <input
-                type="date"
-                value={dateFrom}
-                onChange={(e) => setDateFrom(e.target.value)}
-              />
+            <div className="filter-group">
+              <button
+                className={showToday ? "today-btn active" : "today-btn"}
+                onClick={() => {
+                  setShowToday(!showToday);
+                  setDateFrom("");
+                  setDateTo("");
+                }}
+              >
+                Hoy
+              </button>
             </div>
-
-            <div className="status-filter">
-              <label>Hasta:</label>
-              <input
-                type="date"
-                value={dateTo}
-                onChange={(e) => setDateTo(e.target.value)}
-              />
+            <div className="date-filters">
+              <div className="filter-group">
+                <label>Desde:</label>
+                <input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                  disabled={showToday}
+                />
+              </div>
+              <div className="filter-group">
+                <label>Hasta:</label>
+                <input
+                  type="date"
+                  value={dateTo}
+                  onChange={(e) => setDateTo(e.target.value)}
+                  disabled={showToday}
+                />
+              </div>
             </div>
           </div>
-
           {/* Tabla de pedidos */}
-          <div className="table-container">
+          <div className="table-container" ref={tableRef}>
             <table className="pedidos-table">
               <thead>
                 <tr>
@@ -445,7 +501,7 @@ const Pedidos = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="9" className="no-results">
+                    <td colSpan="8" className="no-results">
                       No se encontraron pedidos que coincidan con los filtros
                     </td>
                   </tr>
@@ -453,7 +509,7 @@ const Pedidos = () => {
               </tbody>
             </table>
             {visibleCount < sortedPedidos.length && (
-              <div className="ver-mas-container">
+              <div className="ver-mas-container" ref={verMasRef}>
                 <button
                   className="ver-mas-btn"
                   onClick={() => setVisibleCount((prev) => prev + 9)}
@@ -463,9 +519,8 @@ const Pedidos = () => {
               </div>
             )}
           </div>
-
           {/* Resumen estadístico */}
-          <div className="stats-container">
+          <div className="stats-container" ref={statsRef}>
             <div className="stat-card">
               <h3>Total pedidos</h3>
               <p>{pedidos.length}</p>
@@ -498,64 +553,94 @@ const Pedidos = () => {
         </div>
       </div>
       {isModalOpen && pedidoSeleccionado && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div
+          className="dashboard-modal-overlay"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <div
+            className="dashboard-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
-              className="close-modal"
+              className="dashboard-modal-close-btn"
               onClick={() => setIsModalOpen(false)}
             >
-              X
+              &times;
             </button>
-            <h2>Detalle del Pedido</h2>
-            <p>
-              <strong>Usuario:</strong>{" "}
-              {pedidoSeleccionado.userId?.name || "No disponible"}
-            </p>
-            <p>
-              <strong>Fecha:</strong>{" "}
-              {new Date(pedidoSeleccionado.createdAt).toLocaleDateString()} -{" "}
-              {new Date(pedidoSeleccionado.createdAt).toLocaleTimeString()}
-            </p>
-            <p>
-              <strong>Estado:</strong>{" "}
-              {getStatusText(pedidoSeleccionado.status)}
-            </p>
-            <p>
-              <strong>Método de pago:</strong>{" "}
-              {pedidoSeleccionado.paymentMethod}
-            </p>
-            <p>
-              <strong>Método de entrega:</strong>{" "}
-              {pedidoSeleccionado.deliveryMethod}
-            </p>
-            {pedidoSeleccionado.shippingAddress && (
-              <>
-                <h3>Dirección:</h3>
-                <p>
-                  <strong>Nombre:</strong>{" "}
-                  {pedidoSeleccionado.shippingAddress.name}
-                </p>
-                <p>
-                  <strong>Teléfono:</strong>{" "}
-                  {pedidoSeleccionado.shippingAddress.phone}
-                </p>
-                <p>
-                  <strong>Dirección:</strong>{" "}
-                  {pedidoSeleccionado.shippingAddress.address}
-                </p>
-              </>
-            )}
-            <h3>Productos:</h3>
-            <ul>
-              {pedidoSeleccionado.items.map((item, i) => (
-                <li key={i}>
-                  {item.productId?.title || "Producto no disponible"} - x
-                  {item.quantity}
-                </li>
-              ))}
-            </ul>
-            <h3>Total:</h3>
-            <p>${pedidoSeleccionado.totalAmount?.toFixed(2)}</p>
+            <h2 className="dashboard-modal-title">Detalle del Pedido</h2>
+            <div className="dashboard-modal-body">
+              <p>
+                <strong>Usuario:</strong>{" "}
+                {pedidoSeleccionado.userId?.name || "No disponible"}
+              </p>
+              <p>
+                <strong>Fecha:</strong>{" "}
+                {new Date(pedidoSeleccionado.createdAt).toLocaleDateString()} -{" "}
+                {new Date(pedidoSeleccionado.createdAt).toLocaleTimeString()}
+              </p>
+              <p>
+                <strong>Estado:</strong>{" "}
+                {getStatusText(pedidoSeleccionado.status)}
+              </p>
+              <p>
+                <strong>Método de pago:</strong>{" "}
+                {pedidoSeleccionado.paymentMethod}
+              </p>
+              <p>
+                <strong>Método de entrega:</strong>{" "}
+                {pedidoSeleccionado.deliveryMethod}
+              </p>
+              {pedidoSeleccionado.shippingAddress && (
+                <>
+                  <h3 className="dashboard-modal-title">Dirección:</h3>
+                  <p>
+                    <strong>Nombre:</strong>{" "}
+                    {pedidoSeleccionado.shippingAddress.name}
+                  </p>
+                  <p>
+                    <strong>Teléfono:</strong>{" "}
+                    {pedidoSeleccionado.shippingAddress.phone}
+                  </p>
+                  <p>
+                    <strong>Dirección:</strong>{" "}
+                    {pedidoSeleccionado.shippingAddress.address}
+                  </p>
+                </>
+              )}
+              <h3 className="dashboard-modal-title">Productos:</h3>
+              <ul>
+                {pedidoSeleccionado.items.map((item, i) => (
+                  <li key={i}>
+                    {item.productId?.title || "Producto no disponible"} - x
+                    {item.quantity} (${item.productId?.price?.toFixed(2)} c/u)
+                  </li>
+                ))}
+              </ul>
+              <h3 className="dashboard-modal-title">Total:</h3>
+              <p>${pedidoSeleccionado.totalAmount?.toFixed(2)}</p>
+            </div>
+            <div className="dashboard-modal-actions">
+              <select
+                value={pedidoSeleccionado.status}
+                onChange={(e) =>
+                  handleUpdateStatus(pedidoSeleccionado._id, e.target.value)
+                }
+                className="dashboard-status-select"
+              >
+                <option value="inicializado">Inicializado</option>
+                <option value="pendiente">Pendiente</option>
+                <option value="pagado">Pagado</option>
+                <option value="preparacion">En preparación</option>
+                <option value="cancelado">Cancelado</option>
+                <option value="entregado">Entregado</option>
+              </select>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="dashboard-close-btn"
+              >
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}

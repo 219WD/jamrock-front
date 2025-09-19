@@ -1,20 +1,19 @@
-
-
 import React, { useState, useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import "../css/Register.css";
 import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../../store/authStore";
 import withGlobalLoader from "../../utils/withGlobalLoader";
+import ForgotPasswordModal from "../ForgotPasswordModal";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [showForgotModal, setShowForgotModal] = useState(false);
   const navigate = useNavigate();
   const login = useAuthStore((state) => state.login);
 
-  // 1. Referencias directas a cada elemento
   const containerRef = useRef(null);
   const formRef = useRef(null);
   const titleRef = useRef(null);
@@ -25,9 +24,7 @@ const Login = () => {
   const signinRef = useRef(null);
   const errorRef = useRef(null);
 
-  // 2. Animación inicial
   useEffect(() => {
-    // Verificamos que todos los elementos existen
     const elements = [
       containerRef.current,
       formRef.current,
@@ -40,9 +37,6 @@ const Login = () => {
     ];
 
     if (elements.every((el) => el !== null)) {
-      console.log("Todos los elementos están listos para animar");
-
-      // Resetear estados iniciales
       gsap.set(
         [
           formRef.current,
@@ -53,33 +47,21 @@ const Login = () => {
           buttonRef.current,
           signinRef.current,
         ],
-        {
-          opacity: 0,
-          y: 20,
-        }
+        { opacity: 0, y: 20 }
       );
 
-      // Timeline de animación
       const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
-
       tl.to(containerRef.current, { opacity: 1, duration: 0.5 })
         .to(formRef.current, { opacity: 1, y: 0, duration: 0.6 })
         .to(titleRef.current, { opacity: 1, y: 0, duration: 0.4 }, "-=0.3")
         .to(emailGroupRef.current, { opacity: 1, y: 0, duration: 0.4 }, "-=0.2")
-        .to(
-          passwordGroupRef.current,
-          { opacity: 1, y: 0, duration: 0.4 },
-          "-=0.2"
-        )
+        .to(passwordGroupRef.current, { opacity: 1, y: 0, duration: 0.4 }, "-=0.2")
         .to(forgotRef.current, { opacity: 1, duration: 0.3 }, "-=0.2")
         .to(buttonRef.current, { opacity: 1, y: 0, duration: 0.5 }, "-=0.2")
         .to(signinRef.current, { opacity: 1, y: 0, duration: 0.4 }, "-=0.2");
-    } else {
-      console.error("Algunos elementos no están disponibles:", elements);
     }
   }, []);
 
-  // 3. Animación para errores
   useEffect(() => {
     if (error && errorRef.current) {
       gsap.fromTo(
@@ -94,7 +76,6 @@ const Login = () => {
     e.preventDefault();
     setError(null);
 
-    // Animación de carga del botón
     if (buttonRef.current) {
       gsap.to(buttonRef.current, {
         duration: 0.3,
@@ -121,7 +102,6 @@ const Login = () => {
 
       login(data.token, data.user);
 
-      // Animación de salida
       if (formRef.current) {
         gsap.to(formRef.current, {
           opacity: 0,
@@ -168,7 +148,14 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <div className="forgot" ref={forgotRef}>
+            <div
+              className="forgot"
+              ref={forgotRef}
+              onClick={() => {
+                console.log("Abriendo modal");
+                setShowForgotModal(true);
+              }}
+            >
               <a href="#">Olvidaste tu contraseña?</a>
             </div>
           </div>
@@ -185,6 +172,10 @@ const Login = () => {
             <Link to="/register"> Registrate</Link>
           </p>
         </form>
+        <ForgotPasswordModal
+          show={showForgotModal}
+          onHide={() => setShowForgotModal(false)}
+        />
       </div>
     </div>
   );

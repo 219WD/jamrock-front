@@ -22,24 +22,35 @@ const Card = ({
   const item = { id, image, title, description, price };
   return (
     <div className={`card ${className || ""}`.trim()}>
-      <img src={image} alt={title} className="card-image" />
-      <div className="card-info">
-        <span className="rating">
-          <FontAwesomeIcon icon={faStar} /> {rating}
-        </span>
-        <span className="price">${price}</span>
+      <div className="image-container">
+        <img src={image} alt={title} className="card-image" />
+        <div className="card-overlay">
+          <Link to={`/individual/${id}`} state={item} className="quick-view">
+            <FontAwesomeIcon icon={faEye} />
+          </Link>
+        </div>
       </div>
-      <h3>{title}</h3>
-      <p>{description}</p>
-      <button
-        onClick={() => onAddToCart({ id, image, title, description, price })}
-        className="add-to-cart-button"
-      >
-        <FontAwesomeIcon icon={faCartShopping} /> Agregar al Carrito
-      </button>
-      <Link to={`/individual/${id}`} state={item} className="view-button">
-        <FontAwesomeIcon icon={faEye} /> Ver Producto
-      </Link>
+      <div className="card-content">
+        <div className="card-info">
+          <span className="rating">
+            <FontAwesomeIcon icon={faStar} /> {rating}
+          </span>
+          <span className="price">${price}</span>
+        </div>
+        <h3 className="card-title">{title}</h3>
+        <p className="card-description">{description}</p>
+        <div className="card-buttons">
+          <button
+            onClick={() => onAddToCart({ id, image, title, description, price })}
+            className="add-to-cart-button"
+          >
+            <FontAwesomeIcon icon={faCartShopping} /> Agregar
+          </button>
+          <Link to={`/individual/${id}`} state={item} className="view-button">
+            Detalles
+          </Link>
+        </div>
+      </div>
     </div>
   );
 };

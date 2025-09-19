@@ -1,0 +1,164 @@
+/* Estilos para comprobantes */
+.comprobante-section {
+  margin: 15px 0;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border-left: 4px solid #2196f3;
+}
+
+.comprobante-form {
+  margin: 10px 0;
+}
+
+.comprobante-input {
+  width: 100%;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.comprobante-pendiente {
+  background: #e8f5e8;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 10px;
+  border-left: 4px solid #4caf50;
+}
+
+.comprobante-info {
+  background: #f0f8ff;
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 4px solid #2196f3;
+  color: #333;
+}
+
+.comprobante-details {
+  margin-bottom: 10px;
+}
+
+.comprobante-details p {
+  margin: 5px 0;
+  color: #333;
+}
+
+.btn-ver-comprobante {
+  display: inline-block;
+  background: #2196f3;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.3s;
+}
+
+.btn-ver-comprobante:hover {
+  background: #1976d2;
+  text-decoration: none;
+  color: white;
+}
+
+.comprobante-link {
+  color: #2196f3;
+  text-decoration: none;
+  font-weight: 500;
+  margin-top: 5px;
+  display: inline-block;
+}
+
+.comprobante-link:hover {
+  text-decoration: underline;
+}
+
+.sin-comprobante {
+  color: #666;
+  font-style: italic;
+}
+
+/* Estados del turno */
+.turno-estado {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.turno-estado.completado {
+  background: #e8f5e8;
+  color: #2e7d32;
+}
+
+.turno-estado.pendiente {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+/* Botones deshabilitados */
+.btn-add:disabled,
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.confirmation-modal h3 {
+  color: #00B500;
+}
+
+.confirmation-modal p {
+    margin: 1rem 0;
+  color: #ddd;
+}
+
+.confirmation-modal .warning-text {
+    margin: 1rem 0;
+  color: #9B0000;
+}
+
+.info-text {
+  background: #e3f2fd;
+  padding: 10px;
+  border-radius: 4px;
+  border-left: 3px solid #2196f3;
+  color: #0d47a1;
+  margin: 10px 0;
+}
+
+/* Agregar al CSS */
+.info-comprobante {
+  background: #e3f2fd;
+  padding: 10px;
+  border-radius: 5px;
+  border-left: 4px solid #2196f3;
+  color: #0d47a1 !important;
+  margin: 10px 0;
+  font-style: italic;
+}
+
+.sin-comprobante {
+  color: #666;
+  font-style: italic;
+  background: #f5f5f5;
+  padding: 10px;
+  border-radius: 5px;
+  border-left: 4px solid #ccc;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+  .comprobante-info {
+    padding: 10px;
+  }
+  
+  .comprobante-details p {
+    font-size: 14px;
+  }
+  
+  .btn-ver-comprobante {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+}

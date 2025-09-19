@@ -1,8 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { gsap } from "gsap";
 import useAuthStore from "../store/authStore";
 import useNotify from "../hooks/useToast";
 import "./css/ConsultorioPanel.css";
 import NavDashboard from "../components/NavDashboard";
+import ProductosModal from "../components/Consultorio/ProductosModal";
+import FiltrosCaja from "../components/Caja/FiltrosCaja.jsx";
+import TablaTurnos from "../components/Caja/TablaTurnos.jsx";
+import ModalConsulta from "../components/Caja/ModalConsulta.jsx";
+import EstadisticasCaja from "../components/Caja/EstadisticasCaja.jsx";
+import useProductStore from "../store/productStore";
 
 const Caja = () => {
   const token = useAuthStore((state) => state.token);
@@ -21,6 +28,18 @@ const Caja = () => {
   const [showTodayOnly, setShowTodayOnly] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [turnosPerPage] = useState(10);
+  const [showProductosModal, setShowProductosModal] = useState(false);
+  const [productosDisponibles, setProductosDisponibles] = useState([]);
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [descuento, setDescuento] = useState(0);
+  const [formaPago, setFormaPago] = useState("efectivo");
+  const modalRef = useRef(null);
+
+  const {
+    products,
+    fetchProducts,
+    loading: productsLoading,
+  } = useProductStore();
 
   const fetchTurnos = async () => {
     try {
@@ -45,50 +64,314 @@ const Caja = () => {
     }
   };
 
-  const updatePagoStatus = async (turnoId, currentPagado) => {
-    const newPagado = !currentPagado;
+  const fetchProductos = async () => {
     try {
-      setLoading(true);
-      const res = await fetch(
-        `http://localhost:4000/turnos/${turnoId}/marcar-pagado`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ pagado: newPagado }),
-        }
-      );
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Error ${res.status}: ${text}`);
-      }
-      setTurnos((prev) =>
-        prev.map((t) =>
-          t._id === turnoId
-            ? { ...t, consulta: { ...t.consulta, pagado: newPagado } }
-            : t
-        )
-      );
-      setSelectedTurno((prev) =>
-        prev && prev._id === turnoId
-          ? { ...prev, consulta: { ...prev.consulta, pagado: newPagado } }
-          : prev
-      );
-      notify(
-        `Pago ${newPagado ? "marcado como pagado" : "desmarcado"}`,
-        "success"
-      );
+      // 🔹 USAR EL STORE EN LUGAR DE FETCH DIRECTAMENTE
+      await useProductStore.getState().fetchProducts();
+      const productos = useProductStore.getState().getActiveProducts();
+      setProductosDisponibles(productos);
     } catch (err) {
-      notify("Error al actualizar pago: " + err.message, "error");
-    } finally {
-      setLoading(false);
+      console.error("Error al obtener productos:", err);
+      notify("Error al obtener productos: " + err.message, "error");
     }
   };
 
-  const addProduct = async (turnoId) => {
-    notify("Funcionalidad de agregar productos en desarrollo", "info");
+// 📝 EN components/Caja/Caja.jsx - MEJORAR updatePagoStatus
+const updatePagoStatus = async (turnoId, currentPagado, comprobanteData = null) => {
+  const newPagado = !currentPagado;
+  try {
+    setLoading(true);
+    
+    const payload = {
+      pagado: newPagado
+    };
+    
+    if (comprobanteData) {
+      payload.comprobanteUrl = comprobanteData.url;
+      payload.nombreComprobante = comprobanteData.nombre;
+    }
+
+    const res = await fetch(
+      `http://localhost:4000/turnos/${turnoId}/marcar-pagado`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const responseData = await res.json();
+
+    if (!res.ok) {
+      // ✅ MEJOR MANEJO DE ERRORES
+      if (responseData.error && responseData.error.includes("no tiene productos")) {
+        // Intentar marcar como pagado de todas formas si hay precio de consulta
+        const turno = turnos.find(t => t._id === turnoId);
+        if (turno?.consulta?.precioConsulta > 0) {
+          // Forzar el pago actualizando localmente
+          setTurnos((prev) =>
+            prev.map((t) =>
+              t._id === turnoId
+                ? { 
+                    ...t, 
+                    consulta: { 
+                      ...t.consulta, 
+                      pagado: newPagado,
+                      comprobantePago: comprobanteData ? {
+                        url: comprobanteData.url,
+                        nombreArchivo: comprobanteData.nombre,
+                        fechaSubida: new Date()
+                      } : t.consulta?.comprobantePago
+                    } 
+                  }
+                : t
+            )
+          );
+          
+          setSelectedTurno((prev) =>
+            prev && prev._id === turnoId
+              ? { 
+                  ...prev, 
+                  consulta: { 
+                    ...prev.consulta, 
+                    pagado: newPagado,
+                    comprobantePago: comprobanteData ? {
+                      url: comprobanteData.url,
+                      nombreArchivo: comprobanteData.nombre,
+                      fechaSubida: new Date()
+                    } : prev.consulta?.comprobantePago
+                  } 
+                }
+              : prev
+          );
+          
+          notify(`Pago ${newPagado ? "marcado como pagado" : "desmarcado"} (solo consulta)`, "success");
+          return { success: true };
+        }
+      }
+      
+      const text = await res.text();
+      throw new Error(responseData.error || `Error ${res.status}: ${text}`);
+    }
+
+    // ✅ Éxito normal
+    setTurnos((prev) =>
+      prev.map((t) =>
+        t._id === turnoId
+          ? { 
+              ...t, 
+              consulta: { 
+                ...t.consulta, 
+                pagado: newPagado,
+                comprobantePago: comprobanteData ? {
+                  url: comprobanteData.url,
+                  nombreArchivo: comprobanteData.nombre,
+                  fechaSubida: new Date()
+                } : t.consulta?.comprobantePago
+              } 
+            }
+          : t
+      )
+    );
+    
+    setSelectedTurno((prev) =>
+      prev && prev._id === turnoId
+        ? { 
+            ...prev, 
+            consulta: { 
+              ...prev.consulta, 
+              pagado: newPagado,
+              comprobantePago: comprobanteData ? {
+                url: comprobanteData.url,
+                nombreArchivo: comprobanteData.nombre,
+                fechaSubida: new Date()
+              } : prev.consulta?.comprobantePago
+            } 
+          }
+        : prev
+    );
+    
+    notify(
+      `Pago ${newPagado ? "marcado como pagado" : "desmarcado"}${comprobanteData ? " con comprobante" : ""}`,
+      "success"
+    );
+    
+    return responseData;
+  } catch (err) {
+    console.error("Error updating payment status:", err);
+    notify("Error al actualizar pago: " + err.message, "error");
+    throw err;
+  } finally {
+    setLoading(false);
+  }
+};
+
+// 📝 CORREGIDO: handleProductSelect con estructura completa
+const handleProductSelect = (producto) => {
+  const productoCantidad = producto.cantidad || 1;
+
+  // 🔹 Actualizar stock localmente para feedback visual inmediato
+  useProductStore.getState().updateLocalStock(producto._id, productoCantidad);
+
+  setSelectedProducts((prev) => [
+    ...prev,
+    {
+      productoId: producto._id,
+      cantidad: productoCantidad,
+      dosis: producto.dosis || "",
+      precioUnitario: producto.price, // ✅ AGREGAR campo necesario
+      nombreProducto: producto.title, // ✅ AGREGAR campo necesario
+    },
+  ]);
+
+  notify(`✅ ${producto.title} agregado al carrito`, "success");
+};
+
+  const aplicarDescuento = (montoDescuento) => {
+    const descuentoNumero = Number(montoDescuento);
+    setDescuento(descuentoNumero);
+  };
+
+  const handleDescuentoBlur = (e) => {
+    const descuentoNumero = Number(e.target.value);
+    if (
+      !isNaN(descuentoNumero) &&
+      descuentoNumero >= 0 &&
+      descuentoNumero > 0
+    ) {
+      notify(`Descuento de $${descuentoNumero.toFixed(2)} aplicado`, "success");
+    } else if (e.target.value !== "" && e.target.value !== "0") {
+      notify("Por favor ingrese un monto de descuento válido", "error");
+      setDescuento(0);
+    }
+  };
+
+  const handleDescuentoKeyPress = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const descuentoNumero = Number(e.target.value);
+      if (
+        !isNaN(descuentoNumero) &&
+        descuentoNumero >= 0 &&
+        descuentoNumero > 0
+    ) {
+        notify(
+          `Descuento de $${descuentoNumero.toFixed(2)} aplicado`,
+          "success"
+        );
+      }
+      e.target.blur();
+    }
+  };
+
+// 📝 CORREGIDO: addProduct con parámetro reemplazarProductos
+const addProduct = async (turnoId) => {
+  if (selectedProducts.length === 0) {
+    notify("No se han seleccionado productos", "warning");
+    return;
+  }
+
+  try {
+    setLoading(true);
+    
+    // ✅ Enviar la estructura CORRECTA que espera el backend
+    const productosParaEnviar = selectedProducts.map(producto => ({
+      productoId: producto.productoId,
+      cantidad: producto.cantidad,
+      dosis: producto.dosis || "",
+      precioUnitario: producto.precioUnitario, // ✅ MANTENER
+      nombreProducto: producto.nombreProducto // ✅ MANTENER
+    }));
+
+    console.log("📤 Enviando al backend:", productosParaEnviar);
+
+    const res = await fetch(
+      `http://localhost:4000/turnos/${turnoId}/agregar-productos`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productos: productosParaEnviar,
+          formaPago,
+          descuento: Number(descuento),
+          notasConsulta: selectedTurno?.consulta?.notasConsulta || "",
+          precioConsulta: selectedTurno?.consulta?.precioConsulta || 0,
+          reemplazarProductos: true // ✅ AGREGAR PARÁMETRO CRÍTICO
+        }),
+      }
+    );
+
+    const responseData = await res.json();
+
+    if (!res.ok) {
+      // Manejar errores específicos
+      if (responseData.error && responseData.error.includes("Stock insuficiente")) {
+        notify(responseData.error, "error");
+        return;
+      }
+      throw new Error(responseData.error || `Error ${res.status}`);
+    }
+
+    // Éxito
+    setTurnos((prev) =>
+      prev.map((t) =>
+        t._id === turnoId
+          ? {
+              ...t,
+              consulta: responseData.data.consulta,
+              estado: responseData.data.estado,
+            }
+          : t
+      )
+    );
+    
+    setSelectedTurno((prev) =>
+      prev && prev._id === turnoId
+        ? {
+            ...prev,
+            consulta: responseData.data.consulta,
+            estado: responseData.data.estado,
+          }
+        : prev
+    );
+    
+    notify(responseData.message, "success");
+    setSelectedProducts([]);
+    setDescuento(0);
+    setShowProductosModal(false);
+    
+  } catch (err) {
+    console.error("Error al agregar productos:", err);
+    notify("Error al agregar productos: " + err.message, "error");
+    
+    // Restaurar stock local en caso de error
+    selectedProducts.forEach((product) => {
+      useProductStore
+        .getState()
+        .restoreLocalStock(product.productoId, product.cantidad);
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
+  const calcularTotalConDescuento = () => {
+    const subtotal = selectedProducts.reduce((sum, producto) => {
+      const precioUnitario = producto.precioUnitario || 0;
+      const cantidad = producto.cantidad || 0;
+      return sum + (precioUnitario * cantidad);
+    }, 0);
+
+    const consultaPrecio = selectedTurno?.consulta?.precioConsulta || 0;
+    const total = subtotal + consultaPrecio;
+
+    return Math.max(0, total - descuento);
   };
 
   const filterTurnos = () => {
@@ -98,7 +381,9 @@ const Caja = () => {
 
     const useRange = Boolean(dateFrom || dateTo);
     const rangeStart = dateFrom ? new Date(dateFrom) : new Date("1970-01-01");
-    const rangeEnd = dateTo ? new Date(dateTo + "T23:59:59") : new Date("9999-12-31");
+    const rangeEnd = dateTo
+      ? new Date(dateTo + "T23:59:59")
+      : new Date("9999-12-31");
 
     const filtered = turnos
       .filter((turno) => {
@@ -118,7 +403,7 @@ const Caja = () => {
           turno.consulta?.formaPago === paymentFilter;
 
         let matchesDate = true;
-        
+
         if (showTodayOnly) {
           matchesDate = turnoDate >= todayStart && turnoDate <= todayEnd;
         } else if (useRange) {
@@ -149,9 +434,7 @@ const Caja = () => {
   };
 
   const itemSubtotal = (producto) => {
-    const unit =
-      (typeof producto.precioUnitario === "number" ? producto.precioUnitario : null) ??
-      (producto.productoId?.price ?? 0);
+    const unit = producto.precioUnitario ?? producto.productoId?.price ?? 0;
     const qty = producto.cantidad || 0;
     return unit * qty;
   };
@@ -174,7 +457,8 @@ const Caja = () => {
           (sum, p) => sum + itemSubtotal(p),
           0
         );
-        const total = consultaPrecio + productosTotal;
+        const descuento = turno.consulta?.descuento || 0;
+        const total = consultaPrecio + productosTotal - descuento;
         const key = turno.consulta?.formaPago || "otro";
         totals[key] = (totals[key] || 0) + total;
       }
@@ -185,8 +469,12 @@ const Caja = () => {
   const getTotalTurno = (turno) => {
     const consultaPrecio = turno.consulta?.precioConsulta || 0;
     const productos = getProductosFromTurno(turno);
-    const productosTotal = productos.reduce((sum, p) => sum + itemSubtotal(p), 0);
-    return consultaPrecio + productosTotal;
+    const productosTotal = productos.reduce(
+      (sum, p) => sum + itemSubtotal(p),
+      0
+    );
+    const descuento = turno.consulta?.descuento || 0;
+    return consultaPrecio + productosTotal - descuento;
   };
 
   const getProductDisplayName = (producto) =>
@@ -194,17 +482,27 @@ const Caja = () => {
     producto.productoId?.title ||
     "Producto sin nombre";
 
-  // Paginación
   const indexOfLastTurno = currentPage * turnosPerPage;
   const indexOfFirstTurno = indexOfLastTurno - turnosPerPage;
-  const currentTurnos = filteredTurnos.slice(indexOfFirstTurno, indexOfLastTurno);
+  const currentTurnos = filteredTurnos.slice(
+    indexOfFirstTurno,
+    indexOfLastTurno
+  );
   const totalPages = Math.ceil(filteredTurnos.length / turnosPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   useEffect(() => {
     fetchTurnos();
+    fetchProductos();
   }, []);
+
+  useEffect(() => {
+    if (!showProductosModal) {
+      // 🔹 RECARGAR PRODUCTOS CUANDO SE CIERRA EL MODAL
+      fetchProductos();
+    }
+  }, [showProductosModal]);
 
   useEffect(() => {
     setFilteredTurnos(filterTurnos());
@@ -220,6 +518,23 @@ const Caja = () => {
     dateOrder,
   ]);
 
+  // GSAP Animation for modal
+  useEffect(() => {
+    if (!selectedTurno || !modalRef.current) return;
+
+    gsap.fromTo(
+      ".modal-overlay",
+      { opacity: 0 },
+      { opacity: 1, duration: 0.3, ease: "power2.out" }
+    );
+
+    gsap.fromTo(
+      ".modal-content",
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" }
+    );
+  }, [selectedTurno]);
+
   const totals = calculateTotals();
 
   return (
@@ -233,80 +548,23 @@ const Caja = () => {
         <div className="caja-panel">
           {error && <div className="error">{error}</div>}
 
-          {/* Filtros */}
-          <div className="filtros-container">
-            <div className="search-box">
-              <input
-                type="text"
-                placeholder="Buscar por paciente o ID..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="status-filter">
-              <label>Estado:</label>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <option value="todos">Todos</option>
-                <option value="pagado">Pagado</option>
-                <option value="pendiente">Pendiente</option>
-              </select>
-            </div>
-            <div className="status-filter">
-              <label>Pago:</label>
-              <select
-                value={paymentFilter}
-                onChange={(e) => setPaymentFilter(e.target.value)}
-              >
-                <option value="todos">Todos</option>
-                <option value="efectivo">Efectivo</option>
-                <option value="tarjeta">Tarjeta</option>
-                <option value="transferencia">Transferencia</option>
-                <option value="mercadoPago">Mercado Pago</option>
-                <option value="otro">Otro</option>
-              </select>
-            </div>
-            <div className="status-filter">
-              <label>Orden:</label>
-              <select
-                value={dateOrder}
-                onChange={(e) => setDateOrder(e.target.value)}
-              >
-                <option value="desc">Más recientes</option>
-                <option value="asc">Más antiguos</option>
-              </select>
-            </div>
-            <button
-              className={`btn-filter ${showTodayOnly ? "active" : ""}`}
-              onClick={handleTodayClick}
-            >
-              HOY
-            </button>
-            <div className="status-filter">
-              <label>Desde:</label>
-              <input
-                type="date"
-                value={dateFrom}
-                onChange={(e) => {
-                  setDateFrom(e.target.value);
-                  handleDateRangeChange();
-                }}
-              />
-            </div>
-            <div className="status-filter">
-              <label>Hasta:</label>
-              <input
-                type="date"
-                value={dateTo}
-                onChange={(e) => {
-                  setDateTo(e.target.value);
-                  handleDateRangeChange();
-                }}
-              />
-            </div>
-          </div>
+          <FiltrosCaja
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            paymentFilter={paymentFilter}
+            setPaymentFilter={setPaymentFilter}
+            dateOrder={dateOrder}
+            setDateOrder={setDateOrder}
+            showTodayOnly={showTodayOnly}
+            handleTodayClick={handleTodayClick}
+            dateFrom={dateFrom}
+            setDateFrom={setDateFrom}
+            dateTo={dateTo}
+            setDateTo={setDateTo}
+            handleDateRangeChange={handleDateRangeChange}
+          />
 
           {loading ? (
             <p>Cargando...</p>
@@ -314,84 +572,19 @@ const Caja = () => {
             <p>No se encontraron turnos. Intenta ajustar los filtros.</p>
           ) : (
             <>
-              <table className="turnos-table">
-                <thead>
-                  <tr>
-                    <th>Paciente</th>
-                    <th>Fecha</th>
-                    <th>Productos</th>
-                    <th>Total</th>
-                    <th>Forma de Pago</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentTurnos.map((turno) => {
-                    const productos = getProductosFromTurno(turno);
-                    const total = getTotalTurno(turno);
+              <TablaTurnos
+                currentTurnos={currentTurnos}
+                getProductosFromTurno={getProductosFromTurno}
+                getTotalTurno={getTotalTurno}
+                getProductDisplayName={getProductDisplayName}
+                itemSubtotal={itemSubtotal}
+                setSelectedTurno={setSelectedTurno}
+                setSelectedProducts={setSelectedProducts}
+                setDescuento={setDescuento}
+                setFormaPago={setFormaPago}
+                updatePagoStatus={updatePagoStatus}
+              />
 
-                    return (
-                      <tr key={turno._id} className="turno-row">
-                        <td>{turno.pacienteId?.fullName || "Sin Paciente"}</td>
-                        <td>
-                          {new Date(turno.fecha).toLocaleString("es-AR", {
-                            dateStyle: "short",
-                            timeStyle: "short",
-                          })}
-                        </td>
-                        <td>
-                          {productos.length > 0 ? (
-                            <ul className="productos-list">
-                              {productos.map((producto, index) => (
-                                <li key={index}>
-                                  {getProductDisplayName(producto)} (x
-                                  {producto.cantidad || 0}) - $
-                                  {itemSubtotal(producto).toFixed(2)}
-                                </li>
-                              ))}
-                            </ul>
-                          ) : (
-                            "Ninguno"
-                          )}
-                        </td>
-                        <td>${total.toFixed(2)}</td>
-                        <td>
-                          <span
-                            className={`turno-estado ${
-                              turno.consulta?.pagado ? "completado" : "pendiente"
-                            }`}
-                          >
-                            {turno.consulta?.formaPago || "N/A"}
-                          </span>
-                        </td>
-                        <td>
-                          <button
-                            className="btn-submit"
-                            onClick={() => setSelectedTurno(turno)}
-                          >
-                            Ver Consulta
-                          </button>
-                          <button
-                            className="btn-submit"
-                            onClick={() =>
-                              updatePagoStatus(
-                                turno._id,
-                                turno.consulta?.pagado || false
-                              )
-                            }
-                          >
-                            {turno.consulta?.pagado
-                              ? "Desmarcar"
-                              : "Marcar Pagado"}
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-
-              {/* Pagination Controls */}
               <div className="pagination-controls">
                 <button
                   onClick={() => paginate(currentPage - 1)}
@@ -400,11 +593,9 @@ const Caja = () => {
                 >
                   Anterior
                 </button>
-
                 <span className="page-info">
                   Página {currentPage} de {totalPages}
                 </span>
-
                 <button
                   onClick={() => paginate(currentPage + 1)}
                   disabled={currentPage === totalPages || totalPages === 0}
@@ -414,134 +605,40 @@ const Caja = () => {
                 </button>
               </div>
 
-              {/* Stat Cards */}
-              <div className="stats-container">
-                <div className="stat-card">
-                  <h3>Efectivo</h3>
-                  <p>${totals.efectivo.toFixed(2)}</p>
-                </div>
-                <div className="stat-card">
-                  <h3>Tarjeta</h3>
-                  <p>${totals.tarjeta.toFixed(2)}</p>
-                </div>
-                <div className="stat-card">
-                  <h3>Transferencia</h3>
-                  <p>${totals.transferencia.toFixed(2)}</p>
-                </div>
-                <div className="stat-card">
-                  <h3>Mercado Pago</h3>
-                  <p>${totals.mercadoPago.toFixed(2)}</p>
-                </div>
-                {totals.otro > 0 && (
-                  <div className="stat-card">
-                    <h3>Otro</h3>
-                    <p>${totals.otro.toFixed(2)}</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Modal */}
-              {selectedTurno && (
-                <div className="modal-overlay">
-                  <div className="modal-content">
-                    <button
-                      className="close-modal"
-                      onClick={() => setSelectedTurno(null)}
-                    >
-                      ✕
-                    </button>
-                    <h3>Detalles de la Consulta</h3>
-                    <div className="modal-section">
-                      <p>
-                        <strong>Paciente:</strong>{" "}
-                        {selectedTurno.pacienteId?.fullName || "Sin Paciente"}
-                      </p>
-                      <p>
-                        <strong>Fecha:</strong>{" "}
-                        {new Date(selectedTurno.fecha).toLocaleString("es-AR", {
-                          dateStyle: "short",
-                          timeStyle: "short",
-                        })}
-                      </p>
-                      <p>
-                        <strong>Consulta:</strong> $
-                        {(selectedTurno.consulta?.precioConsulta || 0).toFixed(2)}
-                      </p>
-                      <p>
-                        <strong>Productos:</strong>
-                      </p>
-                      {getProductosFromTurno(selectedTurno).length > 0 ? (
-                        <ul className="productos-list">
-                          {getProductosFromTurno(selectedTurno).map(
-                            (producto, index) => (
-                              <li key={index}>
-                                {getProductDisplayName(producto)} (x
-                                {producto.cantidad || 0}) - $
-                                {itemSubtotal(producto).toFixed(2)}
-                              </li>
-                            )
-                          )}
-                        </ul>
-                      ) : (
-                        <p>Ninguno</p>
-                      )}
-                      <p>
-                        <strong>Total:</strong> $
-                        {getTotalTurno(selectedTurno).toFixed(2)}
-                      </p>
-                      <p>
-                        <strong>Forma de Pago:</strong>{" "}
-                        {selectedTurno.consulta?.formaPago || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Estado:</strong>{" "}
-                        <span
-                          className={`turno-estado ${
-                            selectedTurno.consulta?.pagado
-                              ? "completado"
-                              : "pendiente"
-                          }`}
-                        >
-                          {selectedTurno.consulta?.pagado
-                            ? "Pagado"
-                            : "Pendiente"}
-                        </span>
-                      </p>
-                    </div>
-                    <div className="modal-actions">
-                      <button
-                        className="btn-add"
-                        onClick={() => addProduct(selectedTurno._id)}
-                      >
-                        Agregar Productos
-                      </button>
-                      <button
-                        className="btn-submit"
-                        onClick={() =>
-                          updatePagoStatus(
-                            selectedTurno._id,
-                            selectedTurno.consulta?.pagado || false
-                          )
-                        }
-                      >
-                        {selectedTurno.consulta?.pagado
-                          ? "Desmarcar Pago"
-                          : "Marcar como Pagado"}
-                      </button>
-                      <button
-                        className="btn-cancel"
-                        onClick={() => setSelectedTurno(null)}
-                      >
-                        Cerrar
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
+              <EstadisticasCaja totals={totals} />
             </>
           )}
         </div>
       </div>
+
+      {selectedTurno && (
+        <ModalConsulta
+          selectedTurno={selectedTurno}
+          setSelectedTurno={setSelectedTurno}
+          modalRef={modalRef}
+          getProductosFromTurno={getProductosFromTurno}
+          getProductDisplayName={getProductDisplayName}
+          itemSubtotal={itemSubtotal}
+          selectedProducts={selectedProducts}
+          descuento={descuento}
+          aplicarDescuento={aplicarDescuento}
+          handleDescuentoBlur={handleDescuentoBlur}
+          handleDescuentoKeyPress={handleDescuentoKeyPress}
+          formaPago={formaPago}
+          setFormaPago={setFormaPago}
+          calcularTotalConDescuento={calcularTotalConDescuento}
+          setShowProductosModal={setShowProductosModal}
+          addProduct={addProduct}
+          updatePagoStatus={updatePagoStatus}
+        />
+      )}
+
+      <ProductosModal
+        showProductosModal={showProductosModal}
+        setShowProductosModal={setShowProductosModal}
+        productosDisponibles={useProductStore.getState().getActiveProducts()}
+        handleProductSelect={handleProductSelect}
+      />
     </div>
   );
 };

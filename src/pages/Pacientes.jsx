@@ -9,7 +9,6 @@ import TablaPacientes from "../components/Pacientes/TablaPacientes.jsx";
 import TablaTodosUsuarios from "../components/Pacientes/TablaTodosUsuarios";
 import ModalDetallesPaciente from "../components/Pacientes/ModalDetallesPaciente.jsx";
 import PacientesVencimiento from "../components/Pacientes/PacientesVencimiento.jsx";
-import CrearTurnoModal from "../components/Turnos/CrearTurnoModal.jsx";
 import NuevoTurnoModal from "../components/Turnos/NuevoTurnoModal.jsx";
 import useNotify from "../hooks/useToast.jsx";
 
@@ -29,6 +28,7 @@ const Pacientes = () => {
   const [visiblePacientesCount, setVisiblePacientesCount] = useState(10);
   const [visibleUsersCount, setVisibleUsersCount] = useState(10);
   const [pacienteForTurno, setPacienteForTurno] = useState(null);
+  const [turnos, setTurnos] = useState([]);
 
   const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
@@ -37,9 +37,13 @@ const Pacientes = () => {
 
   const hasAnimated = useRef(false);
   const pacientesContainerRef = useRef(null);
-  const titleRef = useRef(null);
-  const searchRef = useRef(null);
-  const tableRef = useRef(null);
+  const headerRef = useRef(null);
+  const vencimientoRef = useRef(null);
+  const pacientesTitleRef = useRef(null);
+  const usuariosTitleRef = useRef(null);
+  const pacientesTableRef = useRef(null);
+  const usuariosTableRef = useRef(null);
+  const buttonsRef = useRef(null);
 
   // Función para obtener todos los usuarios
   const fetchAllUsers = async () => {
@@ -74,10 +78,10 @@ const Pacientes = () => {
     }
   };
 
-  // Función para obtener especialistas - VERSIÓN CORREGIDA
+  // Función para obtener especialistas
   const fetchEspecialistas = async () => {
     try {
-      const currentToken = useAuthStore.getState().token; // Obtener el token actualizado
+      const currentToken = useAuthStore.getState().token;
       if (!currentToken) {
         throw new Error("No hay token disponible");
       }
@@ -87,8 +91,7 @@ const Pacientes = () => {
       });
 
       if (res.status === 401) {
-        // Token inválido o expirado
-        useAuthStore.getState().logout(); // Cerrar sesión
+        useAuthStore.getState().logout();
         throw new Error("Sesión expirada. Por favor ingresa nuevamente");
       }
 
@@ -101,7 +104,7 @@ const Pacientes = () => {
       setEspecialistas(response.data || []);
     } catch (err) {
       console.error("Error fetching especialistas:", err.message);
-      setError(err.message); // Mostrar error en la UI
+      setError(err.message);
       setEspecialistas([]);
     }
   };
@@ -148,7 +151,7 @@ const Pacientes = () => {
         },
         body: JSON.stringify({
           ...turnoData,
-          userId: user._id, // El usuario que crea el turno
+          userId: user._id,
         }),
       });
       const data = await res.json();
@@ -168,7 +171,6 @@ const Pacientes = () => {
     try {
       setLoading(true);
 
-      // Extraer datos del paciente y antecedentes
       const {
         fullName,
         fechaDeNacimiento,
@@ -177,7 +179,6 @@ const Pacientes = () => {
         ...antecedentesData
       } = pacienteData;
 
-      // Armamos el body como lo espera el backend
       const bodyToSend = {
         fullName,
         fechaDeNacimiento,
@@ -323,67 +324,98 @@ const Pacientes = () => {
     setVisibleUsersCount(10);
   }, [searchQueryUsers]);
 
+  // GSAP Animation - CORREGIDO
   useEffect(() => {
-    if (hasAnimated.current || loading) return;
+    if (hasAnimated.current || loading || pacientes.length === 0) return;
 
     hasAnimated.current = true;
 
-    const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-    // Animate container
+    // Animación del contenedor principal
     if (pacientesContainerRef.current) {
       tl.fromTo(
         pacientesContainerRef.current,
-        { opacity: 0, x: -50 },
-        { opacity: 1, x: 0, duration: 0.5 }
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.5 }
       );
     }
 
-    // Animate titles (h2) only if they exist
-    if (titleRef.current) {
-      const titleElements = titleRef.current.querySelectorAll("h2");
-      if (titleElements.length > 0) {
-        tl.fromTo(
-          titleElements,
-          { opacity: 0, y: -20 },
-          { opacity: 1, y: 0, duration: 0.3, stagger: 0.1 },
-          "-=0.3"
-        );
-      }
-    }
-
-    // Animate search forms
-    if (searchRef.current) {
-      const searchElements = searchRef.current.querySelectorAll(
-        ".form-search, .search-container"
+    // Animación del header
+    if (headerRef.current) {
+      tl.fromTo(
+        headerRef.current,
+        { opacity: 0, y: -20 },
+        { opacity: 1, y: 0, duration: 0.3 },
+        "-=0.3"
       );
-      if (searchElements.length > 0) {
-        tl.fromTo(
-          searchElements,
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.3 },
-          "-=0.2"
-        );
-      }
     }
 
-    // Animate tables and buttons
-    if (tableRef.current) {
-      const tableElements = tableRef.current.querySelectorAll(
-        ".users-table, .ver-mas-btn"
+    // Animación de la sección de vencimiento
+    if (vencimientoRef.current) {
+      tl.fromTo(
+        vencimientoRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.4 },
+        "-=0.2"
       );
-      if (tableElements.length > 0) {
-        tl.fromTo(
-          tableElements,
-          { opacity: 0, y: 50 },
-          { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 },
-          "-=0.2"
-        );
-      }
     }
 
-    return () => tl.kill();
-  }, [loading]);
+    // Animación de títulos
+    if (pacientesTitleRef.current) {
+      tl.fromTo(
+        pacientesTitleRef.current,
+        { opacity: 0, y: -15 },
+        { opacity: 1, y: 0, duration: 0.3 },
+        "-=0.2"
+      );
+    }
+
+    // Animación de tabla de pacientes
+    if (pacientesTableRef.current) {
+      tl.fromTo(
+        pacientesTableRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.5 },
+        "-=0.2"
+      );
+    }
+
+    // Animación de título de usuarios
+    if (usuariosTitleRef.current) {
+      tl.fromTo(
+        usuariosTitleRef.current,
+        { opacity: 0, y: -15 },
+        { opacity: 1, y: 0, duration: 0.4 },
+        "-=0.1"
+      );
+    }
+
+    // Animación de tabla de usuarios
+    if (usuariosTableRef.current) {
+      tl.fromTo(
+        usuariosTableRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.5 },
+        "-=0.1"
+      );
+    }
+
+    // Animación de botones "Ver más"
+    const verMasButtons = document.querySelectorAll('.ver-mas-btn');
+    if (verMasButtons.length > 0) {
+      tl.fromTo(
+        verMasButtons,
+        { opacity: 0, scale: 0.9 },
+        { opacity: 1, scale: 1, duration: 0.4, stagger: 0.1 },
+        "-=0.1"
+      );
+    }
+
+    return () => {
+      tl.kill();
+    };
+  }, [loading, pacientes.length]);
 
   const filteredPacientes = filterPacientes(pacientes).slice(
     0,
@@ -413,8 +445,8 @@ const Pacientes = () => {
   return (
     <div className="pacientes">
       <NavDashboard />
-      <div className="pacientes-container">
-        <div ref={searchRef}>
+      <div className="pacientes-container" ref={pacientesContainerRef}>
+        <div ref={headerRef}>
           <PacientesHeader
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
@@ -423,15 +455,16 @@ const Pacientes = () => {
           />
         </div>
 
-        <div ref={titleRef}>
+        <div ref={vencimientoRef}>
           <PacientesVencimiento
             pacientesPorVencer={getPacientesPorVencer()}
             getReprocannClass={getReprocannClass}
           />
         </div>
 
-        <h2>Todos los pacientes</h2>
-        <div ref={tableRef}>
+        <h2 ref={pacientesTitleRef}>Todos los pacientes</h2>
+        
+        <div ref={pacientesTableRef}>
           <div className="table-container">
             <TablaPacientes
               pacientes={filteredPacientes}
@@ -448,34 +481,37 @@ const Pacientes = () => {
               </div>
             )}
           </div>
+        </div>
 
-          <h2>Todos los Usuarios</h2>
-          <div className="search-container" style={{ marginBottom: "1rem" }}>
-            <button>
-              <svg
-                width="17"
-                height="16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M7.667 12.667A5.333 5.333 0 107.667 2a5.333 5.333 0 000 10.667zM14.334 14l-2.9-2.9"
-                  stroke="currentColor"
-                  strokeWidth="1.333"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-            <input
-              type="text"
-              placeholder="Buscar usuarios..."
-              value={searchQueryUsers}
-              onChange={(e) => setSearchQueryUsers(e.target.value)}
-              className="input-search"
-            />
-          </div>
+        <h2 ref={usuariosTitleRef}>Todos los Usuarios</h2>
+        
+        <div className="search-container" style={{ marginBottom: "1rem" }}>
+          <button>
+            <svg
+              width="17"
+              height="16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M7.667 12.667A5.333 5.333 0 107.667 2a5.333 5.333 0 000 10.667zM14.334 14l-2.9-2.9"
+                stroke="currentColor"
+                strokeWidth="1.333"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+          <input
+            type="text"
+            placeholder="Buscar usuarios..."
+            value={searchQueryUsers}
+            onChange={(e) => setSearchQueryUsers(e.target.value)}
+            className="input-search"
+          />
+        </div>
 
+        <div ref={usuariosTableRef}>
           <div className="table-container">
             <TablaTodosUsuarios
               users={filteredUsers}
@@ -493,45 +529,46 @@ const Pacientes = () => {
             )}
           </div>
         </div>
-        {showCreateModal && (
-          <ModalCrearPaciente
-            antecedentesOptions={antecedentesOptions}
-            onClose={() => {
-              setShowCreateModal(false);
-              setUserToConvert(null);
-            }}
-            onCreate={createPaciente}
-            currentUser={user}
-            userToConvert={userToConvert}
-          />
-        )}
-
-        {selectedPaciente && (
-          <ModalDetallesPaciente
-            paciente={selectedPaciente}
-            antecedentesOptions={antecedentesOptions}
-            onClose={() => setSelectedPaciente(null)}
-            onUpdate={updatePaciente}
-            onUpdateDatosClinicos={updateDatosClinicos}
-            isMedico={user.isMedico}
-            isAdmin={user.isAdmin}
-            isPartner={user.isPartner}
-            token={token}
-          />
-        )}
-
-        {showCreateTurnoModal && pacienteForTurno && (
-          <NuevoTurnoModal
-            pacienteForTurno={pacienteForTurno}
-            especialistas={especialistas}
-            onClose={() => setShowCreateTurnoModal(false)}
-            onCreate={fetchPacientes}
-            token={token}
-            currentUser={user}
-            isAdminOrMedico={user.isAdmin || user.isMedico}
-          />
-        )}
       </div>
+
+      {showCreateModal && (
+        <ModalCrearPaciente
+          antecedentesOptions={antecedentesOptions}
+          onClose={() => {
+            setShowCreateModal(false);
+            setUserToConvert(null);
+          }}
+          onCreate={createPaciente}
+          currentUser={user}
+          userToConvert={userToConvert}
+        />
+      )}
+
+      {selectedPaciente && (
+        <ModalDetallesPaciente
+          paciente={selectedPaciente}
+          antecedentesOptions={antecedentesOptions}
+          onClose={() => setSelectedPaciente(null)}
+          onUpdate={updatePaciente}
+          onUpdateDatosClinicos={updateDatosClinicos}
+          isMedico={user.isMedico}
+          isAdmin={user.isAdmin}
+          isPartner={user.isPartner}
+          token={token}
+        />
+      )}
+
+      {showCreateTurnoModal && pacienteForTurno && (
+        <NuevoTurnoModal
+          pacienteForTurno={pacienteForTurno}
+          especialistas={especialistas}
+          onClose={() => setShowCreateTurnoModal(false)}
+          onCreate={fetchPacientes}
+          token={token}
+          currentUser={user}
+          isAdminOrMedico={user.isAdmin || user.isMedico}
+        />
+      )}
     </div>
   );
 };

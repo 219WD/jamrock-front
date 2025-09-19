@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const toLocalDateTimeString = (date) => {
   if (!date) return "";
@@ -36,12 +38,14 @@ const EditarTurnoModal = ({
     setError("");
 
     if (!form.fecha || !form.motivo) {
-      return setError("Fecha y motivo son campos obligatorios");
+      setError("Fecha y motivo son campos obligatorios");
+      return;
     }
 
     const fechaTurno = new Date(form.fecha);
     if (fechaTurno <= new Date()) {
-      return setError("La fecha del turno debe ser futura");
+      setError("La fecha del turno debe ser futura");
+      return;
     }
 
     try {
@@ -65,111 +69,113 @@ const EditarTurnoModal = ({
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content">
-        <button onClick={onClose} className="close-modal" disabled={loading}>
-          &times;
+      <div className="modal-container">
+        <button
+          onClick={onClose}
+          className="modal-close-btn"
+          disabled={loading}
+        >
+          <FontAwesomeIcon icon={faTimes} />
         </button>
-        <h3>Editar Turno</h3>
-        {error && <p className="error-message">{error}</p>}
-        <form onSubmit={handleSubmit}>
-          {canEditEspecialista && (
+        <div className="modal-header">
+          <h2>Editar Turno</h2>
+        </div>
+        <div className="modal-body">
+          {error && <p className="error-message">{error}</p>}
+          <form onSubmit={handleSubmit}>
+            {canEditEspecialista && (
+              <div className="form-group">
+                <label>Especialista:</label>
+                <select
+                  value={form.especialistaId}
+                  onChange={(e) =>
+                    setForm({ ...form, especialistaId: e.target.value })
+                  }
+                  disabled={loading}
+                >
+                  <option value="">Seleccionar especialista</option>
+                  {especialistas.map((especialista) => (
+                    <option key={especialista._id} value={especialista._id}>
+                      {especialista.especialidad} - {especialista.userId?.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             <div className="form-group">
-              <label>Especialista:</label>
-              <select
-                value={form.especialistaId}
-                onChange={(e) =>
-                  setForm({ ...form, especialistaId: e.target.value })
-                }
-                disabled={loading}
-              >
-                <option value="">Seleccionar especialista</option>
-                {especialistas.map((especialista) => (
-                  <option key={especialista._id} value={especialista._id}>
-                    {especialista.especialidad} - {especialista.userId?.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <div className="form-group">
-            <label>Fecha y Hora:</label>
-            <input
-              type="datetime-local"
-              value={form.fecha}
-              onChange={(e) => setForm({ ...form, fecha: e.target.value })}
-              required
-              min={new Date().toISOString().slice(0, 16)}
-              disabled={loading}
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Motivo:</label>
-            <input
-              type="text"
-              value={form.motivo}
-              onChange={(e) => setForm({ ...form, motivo: e.target.value })}
-              required
-              disabled={loading}
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Notas adicionales:</label>
-            <textarea
-              value={form.notas}
-              onChange={(e) => setForm({ ...form, notas: e.target.value })}
-              disabled={loading}
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Estado:</label>
-            <select
-              value={form.estado}
-              onChange={(e) => setForm({ ...form, estado: e.target.value })}
-              disabled={loading}
-            >
-              <option value="pendiente">Pendiente</option>
-              <option value="confirmado">Confirmado</option>
-              <option value="cancelado">Cancelado</option>
-              <option value="completado">Completado</option>
-            </select>
-          </div>
-
-          <div className="form-group checkbox">
-            <label>
+              <label>Fecha y Hora:</label>
               <input
-                type="checkbox"
-                checked={form.reprocannRelacionado}
-                onChange={(e) =>
-                  setForm({ ...form, reprocannRelacionado: e.target.checked })
-                }
+                type="datetime-local"
+                value={form.fecha}
+                onChange={(e) => setForm({ ...form, fecha: e.target.value })}
+                required
+                min={new Date().toISOString().slice(0, 16)}
                 disabled={loading}
               />
-              Relacionado a Reprocann
-            </label>
-          </div>
-
-          <div className="modal-actions">
-            <button
-              type="button"
-              onClick={onClose}
-              className="close-btn"
-              disabled={loading}
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="approve-btn"
-              disabled={loading}
-            >
-              {loading ? "Guardando..." : "Guardar Cambios"}
-            </button>
-          </div>
-        </form>
+            </div>
+            <div className="form-group">
+              <label>Motivo:</label>
+              <input
+                type="text"
+                value={form.motivo}
+                onChange={(e) => setForm({ ...form, motivo: e.target.value })}
+                required
+                disabled={loading}
+              />
+            </div>
+            <div className="form-group">
+              <label>Notas adicionales:</label>
+              <textarea
+                value={form.notas}
+                onChange={(e) => setForm({ ...form, notas: e.target.value })}
+                disabled={loading}
+              />
+            </div>
+            <div className="form-group">
+              <label>Estado:</label>
+              <select
+                value={form.estado}
+                onChange={(e) => setForm({ ...form, estado: e.target.value })}
+                disabled={loading}
+              >
+                <option value="pendiente">Pendiente</option>
+                <option value="confirmado">Confirmado</option>
+                <option value="cancelado">Cancelado</option>
+                <option value="completado">Completado</option>
+              </select>
+            </div>
+            <div className="form-group checkbox">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={form.reprocannRelacionado}
+                  onChange={(e) =>
+                    setForm({ ...form, reprocannRelacionado: e.target.checked })
+                  }
+                  disabled={loading}
+                />
+                Relacionado a Reprocann
+              </label>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                onClick={onClose}
+                className="modal-btn close"
+                disabled={loading}
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="modal-btn approve"
+                disabled={loading}
+              >
+                {loading ? "Guardando..." : "Guardar Cambios"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

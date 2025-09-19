@@ -1,0 +1,251 @@
+.reprocan-section {
+  padding: 4rem 2rem;
+  background: linear-gradient(135deg, #012700 0%, #0a4d00 100%);
+  color: white;
+  font-family: 'Raleway', sans-serif;
+}
+
+.reprocan-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.reprocan-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+/* Estilo para el título con formato de dos líneas */
+.section-title {
+  font-family: "Archivo Black", sans-serif;
+  text-transform: uppercase;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  color: #ffffff;
+}
+
+.title-line {
+  display: block;
+}
+
+.title-line.accent {
+  color: #E4FF00;
+  text-shadow: 0 0 20px rgba(228, 255, 0, 0.7);
+}
+
+.reprocan-header p {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  max-width: 700px;
+  margin: 0 auto;
+  font-family: 'Raleway', sans-serif;
+}
+
+.reprocan-content {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.services-display {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.service-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.service-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.service-card:hover {
+  transform: translateY(-5px);
+  border-color: #74B72C;
+}
+
+.service-card.active {
+  background: rgba(116, 183, 44, 0.2);
+  border-color: #74B72C;
+}
+
+.service-icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #74B72C;
+}
+
+.service-card h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  color: #E4FF00;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 700;
+}
+
+.service-card p {
+  opacity: 0.8;
+  line-height: 1.5;
+  font-family: 'Raleway', sans-serif;
+}
+
+.service-details {
+  background: rgba(1, 39, 0, 0.8);
+  border-radius: 12px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.detail-icon {
+  font-size: 2.5rem;
+  color: #74B72C;
+}
+
+.detail-header h3 {
+  font-size: 1.5rem;
+  color: #E4FF00;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 700;
+}
+
+.detail-list {
+  list-style: none;
+  margin-bottom: 2rem;
+  flex-grow: 1;
+}
+
+.detail-list li {
+  padding: 0.5rem 0;
+  position: relative;
+  padding-left: 1.5rem;
+  font-family: 'Raleway', sans-serif;
+}
+
+.detail-list li:before {
+  content: "•";
+  color: #74B72C;
+  font-size: 1.5rem;
+  position: absolute;
+  left: 0;
+  top: 0.2rem;
+}
+
+.cta-button {
+  background: #74B72C;
+  color: #012700;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-family: 'Raleway', sans-serif;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+}
+
+.cta-button:hover {
+  background: #E4FF00;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(228, 255, 0, 0.3);
+}
+
+.benefits-section h3 {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  color: #E4FF00;
+  font-family: "Archivo Black", sans-serif;
+  text-transform: uppercase;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.benefit-item {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2rem 1.5rem;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.benefit-item:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.benefit-icon {
+  font-size: 2.5rem;
+  color: #74B72C;
+  margin-bottom: 1rem;
+}
+
+.benefit-item h4 {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  color: #E4FF00;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 700;
+}
+
+.benefit-item p {
+  opacity: 0.8;
+  line-height: 1.5;
+  font-family: 'Raleway', sans-serif;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+  .services-display {
+    grid-template-columns: 1fr;
+  }
+  
+  .benefits-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .section-title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .reprocan-section {
+    padding: 3rem 1rem;
+  }
+  
+  .service-details {
+    padding: 1.5rem;
+  }
+  
+  .detail-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .section-title {
+    font-size: 1.8rem;
+  }
+}

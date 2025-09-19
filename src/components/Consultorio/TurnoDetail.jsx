@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import Cloudinary from "../../components/Cloudinary";
-import ModalDetallesPaciente from "../../components/Pacientes/ModalDetallesPaciente";
 import useAuthStore from "../../store/authStore";
 
 const TurnoDetail = ({
@@ -16,7 +15,7 @@ const TurnoDetail = ({
   setTratamiento,
   observaciones,
   setObservaciones,
-  documentos,
+  documentos: documentosAdjuntos,
   nuevoDocumento,
   setNuevoDocumento,
   handleDocumentUploadComplete,
@@ -28,76 +27,24 @@ const TurnoDetail = ({
   updateProductDosis,
   calculateTotal,
   handleSaveHistorial,
+  handleGuardarYCerrar,
   handleCompleteTurno,
   loading,
   guardando,
+  setSelectedTurno,
+  handleOpenPacienteModal, // Nueva prop
 }) => {
-  const [showPacienteModal, setShowPacienteModal] = useState(false);
   const [patientData, setPatientData] = useState(
     selectedTurno?.pacienteId || {}
   );
   const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
 
-  const antecedentesOptions = {
-    afeccionCardiaca: "Afección cardíaca",
-    alteracionCoagulacion: "Alteración de la coagulación",
-    diabetes: "Diabetes",
-    hipertension: "Hipertensión",
-    epilepsia: "Epilepsia",
-    insufRenal: "Insuficiencia renal",
-    hepatitis: "Hepatitis",
-    insufHepatica: "Insuficiencia hepática",
-    alergia: "Alergia",
-    asma: "Asma",
-    otros: "Otros",
-  };
-
   useEffect(() => {
     if (selectedTurno?.pacienteId) {
       setPatientData(selectedTurno.pacienteId);
     }
   }, [selectedTurno?.pacienteId]);
-
-  const updatePaciente = async (pacienteId, updatedData) => {
-    try {
-      const response = await fetch(
-        `http://localhost:4000/pacientes/${pacienteId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(updatedData),
-        }
-      );
-      const data = await response.json();
-      return { success: response.ok, data, error: data.error };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  };
-
-  const updateDatosClinicos = async (pacienteId, datosClinicos) => {
-    try {
-      const response = await fetch(
-        `http://localhost:4000/pacientes/${pacienteId}/datos-clinicos`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(datosClinicos),
-        }
-      );
-      const data = await response.json();
-      return { success: response.ok, data, error: data.error };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  };
 
   return (
     <div className="turno-detail">
@@ -125,8 +72,7 @@ const TurnoDetail = ({
             <button
               className="btn-info-paciente"
               onClick={() => {
-                setPatientData(selectedTurno.pacienteId);
-                setShowPacienteModal(true);
+                handleOpenPacienteModal(selectedTurno.pacienteId);
               }}
             >
               Info Paciente
@@ -198,7 +144,6 @@ const TurnoDetail = ({
             )}
           </div>
 
-          {/* Sección de Precio de Consulta - Ahora aparece siempre */}
           <div className="price-section">
             <label>Precio de Consulta:</label>
             <input
@@ -211,7 +156,6 @@ const TurnoDetail = ({
             />
           </div>
 
-          {/* Sección de Forma de Pago - Ahora aparece siempre */}
           <div className="payment-section">
             <label>Forma de Pago:</label>
             <select
@@ -225,7 +169,6 @@ const TurnoDetail = ({
             </select>
           </div>
 
-          {/* Sección de Notas - Ahora aparece siempre */}
           <div className="notes-section">
             <label>Notas de la Consulta:</label>
             <textarea
@@ -235,12 +178,10 @@ const TurnoDetail = ({
             />
           </div>
 
-          {/* Sección de Total - Corregida para no duplicar */}
           <div className="total-section">
             <strong>Total:</strong> ${calculateTotal()}
           </div>
 
-          {/* Sección de Productos Seleccionados (solo si hay productos) */}
           {selectedProducts.length > 0 && (
             <div className="selected-products">
               <h4>Productos Seleccionados</h4>
@@ -337,14 +278,15 @@ const TurnoDetail = ({
                 </div>
                 <Cloudinary
                   onUploadComplete={handleDocumentUploadComplete}
-                  disabled={!nuevoDocumento.nombre}
-                  buttonText="Subir Documento"
+                  showPreview={false}
+                  onRemoveImage={handleRemoveDocument}
+                  buttonText="Adjuntar documento"
                 />
               </div>
 
-              {documentos.length > 0 && (
+              {documentosAdjuntos.length > 0 && (
                 <ul className="documentos-list">
-                  {documentos.map((doc, index) => (
+                  {documentosAdjuntos.map((doc, index) => (
                     <li key={index}>
                       <div className="documento-info">
                         <span className="documento-nombre">{doc.nombre}</span>
@@ -382,20 +324,6 @@ const TurnoDetail = ({
               {guardando ? "Procesando..." : "Completar Turno"}
             </button>
           </div>
-
-          {showPacienteModal && (
-            <ModalDetallesPaciente
-              paciente={selectedTurno?.pacienteId}
-              antecedentesOptions={antecedentesOptions}
-              onClose={() => setShowPacienteModal(false)}
-              onUpdate={updatePaciente}
-              onUpdateDatosClinicos={updateDatosClinicos}
-              isMedico={user.isMedico}
-              isAdmin={user.isAdmin}
-              isPartner={user.isPartner}
-              token={token}
-            />
-          )}
         </>
       ) : (
         <div className="no-turno-selected">

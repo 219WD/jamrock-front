@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useAuthStore from "../store/authStore";
 import NavDashboard from "../components/NavDashboard";
 import useNotify from "../hooks/useToast";
@@ -20,10 +20,12 @@ const Turnos = () => {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [especialidadFilter, setEspecialidadFilter] = useState("todos");
+  const [showToday, setShowToday] = useState(false);
   const [showNuevoTurnoModal, setShowNuevoTurnoModal] = useState(false);
   const [showEditarTurnoModal, setShowEditarTurnoModal] = useState(false);
   const [turnoAEditar, setTurnoAEditar] = useState(null);
 
+  const adminContainerRef = useRef(null);
   const notify = useNotify();
 
   const fetchTurnos = async () => {
@@ -159,6 +161,13 @@ const Turnos = () => {
           turno.especialistaId?.especialidad === especialidadFilter;
 
         const fechaTurno = new Date(turno.fecha);
+        const today = new Date("2025-09-03");
+        const matchesToday =
+          !showToday ||
+          (fechaTurno.getFullYear() === today.getFullYear() &&
+            fechaTurno.getMonth() === today.getMonth() &&
+            fechaTurno.getDate() === today.getDate());
+
         const fromDate = dateFrom ? new Date(dateFrom) : null;
         const toDate = dateTo ? new Date(dateTo + "T23:59:59") : null;
 
@@ -167,7 +176,11 @@ const Turnos = () => {
           (!toDate || fechaTurno <= toDate);
 
         return (
-          matchesSearch && matchesStatus && matchesEspecialidad && matchesDate
+          matchesSearch &&
+          matchesStatus &&
+          matchesEspecialidad &&
+          matchesDate &&
+          matchesToday
         );
       })
       .sort((a, b) => {
@@ -187,117 +200,156 @@ const Turnos = () => {
   ];
 
   return (
-    <div className="turnos-panel">
+    <div className="dashboard turnos">
       <NavDashboard />
-      <div className="turnos-container">
-        <div className="title-admin">
-          <h1>Gestión de Turnos</h1>
-        </div>
-
-        <div className="filtros-container">
-          <div className="search-container">
-            <input
-              type="text"
-              placeholder="Buscar por paciente, especialista o motivo..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="input-search"
-            />
+      <div className="turnos-wrapper">
+        <div className="turnos-container" ref={adminContainerRef}>
+          <div className="title-admin">
+            <h1>Gestión de Turnos</h1>
+            <div className="search-container">
+              <button type="button">
+                <svg width="17" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M7.667 12.667A5.333 5.333 0 107.667 2a5.333 5.333 0 000 10.667zM14.334 14l-2.9-2.9"
+                    stroke="currentColor"
+                    strokeWidth="1.333"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+              <input
+                className="input-search"
+                placeholder="Buscar por paciente, especialista o motivo..."
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <button
+                className="reset"
+                type="reset"
+                onClick={() => setSearchQuery("")}
+              >
+                <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M12 4L4 12M4 4l8 8"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
 
-          <div className="status-filter">
-            <label>Estado:</label>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="todos">Todos</option>
-              <option value="pendiente">Pendientes</option>
-              <option value="confirmado">Confirmados</option>
-              <option value="cancelado">Cancelados</option>
-              <option value="completado">Completados</option>
-            </select>
+          <div className="filtros-adicionales">
+            <div className="filter-group">
+              <label>Estado:</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="todos">Todos</option>
+                <option value="pendiente">Pendientes</option>
+                <option value="confirmado">Confirmados</option>
+                <option value="cancelado">Cancelados</option>
+                <option value="completado">Completados</option>
+              </select>
+            </div>
+            <div className="filter-group">
+              <label>Especialidad:</label>
+              <select
+                value={especialidadFilter}
+                onChange={(e) => setEspecialidadFilter(e.target.value)}
+              >
+                <option value="todos">Todas</option>
+                {especialidadesUnicas.map((especialidad, index) => (
+                  <option key={index} value={especialidad}>
+                    {especialidad}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="filter-group">
+              <label>Orden:</label>
+              <select
+                value={dateOrder}
+                onChange={(e) => setDateOrder(e.target.value)}
+              >
+                <option value="desc">Más recientes</option>
+                <option value="asc">Más antiguos</option>
+              </select>
+            </div>
+            <div className="filter-group">
+              <button
+                className="today-btn"
+                onClick={() => {
+                  setShowToday(!showToday);
+                  setDateFrom("");
+                  setDateTo("");
+                }}
+              >
+                Hoy
+              </button>
+            </div>
+            <div className="date-filters">
+              <div className="filter-group">
+                <label>Desde:</label>
+                <input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                  disabled={showToday}
+                />
+              </div>
+              <div className="filter-group">
+                <label>Hasta:</label>
+                <input
+                  type="date"
+                  value={dateTo}
+                  onChange={(e) => setDateTo(e.target.value)}
+                  disabled={showToday}
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="status-filter">
-            <label>Especialidad:</label>
-            <select
-              value={especialidadFilter}
-              onChange={(e) => setEspecialidadFilter(e.target.value)}
-            >
-              <option value="todos">Todas</option>
-              {especialidadesUnicas.map((especialidad, index) => (
-                <option key={index} value={especialidad}>
-                  {especialidad}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="status-filter">
-            <label>Orden:</label>
-            <select
-              value={dateOrder}
-              onChange={(e) => setDateOrder(e.target.value)}
-            >
-              <option value="desc">Más recientes</option>
-              <option value="asc">Más antiguos</option>
-            </select>
-          </div>
-
-          <div className="status-filter">
-            <label>Desde:</label>
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-            />
-          </div>
-
-          <div className="status-filter">
-            <label>Hasta:</label>
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-            />
-          </div>
-        </div>
-
-        <TurnosTable
-          turnos={filterTurnos()}
-          loading={loading}
-          onEstadoChange={handleEstadoChange}
-          onReprogramar={(turno) => {
-            setTurnoAEditar(turno);
-            setShowEditarTurnoModal(true);
-          }}
-        />
-
-        {showNuevoTurnoModal && (
-          <NuevoTurnoModal
-            especialistas={especialistas}
-            onClose={() => setShowNuevoTurnoModal(false)}
-            onCreate={fetchTurnos}
-            token={token}
-            currentUser={user}
-            isAdminOrMedicoOrSecretaria={
-              user.isAdmin || user.isMedico || user.isSecretaria
-            }
+          <TurnosTable
+            turnos={filterTurnos()}
+            loading={loading}
+            onEstadoChange={handleEstadoChange}
+            onReprogramar={(turno) => {
+              setTurnoAEditar(turno);
+              setShowEditarTurnoModal(true);
+            }}
           />
-        )}
-
-        {showEditarTurnoModal && turnoAEditar && (
-          <EditarTurnoModal
-            turno={turnoAEditar}
-            especialistas={especialistas}
-            onClose={() => setShowEditarTurnoModal(false)}
-            onSave={handleReprogramarTurno}
-            currentUserId={user._id}
-            canEditEspecialista={user.isAdmin || user.isSecretaria}
-          />
-        )}
+        </div>
       </div>
+
+      {showNuevoTurnoModal && (
+        <NuevoTurnoModal
+          especialistas={especialistas}
+          onClose={() => setShowNuevoTurnoModal(false)}
+          onCreate={fetchTurnos}
+          token={token}
+          currentUser={user}
+          isAdminOrMedicoOrSecretaria={
+            user.isAdmin || user.isMedico || user.isSecretaria
+          }
+        />
+      )}
+
+      {showEditarTurnoModal && turnoAEditar && (
+        <EditarTurnoModal
+          turno={turnoAEditar}
+          especialistas={especialistas}
+          onClose={() => setShowEditarTurnoModal(false)}
+          onSave={handleReprogramarTurno}
+          currentUserId={user._id}
+          canEditEspecialista={user.isAdmin || user.isSecretaria}
+        />
+      )}
     </div>
   );
 };

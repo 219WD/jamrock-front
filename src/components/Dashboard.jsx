@@ -17,7 +17,7 @@ function Dashboard() {
   const token = useAuthStore((state) => state.token);
   const API_URL = "http://localhost:4000/cart";
   const navigate = useNavigate();
-  const hasAnimated = useRef(false); // Track if animations have run
+  const hasAnimated = useRef(false);
 
   // Fetch functions (unchanged)
   const fetchPedidos = async () => {
@@ -75,6 +75,9 @@ function Dashboard() {
       setPedidos((prev) =>
         prev.map((pedido) => (pedido._id === pedidoId ? updatedPedido : pedido))
       );
+      if (selectedPedido && selectedPedido._id === pedidoId) {
+        setSelectedPedido(updatedPedido);
+      }
     } catch (err) {
       console.error("Error updating order status:", err);
       setError(err.message);
@@ -104,22 +107,20 @@ function Dashboard() {
     fetchUsers();
   }, []);
 
-  // GSAP Animation
+  // GSAP Animation for dashboard
   useEffect(() => {
-    if (hasAnimated.current || loading) return; // Skip if already animated or loading
+    if (hasAnimated.current || loading) return;
 
-    hasAnimated.current = true; // Mark as animated
+    hasAnimated.current = true;
 
     const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
 
-    // 1. Animate container-main
     tl.fromTo(
       ".container-main",
       { opacity: 0, x: -50 },
       { opacity: 1, x: 0, duration: 0.5 }
     );
 
-    // 2. Animate right-sidebar items
     tl.fromTo(
       ".right-sidebar",
       { opacity: 1, x: 50 },
@@ -141,7 +142,6 @@ function Dashboard() {
       "-=0.3"
     );
 
-    // 3. Animate stats one by one
     tl.fromTo(
       ".stat",
       { opacity: 0, scale: 0.8 },
@@ -149,17 +149,15 @@ function Dashboard() {
       "-=0.3"
     );
 
-    // 4. Animate stat texts (h3 and p) after each stat
     document.querySelectorAll(".stat").forEach((stat, index) => {
       tl.fromTo(
         stat.querySelectorAll("h3, p"),
         { opacity: 0, y: 10 },
         { opacity: 1, y: 0, duration: 0.3, stagger: 0.1 },
-        `-=${0.3 - index * 0.1}` // Sync with stat animation
+        `-=${0.3 - index * 0.1}`
       );
     });
 
-    // 5. Animate help section
     tl.fromTo(
       ".help",
       { opacity: 0, y: 20 },
@@ -167,7 +165,6 @@ function Dashboard() {
       "-=0.3"
     );
 
-    // 6. Animate h2
     tl.fromTo(
       ".container-main h2",
       { opacity: 0, y: -20 },
@@ -175,7 +172,6 @@ function Dashboard() {
       "-=0.3"
     );
 
-    // 7. Animate orders-table
     tl.fromTo(
       ".orders-table",
       { opacity: 0, y: 50 },
@@ -184,12 +180,29 @@ function Dashboard() {
     );
 
     return () => {
-      tl.kill(); // Clean up timeline on unmount
+      tl.kill();
     };
-  }, [loading]); // Run after loading is complete
+  }, [loading]);
+
+  // GSAP Animation for modal
+  useEffect(() => {
+    if (!selectedPedido) return;
+
+    gsap.fromTo(
+      ".dashboard-modal-overlay",
+      { opacity: 0 },
+      { opacity: 1, duration: 0.3, ease: "power2.out" }
+    );
+
+    gsap.fromTo(
+      ".dashboard-modal-content",
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" }
+    );
+  }, [selectedPedido]);
 
   if (loading && pedidos.length === 0) {
-    return <LoaderGsap visible={true} loop={false} />; // loop false para que no se repita
+    return <LoaderGsap visible={true} loop={false} />;
   }
 
   return (
@@ -228,7 +241,7 @@ function Dashboard() {
               <button>VER GRÁFICOS</button>
             </div>
           </section>
-          <h2>Ultimos pedidos pendientes de confirmación</h2>
+          <h2>Últimos pedidos pendientes de confirmación</h2>
           <section className="orders-table">
             <table>
               <thead>
@@ -318,7 +331,7 @@ function Dashboard() {
                       className="status-select"
                     >
                       <option value="pagado">Pagado</option>
-                      <option value="confirmado">Confirmado</option>
+                      <option value="pendiente">Pendiente</option>
                       <option value="preparacion">En preparación</option>
                       <option value="cancelado">Cancelado</option>
                       <option value="entregado">Entregado</option>
@@ -334,21 +347,21 @@ function Dashboard() {
       </aside>
       {selectedPedido && (
         <div
-          className="modal-overlay futurista"
+          className="dashboard-modal-overlay"
           onClick={() => setSelectedPedido(null)}
         >
           <div
-            className="modal-content futurista"
-            onClick={(e) => e.stopPropagation()} // Prevent click from closing modal when clicking inside
+            className="dashboard-modal-content"
+            onClick={(e) => e.stopPropagation()}
           >
             <button
-              className="close-modal futurista"
+              className="dashboard-modal-close-btn"
               onClick={() => setSelectedPedido(null)}
             >
               &times;
             </button>
-            <h2 className="title-futurista">Detalle del Pedido</h2>
-            <div className="modal-body">
+            <h2 className="dashboard-modal-title">Detalle del Pedido</h2>
+            <div className="dashboard-modal-body">
               <p>
                 <strong>Usuario:</strong>{" "}
                 {selectedPedido.userId?.name || "No disponible"}
@@ -366,7 +379,7 @@ function Dashboard() {
               </p>
               {selectedPedido.shippingAddress && (
                 <>
-                  <h3 className="title-futurista">Dirección de envío:</h3>
+                  <h3 className="dashboard-modal-title">Dirección de envío:</h3>
                   <p>
                     <strong>Nombre:</strong>{" "}
                     {selectedPedido.shippingAddress.name}
@@ -381,7 +394,7 @@ function Dashboard() {
                   </p>
                 </>
               )}
-              <h3 className="title-futurista">Productos:</h3>
+              <h3 className="dashboard-modal-title">Productos:</h3>
               <ul>
                 {selectedPedido.items.map((item, i) => (
                   <li key={i}>
@@ -390,26 +403,26 @@ function Dashboard() {
                   </li>
                 ))}
               </ul>
-              <h3 className="title-futurista">Total:</h3>
+              <h3 className="dashboard-modal-title">Total:</h3>
               <p>${selectedPedido.totalAmount?.toFixed(2)}</p>
             </div>
-            <div className="modal-actions futurista">
+            <div className="dashboard-modal-actions">
               <select
                 value={selectedPedido.status}
                 onChange={(e) =>
                   handleUpdateStatus(selectedPedido._id, e.target.value)
                 }
-                className="status-select futurista"
+                className="dashboard-status-select"
               >
                 <option value="pagado">Pagado</option>
-                <option value="confirmado">Confirmado</option>
+                <option value="pendiente">Pendiente</option>
                 <option value="preparacion">En preparación</option>
                 <option value="cancelado">Cancelado</option>
                 <option value="entregado">Entregado</option>
               </select>
               <button
                 onClick={() => setSelectedPedido(null)}
-                className="close-btn futurista"
+                className="dashboard-close-btn"
               >
                 Cerrar
               </button>

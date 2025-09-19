@@ -6,6 +6,8 @@ import Footer from '../components/Footer';
 import Especial from '../components/Especial.jsx';
 import useAuthStore from '../store/authStore.js'; // ajustá la ruta si es diferente
 import useCartStore from '../store/cartStore.js';
+import ReprocanSection from '../components/ReprocanSection.jsx';
+import AfterOfficeSection from '../components/AfterOfficeSection.jsx';
 
 const HomeScreen = ({ addToCart }) => {
   const user = useAuthStore((state) => state.user);
@@ -24,7 +26,8 @@ const HomeScreen = ({ addToCart }) => {
       {isLoggedIn && isPartner && (
         <>
           <Cards onAddToCart={addToCart} />
-          <Sugerencia />
+          <ReprocanSection />
+          <AfterOfficeSection />
         </>
       )}
       

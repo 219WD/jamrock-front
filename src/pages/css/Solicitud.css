@@ -1,5 +1,5 @@
 /* Solicitud.css */
-.solicitud-container {
+.solicitud-membership-container {
   position: fixed;
   top: 0;
   left: 0;
@@ -14,9 +14,10 @@
   z-index: 999;
   font-family: "Zen Dots", sans-serif;
   color: #fff;
+  overflow: hidden;
 }
 
-.solicitud-container::after {
+.solicitud-membership-container::after {
   content: "";
   position: absolute;
   top: -50%;
@@ -29,25 +30,26 @@
     transparent 70%
   );
   pointer-events: none;
-  z-index: 998;
+  z-index: 0;
   animation: rotate 20s linear infinite;
 }
 
-.solicitud-form {
+.solicitud-membership-form {
   width: 320px;
   border-radius: 12px;
-  background-color: rgba(20, 30, 40, 0.85); /* Dark glass effect */
+  background-color: rgba(20, 30, 40, 0.85);
   padding: 2rem;
   color: #fff;
-  border: 1px solid rgba(0, 255, 0, 0.3); /* Green border */
-  box-shadow: 0 0 20px rgba(0, 255, 0, 0.1); /* Green shadow */
+  font-family: "Zen Dots", sans-serif;
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
   backdrop-filter: blur(5px);
   position: relative;
   overflow: hidden;
   z-index: 1000;
 }
 
-.solicitud-form::before {
+.solicitud-membership-form::before {
   content: "";
   position: absolute;
   top: 0;
@@ -62,18 +64,18 @@
   z-index: -1;
 }
 
-.solicitud-form h2 {
+.solicitud-title {
   text-align: center;
   font-size: 1.5rem;
   line-height: 2rem;
   font-weight: 700;
-  color: #00ff00; /* Bright green */
+  color: #00ff00;
   text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
   margin-bottom: 1.5rem;
   position: relative;
 }
 
-.solicitud-form h2::after {
+.solicitud-title::after {
   content: "";
   position: absolute;
   bottom: -8px;
@@ -84,73 +86,78 @@
   background: linear-gradient(90deg, transparent, #00ff00, transparent);
 }
 
-.solicitud-form p {
+.solicitud-user-name {
   color: #fff;
-  font-size: 0.875rem;
+  font-size: 1rem;
   margin-bottom: 1.5rem;
   text-align: center;
+  background-color: rgba(0, 255, 0, 0.1);
+  padding: 0.5rem;
+  border-radius: 4px;
 }
 
-.input-group {
-  margin-bottom: 1rem;
+.solicitud-input-group {
+  margin-bottom: 1.2rem;
+  position: relative;
 }
 
-.input-group label {
+.solicitud-label {
   display: block;
-  color: #00ff00; /* Green */
+  color: #00ff00;
   margin-bottom: 8px;
   font-size: 0.875rem;
 }
 
-.input-group input[type="text"],
-.input-group input[type="tel"] {
+.solicitud-input {
   width: 100%;
   border-radius: 6px;
-  border: 1px solid rgba(0, 255, 0, 0.5); /* Green border */
+  border: 1px solid rgba(0, 255, 0, 0.5);
   outline: 0;
   background-color: rgba(0, 20, 40, 0.5);
   padding: 0.75rem 1rem;
   color: #fff;
-  font-family: inherit;
+  font-family: "Zen Dots", sans-serif;
   transition: all 0.3s ease;
 }
 
-.input-group input:focus {
-  border-color: #00ff00; /* Green */
+.solicitud-input:focus {
+  border-color: #00ff00;
   box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
 }
 
-.input-group input::placeholder {
+.solicitud-input::placeholder {
   color: rgba(200, 200, 200, 0.5);
 }
 
-.input-group p {
-  text-align: left;
-}
-
-.checkbox-group {
+.solicitud-checkbox-group {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 0.5rem;
+  background-color: rgba(0, 255, 0, 0.1);
+  border-radius: 6px;
 }
 
-.checkbox-group label {
-  color: #00ff00; /* Green */
+.solicitud-checkbox-label {
+  color: #00ff00;
   font-size: 0.875rem;
+  cursor: pointer;
+  margin-bottom: 0;
+}
+
+.solicitud-checkbox {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: #00ff00;
   cursor: pointer;
 }
 
-.checkbox-group input[type="checkbox"] {
-  width: auto;
-  margin: 0;
-  accent-color: #00ff00; /* Green */
-}
-
-.solicitud-form button {
+.solicitud-submit-btn {
   display: block;
   width: 100%;
-  background: linear-gradient(45deg, #006600, #00aa00); /* Green gradient */
+  background: linear-gradient(45deg, #006600, #00aa00);
   padding: 0.75rem;
   text-align: center;
   color: white;
@@ -163,16 +170,14 @@
   letter-spacing: 1px;
   position: relative;
   overflow: hidden;
-  margin-top: 10px;
 }
 
-.solicitud-form button:hover {
+.solicitud-submit-btn:hover {
   background: linear-gradient(45deg, #008800, #00cc00);
   box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
-  transform: scale(1.02);
 }
 
-.solicitud-form button::after {
+.solicitud-submit-btn::after {
   content: "";
   position: absolute;
   top: 0;
@@ -188,47 +193,49 @@
   transition: 0.5s;
 }
 
-.solicitud-form button:hover::after {
+.solicitud-submit-btn:hover::after {
   left: 100%;
 }
 
-.error {
+.solicitud-error {
   text-align: center;
   color: #ff5555;
-  margin-top: 10px;
+  margin-top: 15px;
   font-size: 0.85rem;
   text-shadow: 0 0 5px rgba(255, 85, 85, 0.3);
+  padding: 0.5rem;
+  background-color: rgba(255, 85, 85, 0.1);
+  border-radius: 4px;
 }
 
 /* Responsive adjustments */
 @media (max-width: 600px) {
-  .solicitud-form {
+  .solicitud-membership-form {
     width: 90%;
     padding: 1.5rem;
   }
 
-  .solicitud-form h2 {
+  .solicitud-title {
     font-size: 1.25rem;
     line-height: 1.75rem;
   }
 
-  .solicitud-form p {
+  .solicitud-user-name {
     font-size: 0.8rem;
   }
 
-  .input-group input[type="text"],
-  .input-group input[type="tel"] {
+  .solicitud-input {
     padding: 0.6rem 0.8rem;
     font-size: 0.85rem;
   }
 
-  .input-group label,
-  .checkbox-group label {
+  .solicitud-label,
+  .solicitud-checkbox-label {
     font-size: 0.8rem;
   }
 
-  .solicitud-form button {
-    padding: 0.6rem;
+  .solicitud-submit-btn {
+    padding: 0.7rem;
     font-size: 0.85rem;
   }
 }
@@ -239,73 +246,129 @@
   }
 }
 
-/* Unused classes from original CSS, retained for potential future use */
-.success-message {
-  color: #00ff00;
-  font-size: 0.85rem;
-  margin-top: 10px;
-  text-align: center;
-}
-.user-info {
-  text-align: center;
-  margin-bottom: 1.5rem;
+/* Animación adicional para inputs */
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(0, 255, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 255, 0, 0); }
 }
 
-.user-info h3 {
-  color: #fff;
-  font-size: 1rem;
-  text-align: center;
-  margin-bottom: 1.5rem;
+.solicitud-input:focus {
+  animation: pulse 2s infinite;
 }
 
-.view-mode .input-group p {
-  font-weight: bold;
-  color: #fff;
-  margin: 0.5rem 0;
-}
-
-.no-partner-message {
-  text-align: center;
-  color: #fff;
-  margin-top: 1rem;
-}
-
-.loading-container {
+/* Estilos adicionales para SolicitudPendiente */
+.solicitud-loading-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background-color: rgba(0, 10, 20, 0.8);
-  backdrop-filter: blur(3px);
+  color: #fff;
 }
 
-.loading-spinner {
+.solicitud-loading-spinner {
+  width: 40px;
+  height: 40px;
   border: 4px solid rgba(255, 255, 255, 0.3);
-  border-left-color: #00ff00;
-  width: 36px;
-  height: 36px;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  border-top-color: #00ff00;
+  animation: spin 1s ease-in-out infinite;
   margin-bottom: 1rem;
 }
 
-.button-group {
+.solicitud-error-message {
+  text-align: center;
+  color: #ff5555;
+  padding: 1rem;
+  background-color: rgba(255, 85, 85, 0.1);
+  border-radius: 4px;
+  margin: 1rem;
+}
+
+.solicitud-success-message {
+  text-align: center;
+  color: #00ff00;
+  padding: 1rem;
+  background-color: rgba(0, 255, 0, 0.1);
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.solicitud-user-info {
+  background-color: rgba(0, 255, 0, 0.1);
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+}
+
+.solicitud-user-status {
+  color: #00ff00;
+  margin-bottom: 0.5rem;
+}
+
+.solicitud-button-group {
   display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.button-group button {
-  flex: 1;
+.solicitud-cancel-btn {
+  display: block;
+  width: 100%;
+  background: transparent;
+  padding: 0.75rem;
+  text-align: center;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-.btn-cancel {
-  background: linear-gradient(45deg, #660000, #aa0000) !important;
+.solicitud-cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
-.btn-cancel:hover {
-  background: linear-gradient(45deg, #880000, #cc0000) !important;
-  box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
-  transform: scale(1.02);
+.solicitud-view-mode p {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin-top: 0.5rem;
+}
+
+.solicitud-no-partner {
+  text-align: center;
+  padding: 1.5rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Botón de volver atrás */
+.solicitud-back-btn {
+  display: block;
+  width: 100%;
+  background: linear-gradient(45deg, #333, #555);
+  padding: 0.75rem;
+  text-align: center;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 1rem;
+}
+
+.solicitud-back-btn:hover {
+  background: linear-gradient(45deg, #444, #666);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
 }

@@ -229,6 +229,10 @@ const NavDashboard = () => {
         {/* Secretaria Section */}
         {isSecretaria && !isAdmin && !isMedico && (
           <div className="menu-section">
+            <Link to="/pedidos" className="submenu-item">
+              <FontAwesomeIcon icon={faBox} className="submenu-icon" />
+              <span>Pedidos</span>
+            </Link>
             <Link to="/clientes" className="submenu-item">
               <FontAwesomeIcon icon={faUser} className="submenu-icon" />
               <span>Clientes</span>

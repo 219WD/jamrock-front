@@ -11,46 +11,50 @@ const useCartStore = create(
       loading: false,
       error: null,
 
-      fetchCart: async () => {
-        const { token, user } = useAuthStore.getState();
-        if (!token || !user?._id) return;
+fetchCart: async () => {
+  const { token, user } = useAuthStore.getState();
+  if (!token || !user?._id) return;
 
-        set({ loading: true });
-        try {
-          const res = await fetch(`http://localhost:4000/cart/user/${user._id}/last`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-          if (!res.ok) throw new Error('Error al obtener carrito');
-          const data = await res.json();
-
-          if (data && ['inicializado', 'pendiente', 'pagado', 'preparacion'].includes(data.status)) {
-            set({
-              cart: data.items.map(item => ({
-                id: item.productId._id || item.productId,
-                ...item.productId,
-                quantity: item.quantity
-              })),
-              cartId: {
-                id: data._id,
-                status: data.status,
-                paymentMethod: data.paymentMethod,
-                deliveryMethod: data.deliveryMethod,
-                shippingAddress: data.shippingAddress,
-              }
-            });
-          } else {
-            // Si el último carrito ya fue entregado o pagado, se limpia
-            set({ cart: [], cartId: null });
-          }
-        } catch (err) {
-          set({ error: err.message });
-        } finally {
-          set({ loading: false });
-        }
+  set({ loading: true });
+  try {
+    const res = await fetch(`http://localhost:4000/cart/user/${user._id}/last`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
+    });
+
+    if (!res.ok) throw new Error('Error al obtener carrito');
+    const data = await res.json();
+
+    if (data && ['inicializado', 'pendiente', 'pagado', 'preparacion', 'entregado', 'cancelado'].includes(data.status)) {
+      set({
+        cart: data.items.map(item => ({
+          id: item.productId._id || item.productId,
+          ...item.productId,
+          quantity: item.quantity
+        })),
+        cartId: {
+          id: data._id,
+          status: data.status,
+          paymentMethod: data.paymentMethod,
+          deliveryMethod: data.deliveryMethod,
+          shippingAddress: data.shippingAddress,
+        }
+      });
+      
+      // Limpiar solo si el carrito está en estado final
+      if (['entregado', 'cancelado'].includes(data.status)) {
+        set({ cart: [], cartId: null });
+      }
+    } else {
+      set({ cart: [], cartId: null });
+    }
+  } catch (err) {
+    set({ error: err.message });
+  } finally {
+    set({ loading: false });
+  }
+},
 
       addToCart: async (product, extraData = {}) => {
         const { token, user } = useAuthStore.getState();
@@ -115,7 +119,7 @@ const useCartStore = create(
       updateQuantity: async (productId, increment) => {
         const { token } = useAuthStore.getState();
         const { cartId } = get();
-        if (!token || !cartId || ['pagado', 'preparacion', 'cancelado', 'entregado'].includes(cartId.status)) return;
+        if (!token || !cartId || ['pagado', 'preparacion', 'entregado', 'cancelado'].includes(cartId.status)) return;
 
         set({ loading: true });
         try {
@@ -162,43 +166,55 @@ const useCartStore = create(
         }
       },
 
-      checkoutCart: async (data) => {
-        const { token } = useAuthStore.getState();
-        const { cartId } = get();
-        if (!token || !cartId || ['pagado', 'preparacion', 'entregado'].includes(cartId.status)) return;
-        set({ loading: true });
-        try {
-          const response = await fetch(`http://localhost:4000/cart/checkout/${cartId.id}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(data),
-          });
-
-          if (!response.ok) {
-            const resData = await response.json();
-            throw new Error(resData.message || "Error al finalizar compra");
-          }
-
-          set({ cart: [], cartId: null });
-
-          // Refetch products to update stock
-          const resProducts = await fetch("http://localhost:4000/products/getProducts");
-          if (!resProducts.ok) throw new Error("Error al actualizar productos");
-          const updatedProducts = await resProducts.json();
-          // Assuming you have a way to update products in the Productos component,
-          // you might need to lift this state or use a global store for products.
-
-          return await response.json();
-        } catch (error) {
-          set({ error: error.message });
-          throw error;
-        } finally {
-          set({ loading: false });
-        }
+checkoutCart: async (data) => {
+  const { token } = useAuthStore.getState();
+  const { cartId } = get();
+  
+  // Permitir checkout solo si el carrito no está en estados finales
+  if (!token || !cartId || ['entregado', 'cancelado'].includes(cartId.status)) return;
+  
+  set({ loading: true });
+  try {
+    const response = await fetch(`http://localhost:4000/cart/checkout/${cartId.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
       },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const resData = await response.json();
+      throw new Error(resData.message || "Error al finalizar compra");
+    }
+
+    // NO limpiar el carrito aquí - en su lugar, actualizar el estado
+    // El carrito se mantendrá con los items pero con nuevo estado
+    await get().fetchCart(); // Esto actualizará el estado del carrito
+
+    // Refetch products to update stock
+    const resProducts = await fetch("http://localhost:4000/products/getProducts");
+    if (!resProducts.ok) throw new Error("Error al actualizar productos");
+    const updatedProducts = await resProducts.json();
+    
+    return await response.json();
+  } catch (error) {
+    set({ error: error.message });
+    throw error;
+  } finally {
+    set({ loading: false });
+  }
+},
+
+// También modificar la función clearCart para que sea más específica
+clearCart: () => {
+  // Solo limpiar si el carrito está en un estado final
+  const { cartId } = get();
+  if (!cartId || ['entregado', 'cancelado'].includes(cartId.status)) {
+    set({ cart: [], cartId: null, isCartVisible: false });
+  }
+},
 
       toggleCartVisibility: () =>
         set((state) => ({ isCartVisible: !state.isCartVisible })),

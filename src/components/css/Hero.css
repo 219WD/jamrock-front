@@ -1,114 +1,265 @@
-.hero {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    overflow: hidden;
-    background-image: url("/src/assets/jamrock.png");
-    background-position: top;
-    background-size: cover;
-    background-repeat: no-repeat;
+/* Hero.css */
+.hero-modern {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  background: linear-gradient(135deg, #012700 0%, #1F7B00 50%, #0D3D00 100%);
 }
 
-.txt {
-    text-align: left;
-    padding: 2rem;
+.hero-bg-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
 }
 
-.txt h1 {
-    font-family: "Archivo Black", sans-serif;
-    text-transform: uppercase;
-    font-size: 4rem;
-    line-height: 3.5rem;
-    width: 50vw;
-    color: #E4FF00;
+.layer-1 {
+  background: radial-gradient(ellipse at 80% 20%, rgba(228, 255, 0, 0.1) 0%, transparent 70%);
 }
 
-.txt p {
-    font-family: "Raleway", sans-serif;
-    text-align: left;
-    font-size: 1.2rem;
-    width: 50vw !important;
-    margin: 1rem 0;
-    color: #f0f0f0;
+.layer-2 {
+  background: radial-gradient(ellipse at 20% 80%, rgba(116, 183, 44, 0.15) 0%, transparent 70%);
 }
 
-.buttons {
-    display: flex;
-    justify-content: flex-start;
-    gap: 1rem;
+.layer-3 {
+  background: 
+    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(228, 255, 0, 0.08) 0%, transparent 50%);
 }
 
-.btn-primary {
-    font-family: "Raleway", sans-serif;
-    text-decoration: none;
-    background: #E4FF00;
-    color: #012700;
-    padding: 0.5rem 2rem;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
-    font-size: 1.2rem;
+.hero-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+  max-width: 1400px;
+  z-index: 2;
 }
 
-
-.btn-secondary {
-    font-family: "Raleway", sans-serif;
-    text-decoration: none;
-    text-align: center;
-    background: #f0f0f0;
-    color: #333;
-    padding: 0.5rem 2rem;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
-    font-size: 1.2rem;
+.hero-text {
+  flex: 1;
+  max-width: 600px;
+  padding: 2rem;
 }
 
-
-.img-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    width: 30vw;
+.hero-title {
+  font-family: "Archivo Black", sans-serif;
+  text-transform: uppercase;
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  color: #ffffff;
 }
 
-.hero-img {
-    width: 100%;
+.title-line {
+  display: block;
 }
 
+.title-line.accent {
+  color: #E4FF00;
+  text-shadow: 0 0 30px rgba(228, 255, 0, 0.5);
+}
+
+.hero-description, .hero-quote {
+  font-family: "Raleway", sans-serif;
+  font-size: clamp(1rem, 1.2vw, 1.2rem);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.hero-quote {
+  font-style: italic;
+  border-left: 4px solid #E4FF00;
+  padding-left: 1.5rem;
+  margin-left: 0.5rem;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.btn-primary-modern, .btn-secondary-modern {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  text-decoration: none;
+  font-family: "Raleway", sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary-modern {
+  background: linear-gradient(135deg, #E4FF00 0%, #c2e000 100%);
+  color: #012700;
+  border: none;
+}
+
+.btn-primary-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(228, 255, 0, 0.4);
+}
+
+.btn-secondary-modern {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.btn-secondary-modern:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
+}
+
+.arrow {
+  transition: transform 0.3s ease;
+}
+
+.btn-primary-modern:hover .arrow,
+.btn-secondary-modern:hover .arrow {
+  transform: translateX(4px);
+}
+
+.hero-image {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.logo-container {
+  position: relative;
+  width: clamp(250px, 30vw, 400px);
+  height: clamp(250px, 30vw, 400px);
+}
+
+.hero-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 30px rgba(228, 255, 0, 0.3));
+}
+
+.logo-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120%;
+  height: 120%;
+  background: radial-gradient(circle, rgba(228, 255, 0, 0.2) 0%, transparent 70%);
+  animation: pulseGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes pulseGlow {
+  0% { opacity: 0.3; }
+  100% { opacity: 0.7; }
+}
+
+.floating-particle {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.6;
+}
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: "Raleway", sans-serif;
+  font-size: 0.9rem;
+}
+
+.scroll-line {
+  width: 2px;
+  height: 40px;
+  background: linear-gradient(to bottom, #E4FF00, transparent);
+  animation: scrollLine 2s infinite;
+}
+
+@keyframes scrollLine {
+  0% { transform: translateY(0); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateY(20px); opacity: 0; }
+}
+
+/* Responsive */
 @media (max-width: 900px) {
-    .hero {
-        flex-direction: column-reverse;
-        height: 90vh;
-    }
-    
-    .txt {
-        text-align: left;
-        padding: 2rem;
-    }
+  .hero-modern {
+    height: auto;
+    min-height: 100vh;
+    padding: 4rem 0;
+  }
 
-    .txt h1 {
-        font-size: 3rem;
-        line-height: 2.5rem;
-        width: 100%;
-    }
+  .hero-content {
+    flex-direction: column-reverse;
+    text-align: center;
+    gap: 3rem;
+  }
 
-    .txt p {
-        text-align: left;
-        font-size: 1.2rem;
-        width: 100%;
-        margin: 1rem 0;
-        color: #f0f0f0;
-    }
+  .hero-text {
+    max-width: 100%;
+    padding: 1rem;
+  }
 
-    .buttons {
-        flex-direction: column;
-    }
+  .hero-title {
+    text-align: center;
+  }
 
-    .img-container {
-        width: 90vw;
-    }
+  .hero-quote {
+    border-left: none;
+    padding-left: 0;
+    margin-left: 0;
+    text-align: center;
+  }
+
+  .hero-buttons {
+    justify-content: center;
+  }
+
+  .logo-container {
+    width: 250px;
+    height: 250px;
+  }
+
+  .scroll-indicator {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .btn-primary-modern, .btn-secondary-modern {
+    width: 100%;
+    justify-content: center;
+  }
 }

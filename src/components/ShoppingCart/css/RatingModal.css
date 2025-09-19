@@ -1,0 +1,303 @@
+/* Animaciones para el overlay y el contenedor */
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  to { transform: translateY(0); }
+}
+
+/* Overlay del modal, basado en TurnosPanel.css */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 5, 10, 0.7); /* Fondo oscuro semi-transparente */
+  backdrop-filter: blur(10px); /* Desenfoque como en TurnosPanel */
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Alto z-index para estar encima de todo */
+  font-family: "Zen Dots", sans-serif; /* Fuente Zen Dots */
+  opacity: 0; /* Para animación GSAP y fadeIn */
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* Fallback para navegadores sin soporte para backdrop-filter */
+@supports not (backdrop-filter: blur(10px)) {
+  .modal-overlay {
+    background-color: rgba(0, 5, 10, 0.9);
+  }
+}
+
+/* Contenedor del modal, basado en modal-content de TurnosPanel.css */
+.modal-container {
+  background: linear-gradient(145deg, #0a0e17, #0f1623); /* Gradiente oscuro */
+  border: 1px solid #00ff00; /* Borde verde */
+  border-radius: 16px;
+  padding: 2.5rem 15px 2.5rem 2.5rem;
+  width: 90%;
+  max-width: 600px; /* Tamaño máximo como en TurnosPanel */
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 0 30px rgba(0, 255, 0, 0.3), 0 0 60px rgba(0, 128, 0, 0.2); /* Sombra verde */
+  position: relative;
+  transform: translateY(20px); /* Para animación GSAP y slideUp */
+  animation: slideUp 0.3s ease forwards;
+  box-sizing: border-box;
+  font-family: "Zen Dots", sans-serif; /* Fuente Zen Dots */
+}
+
+/* Estilo para la barra de desplazamiento */
+.modal-container::-webkit-scrollbar {
+  width: 4px !important;
+  display: block !important;
+}
+
+.modal-container::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.7) !important;
+  border-radius: 10px !important;
+}
+
+.modal-container::-webkit-scrollbar-track {
+  background: transparent !important;
+  margin-right: 15px !important;
+  margin-top: 10px !important;
+  margin-bottom: 10px !important;
+}
+
+/* Encabezado del modal */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid rgba(0, 255, 0, 0.3); /* Borde inferior verde */
+  padding-bottom: 1rem;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #00ff00; /* Verde principal */
+  font-size: 1.8rem;
+  text-shadow: 0 0 15px rgba(0, 255, 0, 0.4); /* Sombra verde */
+  letter-spacing: 1px;
+  font-family: "Zen Dots", sans-serif; /* Fuente Zen Dots */
+}
+
+/* Botón de cerrar */
+.modal-close-btn {
+  background: transparent;
+  border: none;
+  color: #00ff00; /* Verde para la cruz */
+  font-size: 1.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  position: absolute;
+  top: 15px;
+  right: 15px;
+}
+
+.modal-close-btn:hover {
+  background: rgba(255, 0, 0, 0.2); /* Fondo rojo en hover */
+  color: #ff5555; /* Color rojo para la cruz */
+  transform: rotate(90deg); /* Rotación como en TurnosPanel */
+}
+
+.modal-close-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Cuerpo del modal */
+.modal-body {
+  margin-bottom: 1.5rem;
+}
+
+.product-name {
+  font-weight: bold;
+  color: #fff; /* Texto blanco */
+  margin-bottom: 2rem;
+  text-align: center;
+  font-size: 1.2rem;
+  font-family: "Zen Dots", sans-serif; /* Fuente Zen Dots */
+}
+
+/* Estrellas de calificación */
+.rating-stars {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 2rem 0;
+}
+
+.star-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 2rem;
+  color: #555; /* Gris oscuro para estrellas inactivas */
+  transition: color 0.2s;
+}
+
+.star-button.active {
+  color: #00ff00; /* Verde para estrellas seleccionadas */
+}
+
+.star-button.hover {
+  color: #00cc00; /* Verde más claro para hover */
+}
+
+.star-button:disabled {
+  cursor: not-allowed;
+}
+
+/* Etiquetas de calificación */
+.rating-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  color: #7f8c8d; /* Gris claro */
+  font-size: 0.9rem;
+  font-family: "Zen Dots", sans-serif; /* Fuente Zen Dots */
+}
+
+/* Grupo de entrada (textarea) */
+.modal-input-group {
+  margin-bottom: 1rem;
+}
+
+.modal-input-group label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: bold;
+  color: #00ff00; /* Verde para la etiqueta */
+  font-family: "Zen Dots", sans-serif; /* Fuente Zen Dots */
+}
+
+.modal-input-group textarea {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 255, 0, 0.5); /* Borde verde */
+  background-color: rgba(0, 20, 40, 0.5); /* Fondo oscuro semi-transparente */
+  color: #fff; /* Texto blanco */
+  min-height: 100px;
+  resize: vertical;
+  font-family: "Zen Dots", sans-serif; /* Fuente Zen Dots */
+}
+
+.modal-input-group textarea:focus {
+  border-color: #00ff00;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+  outline: none;
+}
+
+.modal-input-group textarea:disabled {
+  background: rgba(0, 20, 40, 0.7);
+  cursor: not-allowed;
+}
+
+.char-count {
+  display: block;
+  text-align: right;
+  font-size: 0.8rem;
+  color: #7f8c8d; /* Gris claro */
+  margin-top: 4px;
+  font-family: "Zen Dots", sans-serif; /* Fuente Zen Dots */
+}
+
+/* Pie del modal */
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.modal-btn {
+  background: linear-gradient(45deg, #006600, #00aa00); /* Gradiente verde como en TurnosPanel */
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-family: "Zen Dots", sans-serif; /* Fuente Zen Dots */
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(0, 255, 0, 0.3); /* Sombra verde */
+}
+
+.modal-btn:hover:not(:disabled) {
+  background: linear-gradient(45deg, #008800, #00cc00); /* Gradiente más claro en hover */
+  box-shadow: 0 6px 20px rgba(0, 255, 0, 0.5);
+  transform: translateY(-2px); /* Transformación como en TurnosPanel */
+}
+
+.modal-btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Vista de calificación existente */
+.rating-view {
+  text-align: center;
+}
+
+.existing-rating-stars {
+  margin: 2rem 0;
+}
+
+.star-view {
+  font-size: 2rem;
+  color: #555; /* Gris oscuro para estrellas inactivas */
+  margin: 0 4px;
+}
+
+.star-view.active {
+  color: #00ff00; /* Verde para estrellas activas */
+}
+
+.existing-comment {
+  margin: 2rem 0;
+  padding: 1rem;
+  background: rgba(0, 20, 40, 0.5); /* Fondo oscuro semi-transparente */
+  border-radius: 8px;
+  border: 1px solid rgba(0, 255, 0, 0.3); /* Borde verde */
+  text-align: left;
+}
+
+.existing-comment h4 {
+  margin-top: 0;
+  color: #00ff00; /* Verde para el título */
+  font-size: 1rem;
+  font-family: "Zen Dots", sans-serif; /* Fuente Zen Dots */
+}
+
+.existing-comment p {
+  margin-bottom: 0;
+  line-height: 1.5;
+  color: #fff; /* Texto blanco */
+  font-family: "Zen Dots", sans-serif; /* Fuente Zen Dots */
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+  .modal-container {
+    width: 95%;
+    padding: 1rem;
+  }
+}

@@ -1,6 +1,6 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPaperclip } from "@fortawesome/free-solid-svg-icons";
+import { faPaperclip, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 import Cloudinary from "../Cloudinary";
 
@@ -111,27 +111,35 @@ const UserFormStep = ({
             : "Finalizar compra"}
         </button>
       </div>
+
       {modalInfo && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>{modalInfo.title}</h3>
-            {modalInfo.details.map((detail, index) => (
-              <p key={index}>{detail}</p>
-            ))}
-            <div className="buttons-modal-transfer">
+        <div className="modal-overlay">
+          <div className="modal-container">
+            <button className="modal-close-btn" onClick={closeModal}>
+              <FontAwesomeIcon icon={faTimes} />
+            </button>
+            <div className="modal-header">
+              <h2>{modalInfo.title}</h2>
+            </div>
+            <div className="modal-body">
+              {modalInfo.details.map((detail, index) => (
+                <p key={index} className="modal-detail">{detail}</p>
+              ))}
+            </div>
+            <div className="modal-footer">
               <button
-                className="modal-button copy"
+                className="modal-btn copy"
                 onClick={() => copyToClipboard("mi-alias")}
               >
                 Copiar Alias
               </button>
               <button
-                className="modal-button copy"
+                className="modal-btn copy"
                 onClick={() => copyToClipboard("1234567890123456789012")}
               >
                 Copiar CBU
               </button>
-              <button className="close-modal" onClick={closeModal}>
+              <button className="modal-btn close" onClick={closeModal}>
                 Cerrar
               </button>
             </div>

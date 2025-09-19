@@ -1,60 +1,178 @@
+/* NavBar.css - CORREGIDO */
+/* Variables CSS */
+:root {
+  --primary-color: #74B72C;
+  --primary-hover: #5e9423;
+  --accent-color: #E4FF00;
+  --text-light: #ffffff;
+  --text-dark: #333333;
+  --bg-dark: #012700;
+  --bg-transparent: rgba(1, 39, 0, 0.95);
+  --bg-scrolled: rgba(1, 39, 0, 0.98);
+  --border-radius: 12px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+
 /* Estilos generales */
 .header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: none;
-  /* Transparente por defecto */
+  justify-content: center;
+  background: transparent;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  padding: 1rem;
-  z-index: 1111;
-  /* Alto z-index */
+  padding: 1rem 0;
+  z-index: 1000;
   width: 100%;
   font-family: "Zen Dots", sans-serif;
-  transition: background 0.3s ease;
+  transition: var(--transition);
+  backdrop-filter: blur(0px);
+}
+
+.header.scrolled {
+  background: var(--bg-scrolled);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow);
+  padding: 0.5rem 0;
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1400px;
+  padding: 0 2rem;
 }
 
 .logo a {
   text-decoration: none;
+  display: flex;
+  align-items: center;
+  transition: var(--transition);
 }
 
 .logo img {
-  width: 100px;
+  width: 80px;
+  transition: var(--transition);
 }
 
-.nav a {
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.nav-item {
   text-decoration: none;
-  margin: 0 1rem;
-  color: #74B72C;
-  transition: color 0.3s;
-  font-family: "Zen Dots", sans-serif;
+  color: var(--text-light);
+  transition: var(--transition);
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  position: relative;
+  overflow: hidden;
+  will-change: transform, opacity; /* Mejora rendimiento animaciones */
 }
 
-.nav a:hover {
-  color: #f0f0f0;
+.nav-item::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--accent-color);
+  transition: var(--transition);
+  transform: translateX(-50%);
+}
+
+.nav-item:hover::before {
+  width: 80%;
+}
+
+.nav-item:hover {
+  color: var(--accent-color);
+  transform: translateY(-2px);
+}
+
+.nav-icon {
+  font-size: 0.9rem;
+}
+
+/* Botones especiales */
+.nav-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.nav-button.primary {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.nav-button.primary:hover {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(228, 255, 0, 0.3);
+}
+
+.logout-button {
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-light);
+  cursor: pointer;
+  font-family: "Zen Dots", sans-serif;
+  font-size: 0.95rem;
+}
+
+.logout-button:hover {
+  border-color: #ff4757;
+  color: #ff4757;
 }
 
 /* Botón del carrito */
 .cart-button {
-  background: transparent;
-  border: none;
-  color: #f0f0f0;
-  font-size: 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-light);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  transition: var(--transition);
   position: relative;
-  margin-left: 1rem;
+  backdrop-filter: blur(10px);
 }
 
-.cart-button .cart-count {
+.cart-button:hover {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--text-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(116, 183, 44, 0.3);
+}
+
+.cart-count {
   position: absolute;
-  top: -8px;
-  right: -8px;
-  background: #74B72C;
-  color: white;
-  font-size: 0.8rem;
+  top: -5px;
+  right: -5px;
+  background: var(--accent-color);
+  color: var(--text-dark);
+  font-size: 0.7rem;
   font-weight: bold;
   border-radius: 50%;
   width: 20px;
@@ -62,65 +180,245 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  animation: pulse 2s infinite;
 }
 
-/* Botón menú hamburguesa */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Botón menú hamburguesa - CORREGIDO */
 .menu-toggle {
+  /* Oculto por defecto en desktop */
   display: none;
-  background: transparent;
-  border: none;
-  color: #333;
-  font-size: 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-light);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
   cursor: pointer;
+  transition: var(--transition);
+  backdrop-filter: blur(10px);
+  z-index: 1002;
+  /* Centrado perfecto del ícono */
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 }
 
+.menu-toggle:hover {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--text-dark);
+}
+
+/* Asegurar que el ícono esté perfectamente centrado */
+.menu-toggle svg {
+  font-size: 1.2rem;
+  width: 1em;
+  height: 1em;
+  display: block;
+  margin: auto;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Overlay para móvil */
+.nav-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 998;
+  opacity: 0;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
 
 /* Responsive Design para Mobile */
-@media (max-width: 768px) {
-  .header {
-    background: #222222;
-    z-index: 32324232;
+@media (max-width: 968px) {
+  .nav-container {
+    padding: 0 1.5rem;
   }
 
+  .logo img {
+    width: 60px;
+  }
+
+  /* Mostrar menú toggle solo en mobile */
   .menu-toggle {
-    display: block;
-    color: #f0f0f0;
+    display: flex;
+  }
+
+  /* Ocultar nav normal en mobile */
+  .nav {
+    display: none;
+  }
+
+  /* Mostrar nav móvil SOLO cuando tiene la clase mobile-nav */
+  .nav.mobile-nav {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 280px;
+    height: 100vh;
+    background: var(--bg-transparent);
+    backdrop-filter: blur(20px);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 999;
+    padding: 2rem;
+    box-shadow: -5px 0 30px rgba(0, 0, 0, 0.3);
+    display: flex;
+  }
+
+  .nav.mobile-nav.open {
+    right: 0;
+  }
+
+  /* Asegurar que los items del menú sean visibles en móvil */
+  .nav.mobile-nav .nav-item {
+    width: 100%;
+    justify-content: center;
+    padding: 1rem;
+    font-size: 1.1rem;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    opacity: 1; /* Cambiado de 0 a 1 para que sean visibles */
+    transform: translateX(0); /* Eliminado el desplazamiento inicial */
+  }
+
+  .nav.mobile-nav.open .nav-item {
+    opacity: 1;
+    transform: translateX(0);
+    transition: all 0.4s ease;
+  }
+
+  .nav.mobile-nav.open .nav-item:nth-child(1) { transition-delay: 0.1s; }
+  .nav.mobile-nav.open .nav-item:nth-child(2) { transition-delay: 0.15s; }
+  .nav.mobile-nav.open .nav-item:nth-child(3) { transition-delay: 0.2s; }
+  .nav.mobile-nav.open .nav-item:nth-child(4) { transition-delay: 0.25s; }
+  .nav.mobile-nav.open .nav-item:nth-child(5) { transition-delay: 0.3s; }
+  .nav.mobile-nav.open .nav-item:nth-child(6) { transition-delay: 0.35s; }
+  .nav.mobile-nav.open .nav-item:nth-child(7) { transition-delay: 0.4s; }
+
+  .nav-item::before {
+    display: none;
+  }
+
+  .nav-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px) !important;
+  }
+
+  .header.scrolled {
+    padding: 0.5rem 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-container {
+    padding: 0 1rem;
+  }
+
+  .logo img {
+    width: 50px;
+  }
+
+  .nav.mobile-nav {
+    width: 100%;
+    right: -100%;
   }
 
   .cart-button {
-    color: #f0f0f0;
+    width: 45px;
+    height: 45px;
   }
 
-  .nav {
-    display: none;
-    flex-direction: column;
-    background: none;
-    /* Transparente inicialmente */
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    gap: 0;
-    padding: 1rem;
-    box-shadow: none;
-    /* Sin sombra inicialmente */
-    z-index: 32324232;
-    /* Alto z-index para el nav */
-    transition: background 0.3s ease;
+  .menu-toggle {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .menu-toggle svg {
+    font-size: 1.1rem;
+  }
+}
+
+/* Cambiar la opacidad inicial SOLO para desktop */
+@media (min-width: 969px) {
+  .nav-item {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-container {
+    padding: 0 1rem;
   }
 
-  .nav.open {
-    display: flex;
-    background: white;
-    /* Fondo blanco cuando se abre */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    /* Sombra al abrir */
+  .logo img {
+    width: 50px;
   }
 
-  .nav a {
-    padding: 0.5rem 0;
-    text-align: center;
-    color: #333;
-    /* Color de texto oscuro */
+  .nav.mobile-nav {
+    width: 100%;
+    right: -100%;
   }
+
+  .cart-button {
+    width: 45px;
+    height: 45px;
+  }
+
+  .menu-toggle {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .menu-toggle svg {
+    font-size: 1.1rem;
+  }
+}
+
+/* Efectos de animación mejorados */
+@media (prefers-reduced-motion: no-preference) {
+  .nav-item {
+    transition: var(--transition), transform 0.2s ease;
+  }
+  
+  .cart-button {
+    transition: var(--transition), transform 0.2s ease;
+  }
+}
+
+/* Mejoras de accesibilidad */
+@media (hover: none) {
+  .nav-item:hover::before {
+    width: 0;
+  }
+  
+  .nav-item:active {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(0.98);
+  }
+}
+
+/* Prevenir flashes de animación inicial */
+.nav-item {
+  opacity: 0;
 }

@@ -8,6 +8,8 @@ import PaymentOptions from "./PaymentOptions";
 import DeliveryOptions from "./DeliveryOptions";
 import UserFormStep from "./UserFormStep";
 import useCheckoutHandlers from "../../hooks/useCheckoutHandlers";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import "../css/ShoppingCart.css";
 
 const ShoppingCart = () => {
@@ -36,7 +38,9 @@ const ShoppingCart = () => {
   const openModal = (info) => setModalInfo(info);
 
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const isPaid = ["pagado", "preparacion"].includes(cartId?.status);
+  const isPaid = ["pagado", "preparacion", "entregado", "cancelado"].includes(
+    cartId?.status
+  );
   const { handleCheckout, handleMercadoPago, copyToClipboard } =
     useCheckoutHandlers({
       name,
@@ -76,88 +80,130 @@ const ShoppingCart = () => {
   }
 
   return (
-    <div className="cart-overlay">
-      <div className="cart">
-        <h2>Carrito de Compras</h2>
+    <>
+      <div className="cart-overlay">
+        <div className="cart">
+          <button className="cart-close-btn" onClick={toggleCartVisibility}>
+            <FontAwesomeIcon icon={faTimes} />
+          </button>
+          <h2>Carrito de Compras</h2>
 
-        {["pendiente", "pagado", "preparacion"].includes(cartId?.status) && (
-          <PaidStatus
-            message={getStatusMessage(cartId.status)}
-            onViewStatus={() => navigate("/estadoDelEnvio")}
-          />
-        )}
-
-        {cart.length === 0 ? (
-          <p>El carrito está vacío.</p>
-        ) : (
-          cart.map((item) => (
-            <CartItem
-              key={item._id || item.id}
-              item={item}
-              updateQuantity={updateQuantity}
-              removeFromCart={removeFromCart}
-              cartLoading={cartLoading}
-              isPaid={isPaid}
+          {["pendiente", "pagado", "preparacion"].includes(cartId?.status) && (
+            <PaidStatus
+              message={getStatusMessage(cartId.status)}
+              onViewStatus={() => navigate("/estadoDelEnvio")}
             />
-          ))
-        )}
+          )}
 
-        {cart.length > 0 && step === 0 && (
-          <TotalAndPayButton
-            total={total}
-            onNext={() => setStep(1)}
-            loading={cartLoading}
-          />
-        )}
+          {cart.length === 0 ? (
+            <p>El carrito está vacío.</p>
+          ) : (
+            cart.map((item) => (
+              <CartItem
+                key={item._id || item.id}
+                item={item}
+                updateQuantity={updateQuantity}
+                removeFromCart={removeFromCart}
+                cartLoading={cartLoading}
+                isPaid={isPaid}
+              />
+            ))
+          )}
 
-        {step === 1 && (
-          <PaymentOptions
-            isProcessing={isProcessing}
-            onSelect={(method) => {
-              setPaymentMethod(method);
-              setStep(2);
-            }}
-            onBack={() => setStep(0)}
-          />
-        )}
+          {cart.length > 0 && step === 0 && (
+            <TotalAndPayButton
+              total={total}
+              onNext={() => setStep(1)}
+              loading={cartLoading}
+            />
+          )}
 
-        {step === 2 && (
-          <DeliveryOptions
-            isProcessing={isProcessing}
-            onSelect={(type) => {
-              setDeliveryType(type);
-              setStep(3);
-            }}
-            onBack={goBack}
-          />
-        )}
+          {step === 1 && (
+            <PaymentOptions
+              isProcessing={isProcessing}
+              onSelect={(method) => {
+                setPaymentMethod(method);
+                setStep(2);
+              }}
+              onBack={() => setStep(0)}
+            />
+          )}
 
-        {step === 3 && (
-          <UserFormStep
-            name={name}
-            setName={setName}
-            phone={phone}
-            setPhone={setPhone}
-            address={address}
-            setAddress={setAddress}
-            deliveryType={deliveryType}
-            paymentMethod={paymentMethod}
-            receiptUrl={receiptUrl}
-            setReceiptUrl={setReceiptUrl}
-            imageReset={imageReset}
-            setImageReset={setImageReset}
-            isProcessing={isProcessing}
-            onBack={goBack}
-            onCheckout={handleCheckout}
-            onMercadoPago={handleMercadoPago}
-            copyToClipboard={copyToClipboard}
-            modalInfo={modalInfo}
-            openModal={openModal}
-            closeModal={closeModal}
-          />
-        )}
+          {step === 2 && (
+            <DeliveryOptions
+              isProcessing={isProcessing}
+              onSelect={(type) => {
+                setDeliveryType(type);
+                setStep(3);
+              }}
+              onBack={goBack}
+            />
+          )}
+
+          {step === 3 && (
+            <UserFormStep
+              name={name}
+              setName={setName}
+              phone={phone}
+              setPhone={setPhone}
+              address={address}
+              setAddress={setAddress}
+              deliveryType={deliveryType}
+              paymentMethod={paymentMethod}
+              receiptUrl={receiptUrl}
+              setReceiptUrl={setReceiptUrl}
+              imageReset={imageReset}
+              setImageReset={setImageReset}
+              isProcessing={isProcessing}
+              onBack={goBack}
+              onCheckout={handleCheckout}
+              onMercadoPago={handleMercadoPago}
+              copyToClipboard={copyToClipboard}
+              openModal={openModal}
+              closeModal={closeModal}
+            />
+          )}
+        </div>
       </div>
-    </div>
+
+      {/* Modal fuera del carrito */}
+      {modalInfo && (
+        <div className="modal-overlay">
+          <div className="modal-container">
+            <button className="modal-close-btn" onClick={closeModal}>
+              <FontAwesomeIcon icon={faTimes} />
+            </button>
+            <div className="modal-header">
+              <h2>{modalInfo.title}</h2>
+            </div>
+            <div className="modal-body">
+              {modalInfo.details.map((detail, index) => (
+                <p key={index} className="modal-detail">
+                  {detail}
+                </p>
+              ))}
+            </div>
+            <div className="modal-footer">
+              <button
+                className="modal-btn copy"
+                onClick={() => copyToClipboard("mi-alias")}
+              >
+                Copiar Alias
+              </button>
+              <button
+                className="modal-btn copy"
+                onClick={() => copyToClipboard("1234567890123456789012")}
+              >
+                Copiar CBU
+              </button>
+              <button className="modal-btn close" onClick={closeModal}>
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

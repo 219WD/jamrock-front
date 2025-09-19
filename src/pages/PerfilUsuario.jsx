@@ -11,8 +11,11 @@ import {
   faPills,
   faShoppingCart,
   faFileMedicalAlt,
-  faStar
+  faStar,
+  faEye,
+  faTimes,
 } from "@fortawesome/free-solid-svg-icons";
+import ForgotPasswordModal from "../components/ForgotPasswordModal";
 
 const PerfilUsuario = () => {
   const { user, token } = useAuthStore();
@@ -25,6 +28,7 @@ const PerfilUsuario = () => {
   const [turnos, setTurnos] = useState([]);
   const [historial, setHistorial] = useState([]);
   const [activeTab, setActiveTab] = useState("perfil");
+  const [showForgotModal, setShowForgotModal] = useState(false);
   const API_URL = "http://localhost:4000";
 
   useEffect(() => {
@@ -60,6 +64,20 @@ const PerfilUsuario = () => {
           const reversed = Array.isArray(data) ? [...data].reverse() : [];
           setCarts(reversed);
           calcularTopProductos(reversed);
+
+          // Extraer calificaciones de todos los carritos
+          const allRatings = reversed.flatMap((cart) =>
+            (cart.ratings || []).map((rating) => ({
+              ...rating,
+              cartId: cart._id,
+            }))
+          );
+
+          // Guardar IDs de productos calificados
+          const ratedIds = allRatings.map((rating) =>
+            rating.productId.toString()
+          );
+          setRatedProducts(ratedIds);
         })
         .catch((err) => console.log("Error carritos:", err));
     }
@@ -95,6 +113,15 @@ const PerfilUsuario = () => {
     }
   }, [user?._id, token, user?.isPartner, user?.isPaciente]);
 
+  // Función para encontrar la calificación de un producto
+  const findProductRating = (productId, cart) => {
+    if (!cart.ratings) return null;
+
+    return cart.ratings.find(
+      (rating) => rating.productId.toString() === productId.toString()
+    );
+  };
+
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -128,7 +155,8 @@ const PerfilUsuario = () => {
     carts.forEach((cart) => {
       (cart.items || cart.products || []).forEach((item) => {
         const id = item.productId?._id || item.productId;
-        const name = item.productId?.title || item.productId?.name || "Producto";
+        const name =
+          item.productId?.title || item.productId?.name || "Producto";
         const image = item.productId?.image || "";
         if (id) {
           productos[id] = productos[id] || { image, name, count: 0 };
@@ -145,25 +173,64 @@ const PerfilUsuario = () => {
     setTopProducts(top);
   };
 
-  const handleRateClick = (product) => {
+  const handleRateClick = (item, cart, existingRating = null) => {
+    const product = item.productId || {};
     setShowRating({
-      id: product.productId._id || product.productId,
-      name: product.productId?.title || product.productId?.name || "Producto",
-      cartId: product.cartId,
+      id: product._id || item.productId,
+      name: product.title || product.name || "Producto",
+      cartId: cart._id,
+      existingRating, // Pasar la calificación existente si existe
     });
   };
 
   const handleRateSuccess = (productId) => {
-    setRatedProducts((prev) => [...prev, productId]);
+    // Añadir el producto calificado a la lista
+    setRatedProducts((prev) => [...prev, productId.toString()]);
+
+    // Actualizar la lista de carritos para reflejar la nueva calificación
+    setCarts((prevCarts) => {
+      return prevCarts.map((cart) => {
+        if (cart._id === showRating.cartId) {
+          // Si el carrito ya tiene ratings, añadir el nuevo
+          const newRatings = cart.ratings
+            ? [
+                ...cart.ratings,
+                {
+                  productId,
+                  stars: showRating.rating,
+                  comment: showRating.comment,
+                },
+              ]
+            : [
+                {
+                  productId,
+                  stars: showRating.rating,
+                  comment: showRating.comment,
+                },
+              ];
+
+          return { ...cart, ratings: newRatings };
+        }
+        return cart;
+      });
+    });
+
+    useNotify("success", "¡Calificación enviada con éxito!");
   };
 
-  const isProductRated = (productId, reviewed) => {
-    return reviewed || ratedProducts.includes(productId);
+  const isProductRated = (productId) => {
+    return ratedProducts.includes(productId.toString());
   };
 
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return new Date(dateString).toLocaleDateString('es-AR', options);
+    const options = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    };
+    return new Date(dateString).toLocaleDateString("es-AR", options);
   };
 
   return (
@@ -171,43 +238,45 @@ const PerfilUsuario = () => {
       <NavDashboard />
       <div className="admin-container">
         <h2 className="dashboard-title">Mi Perfil</h2>
-        
+
         {/* Navegación por pestañas */}
         <div className="dashboard-tabs">
-          <button 
+          <button
             className={`tab-btn ${activeTab === "perfil" ? "active" : ""}`}
             onClick={() => setActiveTab("perfil")}
           >
             <FontAwesomeIcon icon={faUser} /> Perfil
           </button>
-          
+
           {user?.isPartner && (
-            <button 
+            <button
               className={`tab-btn ${activeTab === "pedidos" ? "active" : ""}`}
               onClick={() => setActiveTab("pedidos")}
             >
               <FontAwesomeIcon icon={faShoppingCart} /> Mis Pedidos
             </button>
           )}
-          
+
           {user?.isPaciente && (
             <>
-              <button 
+              <button
                 className={`tab-btn ${activeTab === "turnos" ? "active" : ""}`}
                 onClick={() => setActiveTab("turnos")}
               >
                 <FontAwesomeIcon icon={faCalendarAlt} /> Mis Turnos
               </button>
-              
-              <button 
+
+              <button
                 className={`tab-btn ${activeTab === "recetas" ? "active" : ""}`}
                 onClick={() => setActiveTab("recetas")}
               >
                 <FontAwesomeIcon icon={faPills} /> Recetas
               </button>
-              
-              <button 
-                className={`tab-btn ${activeTab === "historial" ? "active" : ""}`}
+
+              <button
+                className={`tab-btn ${
+                  activeTab === "historial" ? "active" : ""
+                }`}
                 onClick={() => setActiveTab("historial")}
               >
                 <FontAwesomeIcon icon={faFileMedicalAlt} /> Historial
@@ -259,7 +328,11 @@ const PerfilUsuario = () => {
                   </div>
 
                   <div className="form-actions">
-                    <button type="button" className="profile-password-btn">
+                    <button
+                      type="button"
+                      className="profile-password-btn"
+                      onClick={() => setShowForgotModal(true)}
+                    >
                       Cambiar contraseña
                     </button>
                     <button type="submit" className="profile-submit-btn">
@@ -267,6 +340,10 @@ const PerfilUsuario = () => {
                     </button>
                   </div>
                 </form>
+                <ForgotPasswordModal
+                  show={showForgotModal}
+                  onHide={() => setShowForgotModal(false)}
+                />
               </div>
 
               {partnerData && (
@@ -281,7 +358,9 @@ const PerfilUsuario = () => {
                     </div>
                     <div className="info-item">
                       <span className="info-label">Dirección:</span>
-                      <span className="info-value">{partnerData.address || partnerData.adress}</span>
+                      <span className="info-value">
+                        {partnerData.address || partnerData.adress}
+                      </span>
                     </div>
                     <div className="info-item">
                       <span className="info-label">Teléfono:</span>
@@ -289,7 +368,9 @@ const PerfilUsuario = () => {
                     </div>
                     <div className="info-item">
                       <span className="info-label">REPROCANN:</span>
-                      <span className="info-value">{partnerData.reprocann ? "Sí" : "No"}</span>
+                      <span className="info-value">
+                        {partnerData.reprocann ? "Sí" : "No"}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -330,40 +411,78 @@ const PerfilUsuario = () => {
                   {carts.slice(0, 5).map((cart) => (
                     <div key={cart._id} className="order-card">
                       <div className="order-header">
-                        <span className="order-date">{new Date(cart.createdAt).toLocaleDateString()}</span>
-                        <span className={`order-status ${cart.status}`}>{cart.status || "No definido"}</span>
+                        <span className="order-date">
+                          {new Date(cart.createdAt).toLocaleDateString()}
+                        </span>
+                        <span className={`order-status ${cart.status}`}>
+                          {cart.status || "No definido"}
+                        </span>
                       </div>
                       <div className="order-details">
                         <div className="order-method">
-                          <span>Método:</span> {cart.paymentMethod || "No especificado"}
+                          <span>Método:</span>{" "}
+                          {cart.paymentMethod || "No especificado"}
                         </div>
                         <div className="order-total">
-                          <span>Total:</span> ${cart.totalAmount?.toFixed(2) || 0}
+                          <span>Total:</span> $
+                          {cart.totalAmount?.toFixed(2) || 0}
                         </div>
                       </div>
                       <div className="order-products">
                         <h4>Productos:</h4>
                         <ul>
-                          {(cart.items || cart.products || []).map((item, idx) => {
-                            const product = item.productId || {};
-                            const productId = product._id || item.productId;
-                            const productName = product.title || product.name || "Producto";
-                            const reviewed = item.reviewed || false;
+                          {(cart.items || cart.products || []).map(
+                            (item, idx) => {
+                              const product = item.productId || {};
+                              const productId = product._id || item.productId;
+                              const productName =
+                                product.title || product.name || "Producto";
 
-                            return (
-                              <li key={idx}>
-                                {productName} x{item.quantity} - ${item.price || product.price * item.quantity}
-                                {cart.status === "entregado" && !isProductRated(productId, reviewed) && (
-                                  <button
-                                    onClick={() => handleRateClick({ ...item, cartId: cart._id })}
-                                    className="rate-btn"
-                                  >
-                                    <FontAwesomeIcon icon={faStar} /> Calificar
-                                  </button>
-                                )}
-                              </li>
-                            );
-                          })}
+                              // Buscar si ya existe una calificación para este producto
+                              const existingRating = findProductRating(
+                                productId,
+                                cart
+                              );
+                              const isRated =
+                                existingRating || isProductRated(productId);
+
+                              return (
+                                <li key={idx}>
+                                  {productName} x{item.quantity} - $
+                                  {item.price || product.price * item.quantity}
+                                  {cart.status === "entregado" && (
+                                    <div className="product-rating-container">
+                                      {isRated ? (
+                                        <button
+                                          onClick={() =>
+                                            handleRateClick(
+                                              item,
+                                              cart,
+                                              existingRating
+                                            )
+                                          }
+                                          className="view-rating-btn"
+                                        >
+                                          <FontAwesomeIcon icon={faEye} /> Ver
+                                          Calificación
+                                        </button>
+                                      ) : (
+                                        <button
+                                          onClick={() =>
+                                            handleRateClick(item, cart)
+                                          }
+                                          className="rate-btn"
+                                        >
+                                          <FontAwesomeIcon icon={faStar} />{" "}
+                                          Calificar
+                                        </button>
+                                      )}
+                                    </div>
+                                  )}
+                                </li>
+                              );
+                            }
+                          )}
                         </ul>
                       </div>
                     </div>
@@ -383,18 +502,28 @@ const PerfilUsuario = () => {
               {turnos.length > 0 ? (
                 <div className="appointments-grid">
                   {turnos
-                    .filter(t => ['pendiente', 'confirmado'].includes(t.estado))
+                    .filter((t) =>
+                      ["pendiente", "confirmado"].includes(t.estado)
+                    )
                     .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
                     .slice(0, 3)
                     .map((turno) => (
                       <div key={turno._id} className="appointment-card">
                         <div className="appointment-header">
-                          <span className="appointment-date">{formatDate(turno.fecha)}</span>
-                          <span className={`appointment-status ${turno.estado}`}>{turno.estado}</span>
+                          <span className="appointment-date">
+                            {formatDate(turno.fecha)}
+                          </span>
+                          <span
+                            className={`appointment-status ${turno.estado}`}
+                          >
+                            {turno.estado}
+                          </span>
                         </div>
                         <div className="appointment-details">
                           <div className="appointment-specialist">
-                            <span>Especialista:</span> {turno.especialistaId?.userId?.name || 'No especificado'}
+                            <span>Especialista:</span>{" "}
+                            {turno.especialistaId?.userId?.name ||
+                              "No especificado"}
                           </div>
                           <div className="appointment-reason">
                             <span>Motivo:</span> {turno.motivo}
@@ -406,7 +535,8 @@ const PerfilUsuario = () => {
                             <ul>
                               {turno.consulta.productos.map((prod, idx) => (
                                 <li key={idx}>
-                                  {prod.nombreProducto} x{prod.cantidad} - ${prod.precioUnitario * prod.cantidad}
+                                  {prod.nombreProducto} x{prod.cantidad} - $
+                                  {prod.precioUnitario * prod.cantidad}
                                 </li>
                               ))}
                             </ul>
@@ -426,18 +556,23 @@ const PerfilUsuario = () => {
               <h2 className="section-title">
                 <FontAwesomeIcon icon={faPills} /> Mis Últimas Recetas
               </h2>
-              {turnos.filter(t => t.consulta?.productos?.length > 0).length > 0 ? (
+              {turnos.filter((t) => t.consulta?.productos?.length > 0).length >
+              0 ? (
                 <div className="prescriptions-grid">
                   {turnos
-                    .filter(t => t.consulta?.productos?.length > 0)
+                    .filter((t) => t.consulta?.productos?.length > 0)
                     .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
                     .slice(0, 5)
                     .map((turno) => (
                       <div key={turno._id} className="prescription-card">
                         <div className="prescription-header">
-                          <span className="prescription-date">{formatDate(turno.fecha)}</span>
+                          <span className="prescription-date">
+                            {formatDate(turno.fecha)}
+                          </span>
                           <span className="prescription-doctor">
-                            Dr. {turno.especialistaId?.userId?.name || 'No especificado'}
+                            Dr.{" "}
+                            {turno.especialistaId?.userId?.name ||
+                              "No especificado"}
                           </span>
                         </div>
                         <div className="prescription-products">
@@ -445,15 +580,23 @@ const PerfilUsuario = () => {
                           <ul>
                             {turno.consulta.productos.map((prod, idx) => (
                               <li key={idx}>
-                                <strong>{prod.nombreProducto}</strong> - {prod.cantidad} unidad(es)
-                                {prod.dosis && <span className="dosis">Dosis: {prod.dosis}</span>}
+                                <strong>{prod.nombreProducto}</strong> -{" "}
+                                {prod.cantidad} unidad(es)
+                                {prod.dosis && (
+                                  <span className="dosis">
+                                    Dosis: {prod.dosis}
+                                  </span>
+                                )}
                               </li>
                             ))}
                           </ul>
                         </div>
                         <div className="prescription-notes">
                           <h4>Indicaciones:</h4>
-                          <p>{turno.consulta.notasConsulta || 'No hay indicaciones adicionales'}</p>
+                          <p>
+                            {turno.consulta.notasConsulta ||
+                              "No hay indicaciones adicionales"}
+                          </p>
                         </div>
                       </div>
                     ))}
@@ -465,92 +608,119 @@ const PerfilUsuario = () => {
           )}
 
           {activeTab === "historial" && user?.isPaciente && (
-  <div className="dashboard-section">
-    <h2 className="section-title">
-      <FontAwesomeIcon icon={faFileMedicalAlt} /> Mi Historial Completo
-    </h2>
-    {turnos.length > 0 ? (
-      <div className="medical-history">
-        {turnos
-          .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
-          .map((turno) => (
-            <div key={turno._id} className="history-card">
-              <div className="history-header">
-                <span className="history-date">{formatDate(turno.fecha)}</span>
-                <span className={`history-status ${turno.estado}`}>
-                  {turno.estado}
-                </span>
-              </div>
-              <div className="history-content">
-                <div className="history-section">
-                  <h4>Especialista:</h4>
-                  <p>{turno.especialistaId?.userId?.name || 'No especificado'}</p>
-                </div>
-                
-                <div className="history-section">
-                  <h4>Motivo de consulta:</h4>
-                  <p>{turno.motivo || 'No especificado'}</p>
-                </div>
-                
-                <div className="history-section">
-                  <h4>Notas de la consulta:</h4>
-                  <p>{turno.notas || 'No hay notas registradas'}</p>
-                </div>
-                
-                {turno.reprocannRelacionado && (
-                  <div className="history-section">
-                    <h4>REPROCANN:</h4>
-                    <p>Consulta relacionada con trámite REPROCANN</p>
-                  </div>
-                )}
-                
-                {turno.consulta && (
-                  <>
-                    <div className="history-section">
-                      <h4>Detalles de la consulta:</h4>
-                      <p>Estado: {turno.consulta.pagado ? 'Pagado' : 'Pendiente de pago'}</p>
-                      <p>Método de pago: {turno.consulta.formaPago || 'No especificado'}</p>
-                      {turno.consulta.notasConsulta && (
-                        <p>Notas: {turno.consulta.notasConsulta}</p>
-                      )}
-                    </div>
-                    
-                    {turno.consulta.productos?.length > 0 && (
-                      <div className="history-section">
-                        <h4>Productos recetados:</h4>
-                        <ul className="product-list">
-                          {turno.consulta.productos.map((prod, idx) => (
-                            <li key={idx}>
-                              <strong>{prod.nombreProducto}</strong> - 
-                              Cantidad: {prod.cantidad} - 
-                              Precio unitario: ${prod.precioUnitario} - 
-                              Total: ${(prod.precioUnitario * prod.cantidad).toFixed(2)}
-                              {prod.dosis && <span> (Dosis: {prod.dosis})</span>}
-                            </li>
-                          ))}
-                        </ul>
-                        <p className="total-amount">
-                          Total consulta: ${turno.consulta.total?.toFixed(2) || '0.00'}
-                        </p>
+            <div className="dashboard-section">
+              <h2 className="section-title">
+                <FontAwesomeIcon icon={faFileMedicalAlt} /> Mi Historial
+                Completo
+              </h2>
+              {turnos.length > 0 ? (
+                <div className="medical-history">
+                  {turnos
+                    .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+                    .map((turno) => (
+                      <div key={turno._id} className="history-card">
+                        <div className="history-header">
+                          <span className="history-date">
+                            {formatDate(turno.fecha)}
+                          </span>
+                          <span className={`history-status ${turno.estado}`}>
+                            {turno.estado}
+                          </span>
+                        </div>
+                        <div className="history-content">
+                          <div className="history-section">
+                            <h4>Especialista:</h4>
+                            <p>
+                              {turno.especialistaId?.userId?.name ||
+                                "No especificado"}
+                            </p>
+                          </div>
+
+                          <div className="history-section">
+                            <h4>Motivo de consulta:</h4>
+                            <p>{turno.motivo || "No especificado"}</p>
+                          </div>
+
+                          <div className="history-section">
+                            <h4>Indicaciones:</h4>
+                            <p>{turno.notas || "No hay notas registradas"}</p>
+                          </div>
+
+                          {turno.reprocannRelacionado && (
+                            <div className="history-section">
+                              <h4>REPROCANN:</h4>
+                              <p>Consulta relacionada con trámite REPROCANN</p>
+                            </div>
+                          )}
+
+                          {turno.consulta && (
+                            <>
+                              <div className="history-section">
+                                <h4>Detalles de la consulta:</h4>
+                                <p>
+                                  Estado:{" "}
+                                  {turno.consulta.pagado
+                                    ? "Pagado"
+                                    : "Pendiente de pago"}
+                                </p>
+                                <p>
+                                  Método de pago:{" "}
+                                  {turno.consulta.formaPago ||
+                                    "No especificado"}
+                                </p>
+                                {turno.consulta.notasConsulta && (
+                                  <p>Notas: {turno.consulta.notasConsulta}</p>
+                                )}
+                              </div>
+
+                              {turno.consulta.productos?.length > 0 && (
+                                <div className="history-section">
+                                  <h4>Productos recetados:</h4>
+                                  <ul className="product-list">
+                                    {turno.consulta.productos.map(
+                                      (prod, idx) => (
+                                        <li key={idx}>
+                                          <strong>{prod.nombreProducto}</strong>{" "}
+                                          - Cantidad: {prod.cantidad} - Precio
+                                          unitario: ${prod.precioUnitario} -
+                                          Total: $
+                                          {(
+                                            prod.precioUnitario * prod.cantidad
+                                          ).toFixed(2)}
+                                          {prod.dosis && (
+                                            <span> (Dosis: {prod.dosis})</span>
+                                          )}
+                                        </li>
+                                      )
+                                    )}
+                                  </ul>
+                                  <p className="total-amount">
+                                    Total consulta: $
+                                    {turno.consulta.total?.toFixed(2) || "0.00"}
+                                  </p>
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
                       </div>
-                    )}
-                  </>
-                )}
-              </div>
+                    ))}
+                </div>
+              ) : (
+                <p className="no-data">
+                  No hay registros en tu historial médico
+                </p>
+              )}
             </div>
-          ))}
-      </div>
-    ) : (
-      <p className="no-data">No hay registros en tu historial médico</p>
-    )}
-  </div>
-)}
+          )}
         </div>
 
         {showRating && (
           <RatingModal
             productId={showRating.id}
             productName={showRating.name}
+            cartId={showRating.cartId}
+            existingRating={showRating.existingRating}
             onClose={() => setShowRating(null)}
             onRateSuccess={() => handleRateSuccess(showRating.id)}
           />

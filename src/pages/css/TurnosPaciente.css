@@ -1,4 +1,4 @@
-/* TurnosPaciente.css */
+/* TurnosPaciente.css - Versión actualizada */
 
 .turnos-paciente-panel {
   background-image: url("/src/assets/jamrock.png");
@@ -43,27 +43,60 @@
   flex-wrap: wrap;
   gap: 1rem;
   margin-bottom: 2rem;
-  align-items: center;
+  padding: 1rem;
+  background-color: rgba(20, 30, 40, 0.7);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 255, 0, 0.3);
 }
 
 .search-container {
   flex-grow: 1;
   max-width: 400px;
+  position: relative;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  padding-inline: 0.8em;
+  border-radius: 30px;
+  transition: border-radius 0.5s ease;
+  background: rgba(0, 20, 40, 0.5);
+  border: 1px solid rgba(0, 255, 0, 0.5);
 }
 
 .input-search {
+  font-size: 0.9rem;
+  background-color: transparent;
   width: 100%;
-  padding: 0.5rem;
-  border-radius: 4px;
-  border: 1px solid rgba(0, 255, 0, 0.5);
-  background-color: rgba(0, 20, 40, 0.5);
+  height: 100%;
+  padding-inline: 0.5em;
+  padding-block: 0.7em;
+  border: none;
   color: #fff;
-  font-family: "Zen Dots", sans-serif;
+}
+
+.search-container:before {
+  content: "";
+  position: absolute;
+  background: #00ff00;
+  transform: scaleX(0);
+  transform-origin: center;
+  width: 100%;
+  height: 2px;
+  left: 0;
+  bottom: 0;
+  border-radius: 1px;
+  transition: transform 0.3s ease;
+}
+
+.search-container:focus-within {
+  border-radius: 1px;
+}
+
+.search-container:focus-within:before {
+  transform: scale(1);
 }
 
 .input-search:focus {
-  border-color: #00ff00;
-  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
   outline: none;
 }
 
@@ -74,8 +107,9 @@
 }
 
 .status-filter label {
-  color: #fff;
+  color: #00ff00;
   font-size: 0.9rem;
+  white-space: nowrap;
 }
 
 .status-filter select,
@@ -84,15 +118,16 @@
   border-radius: 4px;
   border: 1px solid rgba(0, 255, 0, 0.5);
   background-color: rgba(0, 20, 40, 0.5);
-  color: #fff;
-  font-family: "Zen Dots", sans-serif;
+  color: white;
+  font-size: 0.9rem;
+  min-width: 150px;
 }
 
 .status-filter select:focus,
 .status-filter input:focus {
-  border-color: #00ff00;
-  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
   outline: none;
+  border-color: #00ff00;
+  box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
 }
 
 .table-container {
@@ -137,8 +172,8 @@
 }
 
 .status-pending {
-  background-color: #ffcc00; /* Vibrant yellow */
-  color: #1a1a1a;
+  background-color: #fff3cd;
+  color: #856404;
 }
 
 .status-approved {
@@ -147,8 +182,8 @@
 }
 
 .status-rejected {
-  background-color: #e60000; /* Vibrant red */
-  color: #ffffff;
+  background-color: #f8d7da;
+  color: #721c24;
 }
 
 .status-completed {
@@ -160,102 +195,173 @@
   background: linear-gradient(45deg, #006600, #00cc00);
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-family: "Zen Dots", sans-serif;
+  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(0, 255, 0, 0.3);
 }
 
 .add-btn:hover {
-  background: linear-gradient(45deg, #008800, #00ff00);
-  box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+  background: linear-gradient(45deg, #008800, #00cc00);
+  box-shadow: 0 6px 20px rgba(0, 255, 0, 0.5);
+  transform: translateY(-2px);
 }
 
 .edit-btn {
-  background: linear-gradient(45deg, #ffcc00, #ff9900); /* Yellow-orange gradient */
+  background: linear-gradient(45deg, #ffcc00, #ff9900);
   color: #1a1a1a;
   border: none;
   padding: 0.5rem 1rem;
-  border-radius: 4px;
+  border-radius: 8px;
+  font-family: "Zen Dots", sans-serif;
+  font-size: 0.9rem;
   cursor: pointer;
+  transition: all 0.3s ease;
   margin-right: 0.5rem;
+  box-shadow: 0 4px 15px rgba(255, 204, 0, 0.3);
 }
 
 .edit-btn:hover {
   background: linear-gradient(45deg, #ff9900, #ff6600);
-  box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+  box-shadow: 0 6px 20px rgba(255, 153, 0, 0.5);
+  transform: translateY(-2px);
 }
 
 .cancel-btn {
-  background-color: #e60000; /* Vibrant red */
+  background: linear-gradient(45deg, #cc0000, #ff0000);
   color: white;
   border: none;
   padding: 0.5rem 1rem;
-  border-radius: 4px;
+  border-radius: 8px;
+  font-family: "Zen Dots", sans-serif;
+  font-size: 0.9rem;
   cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
 }
 
 .cancel-btn:hover {
-  background-color: #cc0000;
+  background: linear-gradient(45deg, #ff0000, #ff3333);
+  box-shadow: 0 6px 20px rgba(255, 0, 0, 0.5);
+  transform: translateY(-2px);
 }
 
+/* Estilos de modal actualizados para coincidir con Turnos */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 5, 10, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999999999;
+  z-index: 9999;
+  font-family: "Zen Dots", sans-serif;
+  opacity: 0;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@supports not (backdrop-filter: blur(10px)) {
+  .modal-overlay {
+    background-color: rgba(0, 5, 10, 0.9);
+  }
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
 }
 
 .modal-content {
-  background-color: rgba(20, 30, 40, 0.98);
-  padding: 2rem;
-  border-radius: 8px;
-  max-width: 600px;
+  background: linear-gradient(145deg, #0a0e17, #0f1623);
+  border: 1px solid #00ff00;
+  border-radius: 16px;
+  padding: 2.5rem 15px 2.5rem 2.5rem;
   width: 90%;
+  max-width: 600px;
   max-height: 80vh;
   overflow-y: auto;
-  box-shadow: 0 4px 20px rgba(0, 255, 0, 0.15);
-  border: 1px solid rgba(0, 255, 0, 0.3);
-  color: #fff;
+  box-shadow: 0 0 30px rgba(0, 255, 0, 0.3), 0 0 60px rgba(0, 128, 0, 0.2);
+  position: relative;
+  transform: translateY(20px);
+  animation: slideUp 0.3s ease forwards;
+  box-sizing: border-box;
+}
+
+@keyframes slideUp {
+  to { transform: translateY(0); }
+}
+
+.modal-content::-webkit-scrollbar {
+  width: 4px !important;
+  display: block !important;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.7) !important;
+  border-radius: 10px !important;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: transparent !important;
+  margin-right: 15px !important;
+  margin-top: 10px !important;
+  margin-bottom: 10px !important;
 }
 
 .modal-content h3 {
-  color: #1f7b00;
-  margin-bottom: 1.5rem;
-  text-align: center;
+  margin: 0 0 2rem;
+  color: #00ff00;
+  font-size: 1.8rem;
+  text-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+  letter-spacing: 1px;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(0, 255, 0, 0.3);
 }
 
 .close-modal {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
+  background: transparent;
   border: none;
-  font-size: 1.5rem;
-  color: #fff;
+  color: #00ff00;
+  font-size: 1.8rem;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  position: absolute;
+  top: 15px;
+  right: 15px;
 }
 
 .close-modal:hover {
-  color: #00ff00;
+  background: rgba(255, 0, 0, 0.2);
+  color: #ff5555;
+  transform: rotate(90deg);
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   width: 100%;
+  margin-bottom: 1rem;
 }
 
 .form-group label {
-  display: block;
-  margin-bottom: 0.3rem;
   font-weight: bold;
+  margin-bottom: 0.4rem;
   color: #00ff00;
 }
 
@@ -264,10 +370,9 @@
 .form-group textarea {
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid rgba(0, 255, 0, 0.5);
-  border-radius: 4px;
-  font-family: inherit;
   font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 255, 0, 0.5);
   background-color: rgba(0, 20, 40, 0.5);
   color: #fff;
 }
@@ -285,44 +390,68 @@
   resize: vertical;
 }
 
+.form-group.checkbox {
+  flex-direction: row;
+  align-items: center;
+}
+
+.form-group.checkbox input {
+  width: auto;
+  margin-right: 0.5rem;
+}
+
 .form-group.checkbox label {
   color: #fff;
   margin-bottom: 0;
-  margin-left: 0.5rem;
 }
 
 .modal-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 2rem;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
 }
 
 .close-btn {
-  background-color: #95a5a6;
+  background: linear-gradient(45deg, #006600, #00aa00);
   color: white;
-  padding: 0.5rem 1rem;
   border: none;
-  border-radius: 4px;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-family: "Zen Dots", sans-serif;
+  font-size: 1rem;
   cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(0, 255, 0, 0.3);
 }
 
 .close-btn:hover {
-  background-color: #7f8c8d;
+  background: linear-gradient(45deg, #008800, #00cc00);
+  box-shadow: 0 6px 20px rgba(0, 255, 0, 0.5);
+  transform: translateY(-2px);
 }
 
 .approve-btn {
-  background: linear-gradient(45deg, #006600, #00cc00);
+  background: linear-gradient(45deg, #006600, #00aa00);
   color: white;
-  padding: 0.5rem 1rem;
   border: none;
-  border-radius: 4px;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-family: "Zen Dots", sans-serif;
+  font-size: 1rem;
   cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(0, 255, 0, 0.3);
 }
 
 .approve-btn:hover {
-  background: linear-gradient(45deg, #008800, #00ff00);
-  box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+  background: linear-gradient(45deg, #008800, #00cc00);
+  box-shadow: 0 6px 20px rgba(0, 255, 0, 0.5);
+  transform: translateY(-2px);
 }
 
 .loading-container,
@@ -336,7 +465,7 @@
 }
 
 .error-container {
-  color: #e74c3c;
+  color: #ff5555;
 }
 
 .access-denied {
@@ -348,7 +477,7 @@
 }
 
 .access-denied h2 {
-  color: #e74c3c;
+  color: #ff5555;
 }
 
 @media (max-width: 768px) {
@@ -368,11 +497,17 @@
     align-items: stretch;
   }
 
-  .input-search {
+  .search-container {
     max-width: 100%;
   }
 
   .status-filter {
+    width: 100%;
+  }
+
+  .status-filter select,
+  .status-filter input {
+    min-width: unset;
     width: 100%;
   }
 
@@ -390,5 +525,19 @@
   .modal-content {
     width: 95%;
     padding: 1rem;
+  }
+  
+  .modal-content h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+  
+  .close-btn,
+  .approve-btn {
+    width: 100%;
   }
 }

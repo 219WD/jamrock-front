@@ -1,4 +1,3 @@
-// Especialistas.jsx
 import React, { useEffect, useState } from "react";
 import useAuthStore from "../store/authStore";
 import NavDashboard from "../components/NavDashboard";
@@ -140,39 +139,36 @@ const Especialistas = () => {
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
         />
-
         <EspecialistasVencimiento
           especialistasPorVencer={getEspecialistasPorVencer()}
           getReprocannClass={getReprocannClass}
         />
-
         <EspecialistasTable
           especialistas={filterEspecialistas()}
           setSelectedEspecialista={setSelectedEspecialista}
           setFormEspecialista={setFormEspecialista}
         />
-
-        {selectedEspecialista && (
-          <EditarEspecialistaModal
-            especialista={selectedEspecialista}
-            form={formEspecialista}
-            setForm={setFormEspecialista}
-            onClose={() => {
-              setSelectedEspecialista(null);
-              setFormEspecialista({
-                especialidad: "",
-                matricula: "",
-                reprocann: {
-                  status: "inicializado",
-                  fechaAprobacion: "",
-                  fechaVencimiento: "",
-                },
-              });
-            }}
-            onSave={handleUpdateEspecialista}
-          />
-        )}
       </div>
+      {selectedEspecialista && (
+        <EditarEspecialistaModal
+          especialista={selectedEspecialista}
+          form={formEspecialista}
+          setForm={setFormEspecialista}
+          onClose={() => {
+            setSelectedEspecialista(null);
+            setFormEspecialista({
+              especialidad: "",
+              matricula: "",
+              reprocann: {
+                status: "inicializado",
+                fechaAprobacion: "",
+                fechaVencimiento: "",
+              },
+            });
+          }}
+          onSave={handleUpdateEspecialista}
+        />
+      )}
     </div>
   );
 };

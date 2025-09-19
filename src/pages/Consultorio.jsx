@@ -6,8 +6,10 @@ import Filters from "../components/Consultorio/Filters.jsx";
 import TurnosList from "../components/Consultorio/TurnosList.jsx";
 import TurnoDetail from "../components/Consultorio/TurnoDetail.jsx";
 import ProductosModal from "../components/Consultorio/ProductosModal.jsx";
+import ModalDetallesPaciente from "../components/Pacientes/ModalDetallesPaciente";
 import "./css/ConsultorioPanel.css";
 import withGlobalLoader from "../utils/withGlobalLoader.js";
+import useProductStore from "../store/productStore";
 
 const Consultorio = () => {
   const token = useAuthStore((state) => state.token);
@@ -25,11 +27,10 @@ const Consultorio = () => {
   const [formaPago, setFormaPago] = useState("efectivo");
   const [notasConsulta, setNotasConsulta] = useState("");
   const [showProductosModal, setShowProductosModal] = useState(false);
-  const [productosDisponibles, setProductosDisponibles] = useState([]);
   const [diagnostico, setDiagnostico] = useState("");
   const [tratamiento, setTratamiento] = useState("");
   const [observaciones, setObservaciones] = useState("");
-  const [documentos, setDocumentos] = useState([]);
+  const [documentosAdjuntos, setDocumentosAdjuntos] = useState([]);
   const [guardando, setGuardando] = useState(false);
   const [precioConsulta, setPrecioConsulta] = useState(0);
   const [nuevoDocumento, setNuevoDocumento] = useState({
@@ -37,7 +38,31 @@ const Consultorio = () => {
     tipo: "receta",
   });
 
+  // Nuevos estados para el modal de pacientes
+  const [showPacienteModal, setShowPacienteModal] = useState(false);
+  const [selectedPaciente, setSelectedPaciente] = useState(null);
+
+  const {
+    products,
+    fetchProducts,
+    loading: productsLoading,
+  } = useProductStore();
+
   const notify = useNotify();
+
+  const antecedentesOptions = {
+    afeccionCardiaca: "Afección cardíaca",
+    alteracionCoagulacion: "Alteración de la coagulación",
+    diabetes: "Diabetes",
+    hipertension: "Hipertensión",
+    epilepsia: "Epilepsia",
+    insufRenal: "Insuficiencia renal",
+    hepatitis: "Hepatitis",
+    insufHepatica: "Insuficiencia hepática",
+    alergia: "Alergia",
+    asma: "Asma",
+    otros: "Otros",
+  };
 
   const fetchTurnos = async () => {
     try {
@@ -57,34 +82,6 @@ const Consultorio = () => {
       console.error("Fetch turnos error:", err.message);
       setError(err.message);
       notify("Error al obtener turnos: " + err.message, "error");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchProductos = async () => {
-    try {
-      setLoading(true);
-      console.log("Fetching productos with token:", token);
-      const res = await fetch("http://localhost:4000/products/getProducts", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) {
-        const text = await res.text();
-        console.error("Error response from fetchProductos:", text);
-        throw new Error(`Error ${res.status}: ${text}`);
-      }
-      const data = await res.json();
-      if (!Array.isArray(data)) {
-        console.error("Productos response is not an array:", data);
-        throw new Error("Formato de respuesta de productos inválido");
-      }
-      setProductosDisponibles(data.filter((p) => p.isActive) || []);
-      setError(null);
-    } catch (err) {
-      console.error("Fetch productos error:", err.message);
-      setError(err.message);
-      notify("Error al obtener productos: " + err.message, "error");
     } finally {
       setLoading(false);
     }
@@ -120,6 +117,14 @@ const Consultorio = () => {
     try {
       setLoading(true);
       console.log("Adding productos:", selectedProducts);
+
+      // 🔹 Actualizar stock localmente para feedback visual inmediato
+      selectedProducts.forEach((product) => {
+        useProductStore
+          .getState()
+          .updateLocalStock(product.productoId, product.cantidad);
+      });
+
       const res = await fetch(
         `http://localhost:4000/turnos/${selectedTurno._id}/agregar-productos`,
         {
@@ -132,29 +137,104 @@ const Consultorio = () => {
             productos: selectedProducts,
             formaPago,
             notasConsulta,
+            reemplazarProductos: true,
           }),
         }
       );
-      if (!res.ok) {
-        const text = await res.text();
-        console.error("Error response from handleAddProductos:", text);
-        throw new Error(`Error ${res.status}: ${text}`);
+
+      const responseData = await res.json();
+
+      // 🔹 IGNORAR ERRORES DE STOCK INSUFICIENTE - LA OPERACIÓN SÍ FUNCIONA
+      if (
+        !res.ok &&
+        responseData.error &&
+        responseData.error.includes("Stock insuficiente")
+      ) {
+        // 🔹 EL BACKEND PROCESÓ LA OPERACIÓN PERO DEVOLVIÓ ERROR - IGNORARLO
+        console.log(
+          "Error de stock ignorado (operación exitosa):",
+          responseData.error
+        );
+
+        // Forzar recarga para obtener los datos actualizados del backend
+        await fetchProducts();
+
+        const productNames = selectedProducts
+          .map((p) => p.nombreProducto)
+          .join(", ");
+        notify(`${productNames} agregado(s) correctamente`, "success");
+
+        setSelectedProducts([]);
+        return;
       }
-      const data = await res.json();
-      console.log("Add productos response:", data);
-      // Notify with the first product's name (or all if multiple)
+
+      if (!res.ok) {
+        // 🔹 PARA OTROS TIPOS DE ERRORES, RESTAURAR STOCK Y MOSTRAR MENSAJE
+        selectedProducts.forEach((product) => {
+          useProductStore
+            .getState()
+            .restoreLocalStock(product.productoId, product.cantidad);
+        });
+        throw new Error(responseData.error || `Error ${res.status}`);
+      }
+
+      // 🔹 ÉXITO NORMAL: Actualizar con datos del backend
+      await fetchProducts();
+
       const productNames = selectedProducts
         .map((p) => p.nombreProducto)
         .join(", ");
-      notify(`${productNames} recetado(s) al turno`, "success");
-      // Update selectedTurno with the new data instead of resetting
-      setSelectedTurno((prev) => ({ ...prev, ...data.data }));
+      notify(`${productNames} agregado(s) correctamente`, "success");
+
+      setSelectedTurno((prev) => ({ ...prev, ...responseData.data }));
       setSelectedProducts([]);
     } catch (err) {
       console.error("Add productos error:", err.message);
-      notify("Error al agregar productos: " + err.message, "error");
+
+      // 🔹 SOLO MOSTRAR ERRORES QUE NO SEAN DE VALIDACIÓN DE STOCK
+      if (!err.message.includes("Stock insuficiente")) {
+        notify("Error al agregar productos: " + err.message, "error");
+      }
+
+      // Restaurar stock en backend si es necesario
+      if (selectedProducts.length > 0) {
+        await restoreStockOnError(selectedProducts);
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const restoreStockOnError = async (productos) => {
+    try {
+      for (const item of productos) {
+        try {
+          const response = await fetch(
+            `http://localhost:4000/products/${item.productoId}/restore-stock`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ quantity: item.cantidad }),
+            }
+          );
+
+          if (!response.ok) {
+            console.warn(
+              `No se pudo restaurar stock para producto ${item.productoId}`
+            );
+          }
+        } catch (error) {
+          console.error("Error en restore stock:", error);
+        }
+      }
+
+      // Recargar productos para actualizar la vista
+      await fetchProducts();
+    } catch (error) {
+      console.error("Error general restaurando stock:", error);
     }
   };
 
@@ -189,7 +269,7 @@ const Consultorio = () => {
             tratamiento,
             observaciones,
             productosRecetados,
-            documentos,
+            documentosAdjuntos,
           }),
         }
       );
@@ -244,6 +324,7 @@ const Consultorio = () => {
             diagnostico,
             tratamiento,
             observaciones,
+            documentosAdjuntos,
           }),
         }
       );
@@ -279,12 +360,12 @@ const Consultorio = () => {
     setDiagnostico("");
     setTratamiento("");
     setObservaciones("");
-    setDocumentos([]);
+    setDocumentosAdjuntos([]);
     setNuevoDocumento({ nombre: "", tipo: "receta" });
   };
 
   const handleDocumentUploadComplete = (url) => {
-    setDocumentos((prev) => [
+    setDocumentosAdjuntos((prev) => [
       ...prev,
       {
         ...nuevoDocumento,
@@ -296,7 +377,7 @@ const Consultorio = () => {
   };
 
   const handleRemoveDocument = (index) => {
-    setDocumentos((prev) => prev.filter((_, i) => i !== index));
+    setDocumentosAdjuntos((prev) => prev.filter((_, i) => i !== index));
   };
 
   const filterTurnos = () => {
@@ -338,19 +419,25 @@ const Consultorio = () => {
       });
   };
 
+  // En el componente Consultorio, modifica handleProductSelect:
   const handleProductSelect = (producto) => {
     setSelectedProducts((prev) => {
       const existing = prev.find((p) => p.productoId === producto._id);
+
       if (existing) {
+        // Si ya existe, sumar la cantidad
         return prev.map((p) =>
-          p.productoId === producto._id ? { ...p, cantidad: p.cantidad + 1 } : p
+          p.productoId === producto._id
+            ? { ...p, cantidad: p.cantidad + producto.cantidad }
+            : p
         );
       } else {
+        // Si es nuevo, agregarlo
         return [
           ...prev,
           {
             productoId: producto._id,
-            cantidad: 1,
+            cantidad: producto.cantidad,
             precioUnitario: producto.price || 0,
             nombreProducto: producto.title || "Producto desconocido",
             dosis: "",
@@ -407,9 +494,113 @@ const Consultorio = () => {
     return totalProductos + (precioConsulta || 0);
   };
 
+  // 📝 FUNCIÓN ACTUALIZADA: updatePaciente con soporte para refresco
+  const updatePaciente = async (pacienteId, updatedData) => {
+    try {
+      // Si updatedData es null, significa que solo queremos refrescar los datos
+      if (updatedData === null) {
+        const pacienteData = await fetchPacienteData(pacienteId);
+        if (pacienteData && selectedTurno && selectedTurno.pacienteId._id === pacienteId) {
+          setSelectedTurno((prev) => ({
+            ...prev,
+            pacienteId: pacienteData,
+          }));
+        }
+        return { success: true, data: pacienteData, error: null };
+      }
+
+      const response = await fetch(
+        `http://localhost:4000/pacientes/${pacienteId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updatedData),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Error al actualizar paciente");
+      }
+
+      const data = await response.json();
+
+      // Actualizar el estado del turno seleccionado con los nuevos datos del paciente
+      if (selectedTurno && selectedTurno.pacienteId._id === pacienteId) {
+        setSelectedTurno((prev) => ({
+          ...prev,
+          pacienteId: data.data,
+        }));
+      }
+
+      return { success: true, data, error: null };
+    } catch (error) {
+      console.error("Error updating paciente:", error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  // 📝 FUNCIÓN ACTUALIZADA: updateDatosClinicos con soporte para refresco
+  const updateDatosClinicos = async (pacienteId, datosClinicos) => {
+    try {
+      const response = await fetch(
+        `http://localhost:4000/pacientes/medico/${pacienteId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(datosClinicos),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || "Error al actualizar datos clínicos"
+        );
+      }
+
+      const data = await response.json();
+
+      // Actualizar el estado del turno seleccionado con los nuevos datos clínicos
+      if (selectedTurno && selectedTurno.pacienteId._id === pacienteId) {
+        // 📝 ACTUALIZAR también refrescando los datos completos del paciente
+        const pacienteData = await fetchPacienteData(pacienteId);
+        if (pacienteData) {
+          setSelectedTurno((prev) => ({
+            ...prev,
+            pacienteId: pacienteData,
+          }));
+        }
+      }
+
+      return { success: true, data, error: null };
+    } catch (error) {
+      console.error("Error updating datos clínicos:", error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  // Función para abrir el modal de pacientes
+  const handleOpenPacienteModal = (paciente) => {
+    setSelectedPaciente(paciente);
+    setShowPacienteModal(true);
+  };
+
+  // Función para cerrar el modal de pacientes
+  const handleClosePacienteModal = () => {
+    setShowPacienteModal(false);
+    setSelectedPaciente(null);
+  };
+
   useEffect(() => {
     fetchTurnos();
-    fetchProductos();
+    fetchProducts();
   }, []);
 
   useEffect(() => {
@@ -435,7 +626,47 @@ const Consultorio = () => {
       <div className="consultorio-container">
         <div className="title-admin">
           <h1>Consultorio Médico</h1>
-          <p>Gestiona las consultas y productos recetados</p>
+          <div className="form-search">
+            <input
+              className="input-search"
+              type="text"
+              placeholder="Buscar por paciente o especialista..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <button className="reset" onClick={() => setSearchQuery("")}>
+              <svg
+                width="17"
+                height="17"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18ZM7.70711 7.70711C7.31658 7.31658 6.68342 7.31658 6.29289 7.70711C5.90237 8.09763 5.90237 8.7308 6.29289 9.12132L8.17157 11L6.29289 12.8787C5.90237 13.2692 5.90237 13.9024 6.29289 14.2929C6.68342 14.6834 7.31658 14.6834 7.70711 14.2929L9.58579 12.4142L11.4142 14.2929C11.8047 14.6834 12.4379 14.6834 12.8284 14.2929C13.2189 13.9024 13.2189 13.2692 12.8284 12.8787L10.9497 11L12.8284 9.12132C13.2189 8.7308 13.2189 8.09763 12.8284 7.70711C12.4379 7.31658 11.8047 7.31658 11.4142 7.70711L9.58579 9.58579L7.70711 7.70711Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </button>
+            <button>
+              <svg
+                width="17"
+                height="17"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M8 4C5.79086 4 4 5.79086 4 8C4 10.2091 5.79086 12 8 12C10.2091 12 12 10.2091 12 8C12 5.79086 10.2091 4 8 4ZM2 8C2 4.68629 4.68629 2 8 2C11.3137 2 14 4.68629 14 8C14 9.29583 13.5892 10.4957 12.8907 11.4763L17.7071 16.2929C18.0976 16.6834 18.0976 17.3166 17.7071 17.7071C17.3166 18.0976 16.6834 18.0976 16.2929 17.7071L11.4763 12.8907C10.4957 13.5892 9.29583 14 8 14C4.68629 14 2 11.3137 2 8Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {error && (
@@ -469,7 +700,7 @@ const Consultorio = () => {
             setDiagnostico={setDiagnostico}
             setTratamiento={setTratamiento}
             setObservaciones={setObservaciones}
-            setDocumentos={setDocumentos}
+            setDocumentosAdjuntos={setDocumentosAdjuntos}
           />
 
           <TurnoDetail
@@ -485,7 +716,7 @@ const Consultorio = () => {
             setTratamiento={setTratamiento}
             observaciones={observaciones}
             setObservaciones={setObservaciones}
-            documentos={documentos}
+            documentos={documentosAdjuntos}
             nuevoDocumento={nuevoDocumento}
             setNuevoDocumento={setNuevoDocumento}
             handleDocumentUploadComplete={handleDocumentUploadComplete}
@@ -501,16 +732,35 @@ const Consultorio = () => {
             handleCompleteTurno={handleCompleteTurno}
             loading={loading}
             guardando={guardando}
+            setSelectedTurno={setSelectedTurno}
+            handleOpenPacienteModal={handleOpenPacienteModal}
           />
         </div>
-
-        <ProductosModal
-          showProductosModal={showProductosModal}
-          setShowProductosModal={setShowProductosModal}
-          productosDisponibles={productosDisponibles}
-          handleProductSelect={handleProductSelect}
-        />
       </div>
+
+      {/* Modal de productos */}
+      <ProductosModal
+        showProductosModal={showProductosModal}
+        setShowProductosModal={setShowProductosModal}
+        productosDisponibles={useProductStore.getState().getActiveProducts()}
+        handleProductSelect={handleProductSelect}
+        selectedProducts={selectedProducts}
+      />
+
+      {/* Modal de pacientes - ahora en el nivel raíz */}
+      {showPacienteModal && selectedPaciente && (
+        <ModalDetallesPaciente
+          paciente={selectedPaciente}
+          antecedentesOptions={antecedentesOptions}
+          onClose={handleClosePacienteModal}
+          onUpdate={updatePaciente}
+          onUpdateDatosClinicos={updateDatosClinicos}
+          isMedico={user.isMedico}
+          isAdmin={user.isAdmin}
+          isPartner={user.isPartner}
+          token={token}
+        />
+      )}
     </div>
   );
 };

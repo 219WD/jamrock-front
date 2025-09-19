@@ -1,8 +1,6 @@
 import React from "react";
 
 const Filters = ({
-  searchQuery,
-  setSearchQuery,
   statusFilter,
   setStatusFilter,
   dateOrder,
@@ -13,18 +11,8 @@ const Filters = ({
   setDateTo,
 }) => {
   return (
-    <div className="filtros-container">
-      <div className="search-container">
-        <input
-          type="text"
-          placeholder="Buscar por paciente o especialista..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="input-search"
-        />
-      </div>
-
-      <div className="status-filter">
+    <div className="filtros-adicionales">
+      <div className="filter-group">
         <label>Estado:</label>
         <select
           value={statusFilter}
@@ -36,7 +24,7 @@ const Filters = ({
         </select>
       </div>
 
-      <div className="status-filter">
+      <div className="filter-group">
         <label>Orden:</label>
         <select
           value={dateOrder}
@@ -47,22 +35,23 @@ const Filters = ({
         </select>
       </div>
 
-      <div className="status-filter">
-        <label>Desde:</label>
-        <input
-          type="date"
-          value={dateFrom}
-          onChange={(e) => setDateFrom(e.target.value)}
-        />
-      </div>
-
-      <div className="status-filter">
-        <label>Hasta:</label>
-        <input
-          type="date"
-          value={dateTo}
-          onChange={(e) => setDateTo(e.target.value)}
-        />
+      <div className="date-filters">
+        <div className="filter-group">
+          <label>Desde:</label>
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+          />
+        </div>
+        <div className="filter-group">
+          <label>Hasta:</label>
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+          />
+        </div>
       </div>
     </div>
   );

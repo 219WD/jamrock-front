@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 import "./css/Solicitud.css";
 
@@ -27,19 +28,23 @@ const SolicitudPendiente = () => {
 
   const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
+  const navigate = useNavigate();
 
   const fetchPartnerData = async () => {
     try {
       setLoading(prev => ({...prev, fetch: true}));
       setError(null);
 
-      if (!user?._id) {
+      if (!user?._id || !token) {
         setLoading(prev => ({...prev, fetch: false}));
+        setError("Usuario no autenticado");
         return;
       }
 
+      console.log("Buscando datos de partner para usuario:", user._id);
+      
       const response = await fetch(
-        `http://localhost:4000/partners/user/getPartnerByUserId/${user._id}`,
+        `http://localhost:4000/partners/my-partner-data`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -47,13 +52,26 @@ const SolicitudPendiente = () => {
         }
       );
 
+      console.log("Response status:", response.status);
+      
       const data = await response.json();
+      console.log("Datos recibidos:", data);
       
       if (!response.ok) {
-        throw new Error(data.error || "Error al obtener datos del socio");
-      }
-
-      if (data && data._id) {
+        if (response.status === 404) {
+          console.log("No se encontró socio para este usuario");
+          setPartnerExists(false);
+          setPartnerData({
+            adress: "",
+            phone: "",
+            dni: "",
+            reprocann: false
+          });
+        } else {
+          throw new Error(data.error || "Error al obtener datos del socio");
+        }
+      } else if (data && data._id) {
+        console.log("Socio encontrado:", data);
         const newData = {
           adress: data.adress || "",
           phone: data.phone || "",
@@ -76,7 +94,9 @@ const SolicitudPendiente = () => {
   };
 
   useEffect(() => {
-    fetchPartnerData();
+    if (user && token) {
+      fetchPartnerData();
+    }
   }, [user, token]);
 
   const handleEditChange = (e) => {
@@ -90,10 +110,18 @@ const SolicitudPendiente = () => {
   const handleEditClick = () => {
     setEditData({...partnerData});
     setIsEditing(true);
+    setError(null);
+    setSuccess(null);
   };
 
   const handleCancelClick = () => {
     setIsEditing(false);
+    setError(null);
+    setSuccess(null);
+  };
+
+  const handleBackToProfile = () => {
+    navigate("/perfil");
   };
 
   const handleSubmit = async (e) => {
@@ -103,8 +131,14 @@ const SolicitudPendiente = () => {
       setError(null);
       setSuccess(null);
 
-      if (!editData.adress || !editData.phone || !editData.dni) {
-        throw new Error("Todos los campos son obligatorios");
+      if (!editData.adress.trim()) {
+        throw new Error("La dirección es obligatoria");
+      }
+      if (!editData.phone.trim()) {
+        throw new Error("El teléfono es obligatorio");
+      }
+      if (!editData.dni.trim() || !/^\d{8}$/.test(editData.dni)) {
+        throw new Error("DNI debe tener 8 dígitos numéricos");
       }
 
       const url = partnerExists
@@ -140,7 +174,7 @@ const SolicitudPendiente = () => {
         ? "Datos actualizados correctamente" 
         : "Socio creado exitosamente");
       
-      setPartnerData({...editData});
+      await fetchPartnerData();
       setIsEditing(false);
     } catch (err) {
       console.error("Error en handleSubmit:", err);
@@ -150,29 +184,29 @@ const SolicitudPendiente = () => {
     }
   };
 
-  if (loading.fetch && !partnerExists) {
+  if (loading.fetch) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
+      <div className="solicitud-loading-container">
+        <div className="solicitud-loading-spinner"></div>
         <p>Cargando información del socio...</p>
       </div>
     );
   }
 
   if (!user) {
-    return <div className="error-message">No hay usuario logueado</div>;
+    return <div className="solicitud-error-message">No hay usuario logueado</div>;
   }
 
   return (
-    <div className="solicitud-container">
-      <div className="solicitud-form">
-        <h2>Mis Datos de Socio</h2>
+    <div className="solicitud-membership-container">
+      <div className="solicitud-membership-form">
+        <h2 className="solicitud-title">Mis Datos de Socio</h2>
 
-        {success && <div className="success-message">{success}</div>}
-        {error && <div className="error-message">{error}</div>}
+        {success && <div className="solicitud-success-message">{success}</div>}
+        {error && <div className="solicitud-error">{error}</div>}
 
-        <div className="user-info">
-          <h3>
+        <div className="solicitud-user-info">
+          <h3 className="solicitud-user-status">
             {user.isPending ? "🟢 Aprobado" : "🟠 Pendiente"} |{" "}
             {user.isPartner ? "Socio" : "No socio"}
           </h3>
@@ -188,8 +222,8 @@ const SolicitudPendiente = () => {
           <>
             {isEditing ? (
               <form onSubmit={handleSubmit}>
-                <div className="input-group">
-                  <label htmlFor="adress">Dirección:</label>
+                <div className="solicitud-input-group">
+                  <label htmlFor="adress" className="solicitud-label">Dirección:</label>
                   <input
                     id="adress"
                     name="adress"
@@ -199,11 +233,13 @@ const SolicitudPendiente = () => {
                     required
                     disabled={loading.submit}
                     autoComplete="street-address"
+                    className="solicitud-input"
+                    placeholder="Ingresa tu dirección"
                   />
                 </div>
 
-                <div className="input-group">
-                  <label htmlFor="phone">Teléfono:</label>
+                <div className="solicitud-input-group">
+                  <label htmlFor="phone" className="solicitud-label">Teléfono:</label>
                   <input
                     id="phone"
                     name="phone"
@@ -213,11 +249,13 @@ const SolicitudPendiente = () => {
                     required
                     disabled={loading.submit}
                     autoComplete="tel"
+                    className="solicitud-input"
+                    placeholder="Ingresa tu teléfono"
                   />
                 </div>
 
-                <div className="input-group">
-                  <label htmlFor="dni">DNI:</label>
+                <div className="solicitud-input-group">
+                  <label htmlFor="dni" className="solicitud-label">DNI:</label>
                   <input
                     id="dni"
                     name="dni"
@@ -228,26 +266,31 @@ const SolicitudPendiente = () => {
                     disabled={partnerExists || loading.submit}
                     autoComplete="off"
                     pattern="[0-9]{8}"
+                    className="solicitud-input"
+                    placeholder="12345678"
+                    maxLength="8"
                   />
                 </div>
 
-                <div className="checkbox-group">
-                  <label>
+                <div className="solicitud-checkbox-group">
+                  <label className="solicitud-checkbox-label">
                     <input
                       name="reprocann"
                       type="checkbox"
                       checked={editData.reprocann}
                       onChange={handleEditChange}
                       disabled={loading.submit}
+                      className="solicitud-checkbox"
                     />
                     Reprocann
                   </label>
                 </div>
 
-                <div className="button-group">
+                <div className="solicitud-button-group">
                   <button 
                     type="submit" 
                     disabled={loading.submit}
+                    className="solicitud-submit-btn"
                   >
                     {loading.submit ? "Guardando..." : "Guardar cambios"}
                   </button>
@@ -255,52 +298,72 @@ const SolicitudPendiente = () => {
                     type="button"
                     onClick={handleCancelClick}
                     disabled={loading.submit}
+                    className="solicitud-cancel-btn"
                   >
                     Cancelar
                   </button>
                 </div>
               </form>
             ) : (
-              <div className="view-mode">
-                <div className="input-group">
-                  <label>Dirección:</label>
+              <div className="solicitud-view-mode">
+                <div className="solicitud-input-group">
+                  <label className="solicitud-label">Dirección:</label>
                   <p>{partnerData.adress || "No especificado"}</p>
                 </div>
 
-                <div className="input-group">
-                  <label>Teléfono:</label>
+                <div className="solicitud-input-group">
+                  <label className="solicitud-label">Teléfono:</label>
                   <p>{partnerData.phone || "No especificado"}</p>
                 </div>
 
-                <div className="input-group">
-                  <label>DNI:</label>
+                <div className="solicitud-input-group">
+                  <label className="solicitud-label">DNI:</label>
                   <p>{partnerData.dni || "No especificado"}</p>
                 </div>
 
-                <div className="input-group">
-                  <label>Reprocann:</label>
+                <div className="solicitud-input-group">
+                  <label className="solicitud-label">Reprocann:</label>
                   <p>{partnerData.reprocann ? "Sí" : "No"}</p>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={handleEditClick}
-                  disabled={loading.fetch}
-                >
-                  Editar información
-                </button>
+                <div className="solicitud-button-group">
+                  <button
+                    type="button"
+                    onClick={handleEditClick}
+                    disabled={loading.fetch}
+                    className="solicitud-submit-btn"
+                  >
+                    Editar información
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleBackToProfile}
+                    className="solicitud-back-btn"
+                  >
+                    Volver al Perfil
+                  </button>
+                </div>
               </div>
             )}
           </>
         ) : (
-          <div className="no-partner-message">
+          <div className="solicitud-no-partner">
             <p>No tienes un perfil de socio creado.</p>
-            <button
-              onClick={handleEditClick}
-              disabled={loading.fetch}
-            >
-              Crear perfil de socio
-            </button>
+            <div className="solicitud-button-group">
+              <button
+                onClick={handleEditClick}
+                disabled={loading.fetch}
+                className="solicitud-submit-btn"
+              >
+                Crear perfil de socio
+              </button>
+              <button
+                onClick={handleBackToProfile}
+                className="solicitud-back-btn"
+              >
+                Volver al Perfil
+              </button>
+            </div>
           </div>
         )}
       </div>

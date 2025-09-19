@@ -9,8 +9,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { faStar as regularStar } from "@fortawesome/free-regular-svg-icons";
 
-const ProductTable = ({ productos, handleEdit, handleDelete, handleToggleEstado }) => {
+const ProductTable = ({ productos, loading, onEdit, onDelete, onToggleEstado }) => {
   const renderStars = (rating) => {
+    if (!rating) return null;
+    
     const stars = [];
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating - fullStars >= 0.5;
@@ -30,6 +32,23 @@ const ProductTable = ({ productos, handleEdit, handleDelete, handleToggleEstado 
 
     return stars;
   };
+
+  if (loading) {
+    return (
+      <div className="dashboard-loading">
+        <div className="spinner"></div>
+        <p>Cargando productos...</p>
+      </div>
+    );
+  }
+
+  if (productos.length === 0) {
+    return (
+      <div className="no-productos">
+        <p>No se encontraron productos</p>
+      </div>
+    );
+  }
 
   return (
     <div className="orders-table">
@@ -51,32 +70,47 @@ const ProductTable = ({ productos, handleEdit, handleDelete, handleToggleEstado 
           {productos.map((producto) => (
             <tr key={producto._id}>
               <td>{producto.title}</td>
-              <td>{producto.description}</td>
+              <td className="description-cell">
+                <div className="description-content">
+                  {producto.description}
+                </div>
+              </td>
               <td>${producto.price}</td>
               <td>{producto.stock}</td>
               <td>{producto.category}</td>
               <td>
-                <img src={producto.image} alt={producto.title} className="product-image" />
+                {producto.image && (
+                  <img src={producto.image} alt={producto.title} className="product-image" />
+                )}
               </td>
               <td>
-                {renderStars(producto.rating)} ({producto.rating?.toFixed(1)})
+                <div className="rating">
+                  {renderStars(producto.rating || 0)} 
+                  <span className="rating-value">({producto.rating ? producto.rating.toFixed(1) : '0.0'})</span>
+                </div>
               </td>
-              <td>{producto.isActive ? "Activo" : "Inactivo"}</td>
               <td>
-                <button onClick={() => handleEdit(producto)} className="btn btn-edit">
-                  <FontAwesomeIcon icon={faEdit} />
-                </button>
-                <button onClick={() => handleDelete(producto._id)} className="btn btn-delete">
-                  <FontAwesomeIcon icon={faTrash} />
-                </button>
-                <button
-                  onClick={() => handleToggleEstado(producto._id)}
-                  className={`btn btn-toggle ${producto.isActive ? "activo" : "inactivo"}`}
-                  title={producto.isActive ? "Desactivar producto" : "Activar producto"}
-                >
-                  <FontAwesomeIcon icon={faPowerOff} />
-                </button>
+                <span className={`status-badge ${producto.isActive ? 'activo' : 'inactivo'}`}>
+                  {producto.isActive ? 'Activo' : 'Inactivo'}
+                </span>
               </td>
+<td>
+  <div className="action-buttons">
+    <button onClick={() => onEdit(producto)} className="btn btn-edit" title="Editar producto">
+      <FontAwesomeIcon icon={faEdit} />
+    </button>
+    <button onClick={() => onDelete(producto._id)} className="btn btn-delete" title="Eliminar producto">
+      <FontAwesomeIcon icon={faTrash} />
+    </button>
+    <button
+      onClick={() => onToggleEstado(producto._id)}
+      className={`btn btn-toggle ${producto.isActive ? "activo" : "inactivo"}`}
+      title={producto.isActive ? "Desactivar producto" : "Activar producto"}
+    >
+      <FontAwesomeIcon icon={faPowerOff} />
+    </button>
+  </div>
+</td>
             </tr>
           ))}
         </tbody>

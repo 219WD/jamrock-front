@@ -9,6 +9,7 @@ import ShoppingCart from "./components/ShoppingCart/ShoppingCart.jsx";
 import NavBar from "./components/NavBar.jsx";
 import useCartStore from "./store/cartStore";
 import PartnerRoute from "./routes/PartnerRoute";
+import ChangePasswordForm from "./components/ChangePasswordForm";
 
 const HomeScreen = lazy(() => import("./pages/HomeScreen"));
 const Productos = lazy(() => import("./pages/Productos"));
@@ -158,6 +159,10 @@ function App() {
           <Route path="/consultorio" element={<Consultorio />} />
           <Route path="/caja" element={<Caja />} />
           <Route path="/loader" element={<LoaderGsap />} />
+          <Route
+            path="/reset-password/:token"
+            element={<ChangePasswordForm />}
+          />
           <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
       </Suspense>

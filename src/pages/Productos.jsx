@@ -5,11 +5,11 @@ import Footer from "../components/Footer";
 import ShoppingCart from "../components/ShoppingCart/ShoppingCart";
 import useAuthStore from "../store/authStore";
 import useCartStore from "../store/cartStore";
-import "../pages/css/Productos.css"; // Asegúrate de que la ruta sea correcta
-
+import useProductStore from "../store/productStore";
+import "../pages/css/Productos.css";
 
 const Productos = () => {
-  const { token } = useAuthStore(); // Token desde Zustand auth store
+  const { token } = useAuthStore();
   const {
     cart,
     isCartVisible,
@@ -18,30 +18,17 @@ const Productos = () => {
     removeFromCart,
     updateQuantity,
     checkoutCart,
-    fetchCart, // usamos la función del store
+    fetchCart,
   } = useCartStore();
 
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // 🔹 USAR getActiveProducts() en lugar de products directamente
+  const { getActiveProducts, loading, error, fetchProducts } = useProductStore();
+  const activeProducts = getActiveProducts(); // 🔹 Esto devuelve solo productos activos con stock > 0
 
-  // Obtener productos del backend
+  // Obtener productos del backend usando el store
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await fetch("http://localhost:4000/products/getProducts");
-        if (!res.ok) throw new Error("Error al traer los productos");
-        const data = await res.json();
-        setProducts(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProducts();
-  }, []);
+  }, [fetchProducts]);
 
   // Obtener carrito del backend solo si hay token
   useEffect(() => {
@@ -52,16 +39,22 @@ const Productos = () => {
 
   const handleAddToCart = async (product) => {
     try {
+      // 🔹 ESTA VERIFICACIÓN YA NO ES NECESARIA porque activeProducts solo tiene stock > 0
+      // Pero la dejamos por seguridad
+      if (product.stock <= 0) {
+        alert("Este producto no tiene stock disponible");
+        return;
+      }
+
       const normalizedProduct = {
         ...product,
         _id: product._id || product.id,
-        id: product._id || product.id, // Asegurar ambos campos
+        id: product._id || product.id,
       };
-      console.log("Agregando producto al carrito:", normalizedProduct);
+      
       await addToCart(normalizedProduct);
     } catch (error) {
       console.error("Error al agregar al carrito:", error);
-      // Aquí podrías mostrar un toast o alerta al usuario
       alert(error.message || "Error al agregar al carrito");
     }
   };
@@ -76,8 +69,9 @@ const Productos = () => {
         toggleCartVisibility={toggleCartVisibility}
       />
 
+      {/* 🔹 PASAR activeProducts EN LUGAR DE products */}
       <MenuCards
-        products={products}
+        products={activeProducts} // 🔹 ESTA ES LA CORRECCIÓN IMPORTANTE
         onAddToCart={handleAddToCart}
         toggleCartVisibility={toggleCartVisibility}
       />

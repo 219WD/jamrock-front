@@ -58,58 +58,68 @@ const Solicitud = () => {
   };
 
   return (
-    <div className="solicitud-container">
-      <form className="solicitud-form" onSubmit={handleSubmit}>
-        <h2>Solicitud de membresía</h2>
+    <div className="solicitud-membership-container">
+      <form className="solicitud-membership-form" onSubmit={handleSubmit}>
+        <h2 className="solicitud-title">Solicitud de membresía</h2>
 
         {name && (
-          <p>
+          <p className="solicitud-user-name">
             <strong>Nombre:</strong> {name}
           </p>
         )}
 
-        <div className="input-group">
-          <label>Dirección:</label>
+        <div className="solicitud-input-group">
+          <label htmlFor="adress" className="solicitud-label">Dirección:</label>
           <input
+            id="adress"
             type="text"
             value={adress}
             onChange={(e) => setAdress(e.target.value)}
             required
+            placeholder="Ingresa tu dirección"
+            className="solicitud-input"
           />
         </div>
 
-        <div className="input-group">
-          <label>Teléfono:</label>
+        <div className="solicitud-input-group">
+          <label htmlFor="phone" className="solicitud-label">Teléfono:</label>
           <input
-            type="text"
+            id="phone"
+            type="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             required
+            placeholder="Ingresa tu teléfono"
+            className="solicitud-input"
           />
         </div>
 
-        <div className="input-group">
-          <label>DNI:</label>
+        <div className="solicitud-input-group">
+          <label htmlFor="dni" className="solicitud-label">DNI:</label>
           <input
+            id="dni"
             type="text"
             value={dni}
             onChange={(e) => setDni(e.target.value)}
             required
+            placeholder="Ingresa tu DNI"
+            className="solicitud-input"
           />
         </div>
 
-        <div className="input-group checkbox-group">
-          <label htmlFor="reprocann">¿Tenés REPROCANN?</label>
+        <div className="solicitud-checkbox-group">
           <input
             id="reprocann"
             type="checkbox"
             checked={reprocann}
             onChange={(e) => setReprocann(e.target.checked)}
+            className="solicitud-checkbox"
           />
+          <label htmlFor="reprocann" className="solicitud-checkbox-label">¿Tenés REPROCANN?</label>
         </div>
 
-        <button type="submit">Enviar solicitud</button>
-        {error && <p className="error">{error}</p>}
+        <button type="submit" className="solicitud-submit-btn">Enviar solicitud</button>
+        {error && <p className="solicitud-error">{error}</p>}
       </form>
     </div>
   );

@@ -118,12 +118,12 @@ const Individual = () => {
 
             <div className="individual-buttons">
               <button
-                className="btn-primary-individual"
+                className="add-to-cart-button-individual"
                 onClick={handleAddToCart}
               >
-                <FontAwesomeIcon icon={faCartShopping} /> Añadir al Carrito
+                <FontAwesomeIcon icon={faCartShopping} /> Agregar al Carrito
               </button>
-              <Link to="/productos" className="btn-secondary-individual">
+              <Link to="/productos" className="view-button-individual">
                 Ver Más Productos
               </Link>
             </div>

@@ -1,0 +1,324 @@
+.after-office-section {
+  position: relative;
+  padding: 5rem 2rem;
+  overflow: hidden;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url("/src/assets/jamrock.png");
+  background-position: top;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* Overlay para mejorar legibilidad */
+.after-office-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, 
+    rgba(24, 86, 0, 0.75) 0%,
+    rgba(31, 123, 0, 0.6) 50%,
+    rgba(13, 61, 0, 0.75) 100%);
+  z-index: 1;
+}
+
+.after-office-container {
+  max-width: 1400px;
+  width: 100%;
+  z-index: 2;
+  position: relative;
+}
+
+.after-office-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.after-office-images {
+  display: flex;
+  justify-content: center;
+}
+
+.image-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem; /* un poco más de aire */
+  max-width: 600px; /* antes 400px */
+  width: 100%; /* que se ajuste más al contenedor */
+}
+
+.image-row {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.image-item {
+  position: relative;
+  flex: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  aspect-ratio: 1/1; /* Mantener relación cuadrada */
+}
+
+.image-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(228, 255, 0, 0.2);
+}
+
+.image-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, rgba(228, 255, 0, 0.1), rgba(116, 183, 44, 0.1));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.image-item:hover .image-overlay {
+  opacity: 1;
+}
+
+/* Resto del CSS se mantiene igual... */
+.after-office-info {
+  color: #ffffff;
+}
+
+.section-title {
+  font-family: "Archivo Black", sans-serif;
+  text-transform: uppercase;
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
+  line-height: 1.1;
+  margin-bottom: 2rem;
+  color: #ffffff;
+}
+
+.title-line {
+  display: block;
+}
+
+.title-line.accent {
+  color: #E4FF00;
+  text-shadow: 0 0 20px rgba(228, 255, 0, 0.5);
+}
+
+.schedule-info {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.schedule-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.8rem 1.5rem;
+  border-radius: 25px;
+  backdrop-filter: blur(10px);
+    font-family: "Raleway", sans-serif;
+
+}
+
+.schedule-icon {
+  color: #E4FF00;
+  font-size: 1.2rem;
+}
+
+.after-office-description {
+  font-family: "Raleway", sans-serif;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.feature-item {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1.5rem;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-3px);
+}
+
+.feature-icon {
+  font-size: 2rem;
+  color: #74B72C;
+  margin-bottom: 1rem;
+}
+
+.feature-item h4 {
+  font-family: "Raleway", sans-serif;
+  font-weight: 700;
+  color: #E4FF00;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.feature-item p {
+  font-family: "Raleway", sans-serif;
+  opacity: 0.8;
+  font-size: 0.9rem;
+}
+
+.promo-highlight {
+  background: linear-gradient(135deg, #E4FF00 0%, #c2e000 100%);
+  color: #012700;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-family: "Archivo Black", sans-serif;
+  text-transform: uppercase;
+  font-size: 1.2rem;
+}
+
+.after-office-cta {
+  background: linear-gradient(135deg, #E4FF00 0%, #c2e000 100%);
+  color: #012700;
+  border: none;
+  padding: 1.2rem 2.5rem;
+  border-radius: 50px;
+  font-family: "Raleway", sans-serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.after-office-cta:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(228, 255, 0, 0.4);
+}
+
+.cta-icon {
+  transition: transform 0.3s ease;
+}
+
+.after-office-cta:hover .cta-icon {
+  transform: translateX(5px);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .after-office-content {
+    gap: 3rem;
+  }
+  
+  .image-grid {
+    max-width: 350px;
+  }
+}
+
+@media (max-width: 900px) {
+  .after-office-content {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    text-align: center;
+  }
+  
+  .after-office-images {
+    order: 2;
+  }
+  
+  .after-office-info {
+    order: 1;
+  }
+  
+  .image-grid {
+    max-width: 500px;
+  }
+  
+  .schedule-info {
+    justify-content: center;
+  }
+  
+  .features-grid {
+    grid-template-columns: 1fr;
+    max-width: 300px;
+    margin: 0 auto 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .after-office-section {
+    padding: 3rem 1rem;
+    min-height: auto;
+    background-attachment: scroll;
+    background-position: center;
+  }
+  
+  .section-title {
+    font-size: 2.2rem;
+  }
+  
+  .schedule-info {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .image-grid {
+    max-width: 400px;
+  }
+  
+  .image-row {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    font-size: 1.8rem;
+  }
+  
+  .after-office-description {
+    font-size: 1rem;
+  }
+  
+  .promo-highlight {
+    font-size: 1rem;
+    padding: 0.8rem 1.5rem;
+  }
+  
+  .after-office-cta {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+  }
+}

@@ -1,0 +1,157 @@
+.rating-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.rating-modal {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.close-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+}
+
+.close-button:hover {
+  color: #333;
+}
+
+.rating-modal h2 {
+  margin-top: 0;
+  color: #333;
+  text-align: center;
+}
+
+.product-name {
+  text-align: center;
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 2rem;
+}
+
+.rating-stars {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.star-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 2.5rem;
+  color: #ddd;
+  transition: all 0.2s ease;
+  padding: 0.5rem;
+}
+
+.star-button.active {
+  color: #ffc107;
+}
+
+.star-button.hover {
+  color: #ffc107;
+  transform: scale(1.1);
+}
+
+.rating-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.comment-section {
+  margin-bottom: 2rem;
+}
+
+.comment-section label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.comment-section textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.comment-section textarea:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.char-count {
+  display: block;
+  text-align: right;
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.modal-actions button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+  font-size: 1rem;
+}
+
+.modal-actions button[type="button"] {
+  background-color: #6c757d;
+  color: white;
+}
+
+.modal-actions button[type="button"]:hover {
+  background-color: #5a6268;
+}
+
+.submit-button {
+  background-color: #007bff !important;
+  color: white !important;
+}
+
+.submit-button:hover:not(:disabled) {
+  background-color: #0056b3 !important;
+}
+
+.submit-button:disabled {
+  background-color: #ccc !important;
+  cursor: not-allowed;
+}

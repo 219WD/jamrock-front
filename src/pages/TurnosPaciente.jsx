@@ -151,12 +151,16 @@ const TurnosPaciente = () => {
     }
   };
 
-const handleCrearTurno = async (nuevoTurno) => {
+  const handleCrearTurno = async (nuevoTurno) => {
     try {
       setLoading(true);
-      
+
       // Validaciones básicas
-      if (!nuevoTurno.fecha || !nuevoTurno.motivo || !nuevoTurno.especialistaId) {
+      if (
+        !nuevoTurno.fecha ||
+        !nuevoTurno.motivo ||
+        !nuevoTurno.especialistaId
+      ) {
         throw new Error("Todos los campos obligatorios deben completarse");
       }
 
@@ -182,7 +186,9 @@ const handleCrearTurno = async (nuevoTurno) => {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || result.message || "Error al crear turno");
+        throw new Error(
+          result.error || result.message || "Error al crear turno"
+        );
       }
 
       notify("Turno creado exitosamente", "success");
@@ -468,157 +474,166 @@ const handleCrearTurno = async (nuevoTurno) => {
             </table>
           )}
         </div>
-
-        {showNuevoTurnoModal && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <h3>Nuevo Turno</h3>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const formData = new FormData(e.target);
-                  const fecha = formData.get("fecha");
-
-                  // Validar fecha futura
-                  if (new Date(fecha) <= new Date()) {
-                    notify("La fecha del turno debe ser futura", "error");
-                    return;
-                  }
-
-                  const nuevoTurno = {
-                    fecha: formData.get("fecha"),
-                    motivo: formData.get("motivo"),
-                    notas: formData.get("notas"),
-                    reprocannRelacionado:
-                      formData.get("reprocannRelacionado") === "on",
-                    especialistaId: formData.get("especialistaId"),
-                  };
-
-                  handleCrearTurno(nuevoTurno);
-                }}
-              >
-                <div className="form-group">
-                  <label>Especialista:</label>
-                  <select name="especialistaId" required>
-                    <option value="">Seleccionar especialista</option>
-                    {especialistas.map((especialista) => (
-                      <option key={especialista._id} value={especialista._id}>
-                        {especialista.especialidad} -{" "}
-                        {especialista.userId?.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label>Fecha y Hora:</label>
-                  <input type="datetime-local" name="fecha" required />
-                </div>
-
-                <div className="form-group">
-                  <label>Motivo:</label>
-                  <input type="text" name="motivo" required />
-                </div>
-
-                <div className="form-group">
-                  <label>Notas adicionales:</label>
-                  <textarea name="notas" />
-                </div>
-
-                <div className="form-group checkbox">
-                  <label>
-                    <input type="checkbox" name="reprocannRelacionado" />
-                    Relacionado a Reprocann
-                  </label>
-                </div>
-
-                <div className="modal-actions">
-                  <button
-                    type="button"
-                    onClick={() => setShowNuevoTurnoModal(false)}
-                    className="close-btn"
-                  >
-                    Cancelar
-                  </button>
-                  <button type="submit" className="approve-btn">
-                    Crear Turno
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {showEditarTurnoModal && turnoAEditar && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <h3>Editar Turno</h3>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const formData = new FormData(e.target);
-                  const turnoActualizado = {
-                    fecha: formData.get("fecha"),
-                    motivo: formData.get("motivo"),
-                  };
-                  handleEditarTurno(turnoAEditar._id, turnoActualizado);
-                }}
-              >
-                <div className="form-group">
-                  <label>Especialista:</label>
-                  <select
-                    name="especialistaId"
-                    defaultValue={turnoAEditar.especialistaId?._id}
-                    required
-                    disabled
-                  >
-                    <option value="">Seleccionar especialista</option>
-                    {especialistas.map((especialista) => (
-                      <option key={especialista._id} value={especialista._id}>
-                        {especialista.especialidad} -{" "}
-                        {especialista.userId?.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label>Fecha y Hora:</label>
-                  <input
-                    type="datetime-local"
-                    name="fecha"
-                    defaultValue={toLocalDateTimeString(turnoAEditar.fecha)}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Motivo:</label>
-                  <input
-                    type="text"
-                    name="motivo"
-                    defaultValue={turnoAEditar.motivo}
-                    required
-                  />
-                </div>
-
-                <div className="modal-actions">
-                  <button
-                    type="button"
-                    onClick={() => setShowEditarTurnoModal(false)}
-                    className="close-btn"
-                  >
-                    Cancelar
-                  </button>
-                  <button type="submit" className="approve-btn">
-                    Guardar Cambios
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
       </div>
+      {showNuevoTurnoModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button
+              className="close-modal"
+              onClick={() => setShowNuevoTurnoModal(false)}
+            >
+              &times;
+            </button>
+            <h3>Nuevo Turno</h3>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const fecha = formData.get("fecha");
+
+                // Validar fecha futura
+                if (new Date(fecha) <= new Date()) {
+                  notify("La fecha del turno debe ser futura", "error");
+                  return;
+                }
+
+                const nuevoTurno = {
+                  fecha: formData.get("fecha"),
+                  motivo: formData.get("motivo"),
+                  notas: formData.get("notas"),
+                  reprocannRelacionado:
+                    formData.get("reprocannRelacionado") === "on",
+                  especialistaId: formData.get("especialistaId"),
+                };
+
+                handleCrearTurno(nuevoTurno);
+              }}
+            >
+              <div className="form-group">
+                <label>Especialista:</label>
+                <select name="especialistaId" required>
+                  <option value="">Seleccionar especialista</option>
+                  {especialistas.map((especialista) => (
+                    <option key={especialista._id} value={especialista._id}>
+                      {especialista.especialidad} - {especialista.userId?.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Fecha y Hora:</label>
+                <input type="datetime-local" name="fecha" required />
+              </div>
+
+              <div className="form-group">
+                <label>Motivo:</label>
+                <input type="text" name="motivo" required />
+              </div>
+
+              <div className="form-group">
+                <label>Notas adicionales:</label>
+                <textarea name="notas" />
+              </div>
+
+              <div className="form-group checkbox">
+                <label>
+                  <input type="checkbox" name="reprocannRelacionado" />
+                  Relacionado a Reprocann
+                </label>
+              </div>
+
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  onClick={() => setShowNuevoTurnoModal(false)}
+                  className="close-btn"
+                >
+                  Cancelar
+                </button>
+                <button type="submit" className="approve-btn">
+                  Crear Turno
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showEditarTurnoModal && turnoAEditar && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button
+              className="close-modal"
+              onClick={() => setShowEditarTurnoModal(false)}
+            >
+              &times;
+            </button>
+            <h3>Editar Turno</h3>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const turnoActualizado = {
+                  fecha: formData.get("fecha"),
+                  motivo: formData.get("motivo"),
+                };
+                handleEditarTurno(turnoAEditar._id, turnoActualizado);
+              }}
+            >
+              <div className="form-group">
+                <label>Especialista:</label>
+                <select
+                  name="especialistaId"
+                  defaultValue={turnoAEditar.especialistaId?._id}
+                  required
+                  disabled
+                >
+                  <option value="">Seleccionar especialista</option>
+                  {especialistas.map((especialista) => (
+                    <option key={especialista._id} value={especialista._id}>
+                      {especialista.especialidad} - {especialista.userId?.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Fecha y Hora:</label>
+                <input
+                  type="datetime-local"
+                  name="fecha"
+                  defaultValue={toLocalDateTimeString(turnoAEditar.fecha)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Motivo:</label>
+                <input
+                  type="text"
+                  name="motivo"
+                  defaultValue={turnoAEditar.motivo}
+                  required
+                />
+              </div>
+
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  onClick={() => setShowEditarTurnoModal(false)}
+                  className="close-btn"
+                >
+                  Cancelar
+                </button>
+                <button type="submit" className="approve-btn">
+                  Guardar Cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
