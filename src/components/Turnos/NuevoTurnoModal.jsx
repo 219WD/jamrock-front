@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import useNotify from "../../hooks/useToast";
+import { API_URL } from "../../common/constants";
 
 const NuevoTurnoModal = ({
   especialistas,
@@ -30,7 +31,7 @@ const NuevoTurnoModal = ({
       const fetchPacientes = async () => {
         try {
           setLoading(true);
-          const res = await fetch("http://localhost:4000/pacientes", {
+          const res = await fetch(`${API_URL}/pacientes`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           const data = await res.json();
@@ -59,8 +60,8 @@ const NuevoTurnoModal = ({
     try {
       setLoading(true);
       const endpoint = isAdminOrMedico
-        ? "http://localhost:4000/turnos/admin"
-        : "http://localhost:4000/turnos/paciente";
+        ? `${API_URL}/turnos/admin`
+        : `${API_URL}/turnos/paciente`;
       const requestBody = {
         especialistaId: form.especialistaId,
         fecha: form.fecha,

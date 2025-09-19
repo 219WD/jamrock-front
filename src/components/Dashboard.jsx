@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faEye } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import LoaderGsap from "./LoaderGsap";
+import { API_URL } from "../common/constants";
 
 function Dashboard() {
   const [pedidos, setPedidos] = useState([]);
@@ -15,7 +16,7 @@ function Dashboard() {
   const [error, setError] = useState(null);
   const [selectedPedido, setSelectedPedido] = useState(null);
   const token = useAuthStore((state) => state.token);
-  const API_URL = "http://localhost:4000/cart";
+
   const navigate = useNavigate();
   const hasAnimated = useRef(false);
 
@@ -42,7 +43,7 @@ function Dashboard() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch("http://localhost:4000/users/getUsers", {
+      const response = await fetch(`${API_URL}/users/getUsers`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

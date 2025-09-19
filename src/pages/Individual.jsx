@@ -7,6 +7,7 @@ import NavBar from "../components/NavBar";
 import ShoppingCart from "../components/ShoppingCart/ShoppingCart";
 import useCartStore from "../store/cartStore";
 import useAuthStore from "../store/authStore";
+import { API_URL } from "../common/constants";
 
 const Individual = () => {
   const { id } = useParams();
@@ -31,7 +32,7 @@ const Individual = () => {
     const fetchProduct = async () => {
       try {
         const res = await fetch(
-          `http://localhost:4000/products/getProducts/${id}`
+          `${API_URL}/products/getProducts/${id}`
         );
         if (!res.ok) throw new Error("Producto no encontrado");
         const data = await res.json();

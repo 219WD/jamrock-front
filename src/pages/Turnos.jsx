@@ -6,6 +6,7 @@ import TurnosTable from "../components/Turnos/TurnosTable";
 import NuevoTurnoModal from "../components/Turnos/NuevoTurnoModal";
 import EditarTurnoModal from "../components/Turnos/EditarTurnoModal";
 import "./css/TurnosPanel.css";
+import { API_URL } from "../common/constants";
 
 const Turnos = () => {
   const token = useAuthStore((state) => state.token);
@@ -31,7 +32,7 @@ const Turnos = () => {
   const fetchTurnos = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:4000/turnos", {
+      const res = await fetch(`${API_URL}/turnos`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -51,7 +52,7 @@ const Turnos = () => {
 
   const fetchEspecialistas = async () => {
     try {
-      const res = await fetch("http://localhost:4000/especialistas", {
+      const res = await fetch(`${API_URL}/especialistas`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -70,8 +71,8 @@ const Turnos = () => {
     try {
       setLoading(true);
       const endpoint = user.isSecretaria
-        ? `http://localhost:4000/turnos/secretaria/${turnoId}`
-        : `http://localhost:4000/turnos/medico/${turnoId}`;
+        ? `${API_URL}/turnos/secretaria/${turnoId}`
+        : `${API_URL}/turnos/medico/${turnoId}`;
 
       const res = await fetch(endpoint, {
         method: "PUT",
@@ -101,8 +102,8 @@ const Turnos = () => {
     try {
       setLoading(true);
       const endpoint = user.isSecretaria
-        ? `http://localhost:4000/turnos/secretaria/${turnoId}`
-        : `http://localhost:4000/turnos/medico/${turnoId}`;
+        ? `${API_URL}/turnos/secretaria/${turnoId}`
+        : `${API_URL}/turnos/medico/${turnoId}`;
 
       const res = await fetch(endpoint, {
         method: "PUT",

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import useNotify from "../../hooks/useToast";
+import { API_URL } from "../common/constants";
 
 const formatearNombreAntecedente = (clave) => {
   const nombres = {
@@ -113,7 +114,7 @@ const ModalDetallesPaciente = ({
           JSON.stringify(paciente.reprocann || {})
       ) {
         const response = await fetch(
-          `http://localhost:4000/pacientes/${paciente._id}/reprocann`,
+          `${API_URL}/pacientes/${paciente._id}/reprocann`,
           {
             method: "PUT",
             headers: {

@@ -16,6 +16,7 @@ import {
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import ForgotPasswordModal from "../components/ForgotPasswordModal";
+import { API_URL } from "../common/constants";
 
 const PerfilUsuario = () => {
   const { user, token } = useAuthStore();
@@ -29,7 +30,6 @@ const PerfilUsuario = () => {
   const [historial, setHistorial] = useState([]);
   const [activeTab, setActiveTab] = useState("perfil");
   const [showForgotModal, setShowForgotModal] = useState(false);
-  const API_URL = "http://localhost:4000";
 
   useEffect(() => {
     if (!user?._id || !token) return;

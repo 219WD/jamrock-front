@@ -6,6 +6,7 @@ import { faStar, faTimes } from '@fortawesome/free-solid-svg-icons';
 import useAuthStore from '../../store/authStore';
 import useNotify from '../../hooks/useToast';
 import './css/RatingModal.css';
+import { API_URL } from '../common/constants';
 
 const RatingModal = ({ 
   productId, 
@@ -83,7 +84,7 @@ const RatingModal = ({
 
     setIsSubmitting(true);
     try {
-      const response = await fetch(`http://localhost:4000/cart/${cartId}/rate/${productId}`, {
+      const response = await fetch(`${API_URL}/cart/${cartId}/rate/${productId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

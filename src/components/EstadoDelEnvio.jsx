@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 import "./css/estadoEnvio.css";
 import RatingModal from "./ShoppingCart/RatingModal";
+import { API_URL } from "../common/constants";
 
 const EstadoDelEnvio = () => {
   const [ultimoCarrito, setUltimoCarrito] = useState(null);
@@ -17,8 +18,6 @@ const EstadoDelEnvio = () => {
   const token = useAuthStore((state) => state.token);
   const userId = useAuthStore((state) => state.user?._id);
   const notify = useNotify();
-
-  const API_URL = "http://localhost:4000/cart";
 
   useEffect(() => {
     const fetchUltimoCarrito = async () => {

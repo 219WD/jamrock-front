@@ -11,6 +11,7 @@ import ModalDetallesPaciente from "../components/Pacientes/ModalDetallesPaciente
 import PacientesVencimiento from "../components/Pacientes/PacientesVencimiento.jsx";
 import NuevoTurnoModal from "../components/Turnos/NuevoTurnoModal.jsx";
 import useNotify from "../hooks/useToast.jsx";
+import { API_URL } from "../common/constants";
 
 const Pacientes = () => {
   const [pacientes, setPacientes] = useState([]);
@@ -48,7 +49,7 @@ const Pacientes = () => {
   // Función para obtener todos los usuarios
   const fetchAllUsers = async () => {
     try {
-      const res = await fetch("http://localhost:4000/users/getUsers", {
+      const res = await fetch(`${API_URL}/users/getUsers`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -62,7 +63,7 @@ const Pacientes = () => {
   const fetchTurnos = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:4000/turnos", {
+      const res = await fetch(`${API_URL}/turnos`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -86,7 +87,7 @@ const Pacientes = () => {
         throw new Error("No hay token disponible");
       }
 
-      const res = await fetch("http://localhost:4000/especialistas", {
+      const res = await fetch(`${API_URL}/especialistas`, {
         headers: { Authorization: `Bearer ${currentToken}` },
       });
 
@@ -112,7 +113,7 @@ const Pacientes = () => {
   const fetchPacientes = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:4000/pacientes", {
+      const res = await fetch(`${API_URL}/pacientes`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -127,7 +128,7 @@ const Pacientes = () => {
 
   const fetchAntecedentes = async () => {
     try {
-      const res = await fetch("http://localhost:4000/antecedentes", {
+      const res = await fetch(`${API_URL}/antecedentes`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -143,7 +144,7 @@ const Pacientes = () => {
   const createTurno = async (turnoData) => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:4000/turnos", {
+      const res = await fetch(`${API_URL}/turnos`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -187,7 +188,7 @@ const Pacientes = () => {
         ...antecedentesData,
       };
 
-      const res = await fetch("http://localhost:4000/antecedentes/completo", {
+      const res = await fetch(`${API_URL}/antecedentes/completo`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -213,7 +214,7 @@ const Pacientes = () => {
   const updatePaciente = async (id, pacienteData) => {
     try {
       setLoading(true);
-      const res = await fetch(`http://localhost:4000/pacientes/${id}`, {
+      const res = await fetch(`${API_URL}/pacientes/${id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -238,7 +239,7 @@ const Pacientes = () => {
 
   const updateDatosClinicos = async (id, datosClinicos) => {
     try {
-      const res = await fetch(`http://localhost:4000/pacientes/medico/${id}`, {
+      const res = await fetch(`${API_URL}/pacientes/medico/${id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

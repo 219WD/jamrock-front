@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 import "./css/Solicitud.css";
+import { API_URL } from "../common/constants";
 
 const Solicitud = () => {
   const [adress, setAdress] = useState("");
@@ -28,7 +29,7 @@ const Solicitud = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:4000/partners/createPartner", {
+      const res = await fetch(`${API_URL}/partners/createPartner`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

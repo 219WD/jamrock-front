@@ -10,6 +10,7 @@ import ModalDetallesPaciente from "../components/Pacientes/ModalDetallesPaciente
 import "./css/ConsultorioPanel.css";
 import withGlobalLoader from "../utils/withGlobalLoader.js";
 import useProductStore from "../store/productStore";
+import { API_URL } from "../common/constants";
 
 const Consultorio = () => {
   const token = useAuthStore((state) => state.token);
@@ -67,7 +68,7 @@ const Consultorio = () => {
   const fetchTurnos = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:4000/turnos", {
+      const res = await fetch(`${API_URL}/turnos`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) {
@@ -91,7 +92,7 @@ const Consultorio = () => {
     try {
       setLoading(true);
       console.log("Fetching paciente data for ID:", pacienteId);
-      const res = await fetch(`http://localhost:4000/pacientes/${pacienteId}`, {
+      const res = await fetch(`${API_URL}/pacientes/${pacienteId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) {
@@ -126,7 +127,7 @@ const Consultorio = () => {
       });
 
       const res = await fetch(
-        `http://localhost:4000/turnos/${selectedTurno._id}/agregar-productos`,
+        `${API_URL}/turnos/${selectedTurno._id}/agregar-productos`,
         {
           method: "POST",
           headers: {
@@ -210,7 +211,7 @@ const Consultorio = () => {
       for (const item of productos) {
         try {
           const response = await fetch(
-            `http://localhost:4000/products/${item.productoId}/restore-stock`,
+            `${API_URL}/products/${item.productoId}/restore-stock`,
             {
               method: "POST",
               headers: {
@@ -256,7 +257,7 @@ const Consultorio = () => {
       }
 
       const res = await fetch(
-        `http://localhost:4000/pacientes/${selectedTurno.pacienteId._id}/historial`,
+        `${API_URL}/pacientes/${selectedTurno.pacienteId._id}/historial`,
         {
           method: "POST",
           headers: {
@@ -310,7 +311,7 @@ const Consultorio = () => {
 
       // 3. Completar turno
       const res = await fetch(
-        `http://localhost:4000/turnos/medico/${selectedTurno._id}`,
+        `${API_URL}/turnos/medico/${selectedTurno._id}`,
         {
           method: "PUT",
           headers: {
@@ -510,7 +511,7 @@ const Consultorio = () => {
       }
 
       const response = await fetch(
-        `http://localhost:4000/pacientes/${pacienteId}`,
+        `${API_URL}/pacientes/${pacienteId}`,
         {
           method: "PUT",
           headers: {
@@ -547,7 +548,7 @@ const Consultorio = () => {
   const updateDatosClinicos = async (pacienteId, datosClinicos) => {
     try {
       const response = await fetch(
-        `http://localhost:4000/pacientes/medico/${pacienteId}`,
+        `${API_URL}/pacientes/medico/${pacienteId}`,
         {
           method: "PUT",
           headers: {

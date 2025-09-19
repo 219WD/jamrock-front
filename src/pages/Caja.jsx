@@ -10,6 +10,7 @@ import TablaTurnos from "../components/Caja/TablaTurnos.jsx";
 import ModalConsulta from "../components/Caja/ModalConsulta.jsx";
 import EstadisticasCaja from "../components/Caja/EstadisticasCaja.jsx";
 import useProductStore from "../store/productStore";
+import { API_URL } from "../common/constants";
 
 const Caja = () => {
   const token = useAuthStore((state) => state.token);
@@ -44,7 +45,7 @@ const Caja = () => {
   const fetchTurnos = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:4000/turnos/", {
+      const res = await fetch(`${API_URL}/turnos/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) {
@@ -92,7 +93,7 @@ const updatePagoStatus = async (turnoId, currentPagado, comprobanteData = null) 
     }
 
     const res = await fetch(
-      `http://localhost:4000/turnos/${turnoId}/marcar-pagado`,
+      `${API_URL}/turnos/${turnoId}/marcar-pagado`,
       {
         method: "PUT",
         headers: {
@@ -289,7 +290,7 @@ const addProduct = async (turnoId) => {
     console.log("📤 Enviando al backend:", productosParaEnviar);
 
     const res = await fetch(
-      `http://localhost:4000/turnos/${turnoId}/agregar-productos`,
+      `${API_URL}/turnos/${turnoId}/agregar-productos`,
       {
         method: "POST",
         headers: {

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import useAuthStore from './authStore';
+import { API_URL } from "../common/constants";
 
 const useCartStore = create(
   persist(
@@ -17,7 +18,7 @@ fetchCart: async () => {
 
   set({ loading: true });
   try {
-    const res = await fetch(`http://localhost:4000/cart/user/${user._id}/last`, {
+    const res = await fetch(`${API_URL}/cart/user/${user._id}/last`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -74,8 +75,8 @@ fetchCart: async () => {
         };
 
         const url = usarNuevoCarrito
-          ? "http://localhost:4000/cart/addToCart"
-          : `http://localhost:4000/cart/update/${cartId.id}`;
+          ? `${API_URL}/cart/addToCart`
+          : `${API_URL}/cart/update/${cartId.id}`;
 
         const method = usarNuevoCarrito ? "POST" : "PUT";
 
@@ -124,7 +125,7 @@ fetchCart: async () => {
         set({ loading: true });
         try {
           const action = increment > 0 ? 'add' : 'subtract';
-          const res = await fetch(`http://localhost:4000/cart/update/${cartId.id}`, {
+          const res = await fetch(`${API_URL}/cart/update/${cartId.id}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -148,7 +149,7 @@ fetchCart: async () => {
         if (!token || !cartId || ['pagado', 'preparacion', 'cancelado', 'entregado'].includes(cartId.status)) return;
         set({ loading: true });
         try {
-          const res = await fetch(`http://localhost:4000/cart/update/${cartId.id}`, {
+          const res = await fetch(`${API_URL}/cart/update/${cartId.id}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -175,7 +176,7 @@ checkoutCart: async (data) => {
   
   set({ loading: true });
   try {
-    const response = await fetch(`http://localhost:4000/cart/checkout/${cartId.id}`, {
+    const response = await fetch(`${API_URL}/cart/checkout/${cartId.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -194,7 +195,7 @@ checkoutCart: async (data) => {
     await get().fetchCart(); // Esto actualizará el estado del carrito
 
     // Refetch products to update stock
-    const resProducts = await fetch("http://localhost:4000/products/getProducts");
+    const resProducts = await fetch(`${API_URL}/products/getProducts`);
     if (!resProducts.ok) throw new Error("Error al actualizar productos");
     const updatedProducts = await resProducts.json();
     

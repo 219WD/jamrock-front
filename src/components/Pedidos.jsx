@@ -14,6 +14,7 @@ import {
 import "./css/pedidos.css";
 import NavDashboard from "./NavDashboard";
 import withGlobalLoader from "../utils/withGlobalLoader";
+import { API_URL } from "../common/constants";
 
 const Pedidos = () => {
   const [pedidos, setPedidos] = useState([]);
@@ -34,7 +35,6 @@ const Pedidos = () => {
   const user = useAuthStore((state) => state.user);
   const notify = useNotify();
   const navigate = useNavigate();
-  const API_URL = "http://localhost:4000/cart";
   const hasAnimated = useRef(false);
   const fetchCalled = useRef(false);
   const pedidosContainerRef = useRef(null);
@@ -47,7 +47,7 @@ const Pedidos = () => {
 
   const fetchPedidos = async () => {
     await withGlobalLoader(async () => {
-      const response = await fetch(`${API_URL}/getAllCarts`, {
+      const response = await fetch(`${API_URL}/cart/getAllCarts`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

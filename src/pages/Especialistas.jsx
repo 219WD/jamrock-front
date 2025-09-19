@@ -7,6 +7,7 @@ import EspecialistasTable from "../components/Especialistas/EspecialistasTable";
 import EspecialistasVencimiento from "../components/Especialistas/EspecialistasVencimiento";
 import EditarEspecialistaModal from "../components/Especialistas/EditarEspecialistaModal";
 import "./css/AdminPanel.css";
+import { API_URL } from "../common/constants";
 
 const Especialistas = () => {
   const token = useAuthStore((state) => state.token);
@@ -31,7 +32,7 @@ const Especialistas = () => {
   const fetchEspecialistas = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:4000/especialistas", {
+      const res = await fetch(`${API_URL}/especialistas`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -55,7 +56,7 @@ const Especialistas = () => {
     try {
       setLoading(true);
       const res = await fetch(
-        `http://localhost:4000/especialistas/${selectedEspecialista._id}`,
+        `${API_URL}/especialistas/${selectedEspecialista._id}`,
         {
           method: "PUT",
           headers: {

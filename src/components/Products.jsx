@@ -8,8 +8,7 @@ import ProductTable from "./Productos/ProductTable";
 import NuevoProductoModal from "./Productos/NuevoProductoModal.jsx";
 import EditarProductoModal from "./Productos/EditarProductoModal.jsx";
 import "./css/productos.css";
-
-const API_URL = "http://localhost:4000/products";
+import { API_URL } from "../common/constants";
 
 const Products = () => {
   const [productos, setProductos] = useState([]);
@@ -28,7 +27,7 @@ const Products = () => {
   const fetchProductos = useCallback(
     () =>
       withGlobalLoader(async () => {
-        const res = await fetch(`${API_URL}/getProducts`);
+        const res = await fetch(`${API_URL}/products/getProducts`);
         const data = await res.json();
         setProductos(data);
         setLoading(false);
@@ -43,8 +42,8 @@ const Products = () => {
   const handleSubmit = async (formValues, isEditing) => {
     const method = isEditing ? "PUT" : "POST";
     const url = isEditing
-      ? `${API_URL}/updateProduct/${formValues._id}`
-      : `${API_URL}/createProduct`;
+      ? `${API_URL}/products/updateProduct/${formValues._id}`
+      : `${API_URL}/products/createProduct`;
 
     if (!token) {
       notify("Token no encontrado. Inicia sesión.", "error");
@@ -81,7 +80,7 @@ const Products = () => {
   const handleToggleEstado = async (id) => {
     try {
       await withGlobalLoader(async () => {
-        const res = await fetch(`${API_URL}/toggle-status/${id}`, {
+        const res = await fetch(`${API_URL}/products/toggle-status/${id}`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
@@ -108,7 +107,7 @@ const Products = () => {
 
     try {
       await withGlobalLoader(async () => {
-        const res = await fetch(`${API_URL}/deleteProduct/${id}`, {
+        const res = await fetch(`${API_URL}/products/deleteProduct/${id}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,

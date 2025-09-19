@@ -4,6 +4,7 @@ import "../css/Register.css";
 import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../../store/authStore";
 import withGlobalLoader from "../../utils/withGlobalLoader";
+import { API_URL } from "../common/constants";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -107,7 +108,7 @@ const Register = () => {
     }
 
     await withGlobalLoader(async () => {
-      const res = await fetch("http://localhost:4000/register/register", {
+      const res = await fetch(`${API_URL}/register/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

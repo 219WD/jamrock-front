@@ -2,8 +2,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import useAuthStore from "./authStore";
-
-const API_URL = "http://localhost:4000/products";
+import { API_URL } from "../common/constants";
 
 const useProductStore = create(
   persist(

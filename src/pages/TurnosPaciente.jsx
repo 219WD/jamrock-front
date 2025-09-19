@@ -4,6 +4,7 @@ import NavDashboard from "../components/NavDashboard";
 import useNotify from "../hooks/useToast";
 import { useNavigate } from "react-router-dom";
 import "./css/TurnosPaciente.css";
+import { API_URL } from "../common/constants";
 
 const TurnosPaciente = () => {
   const token = useAuthStore((state) => state.token);
@@ -31,7 +32,7 @@ const TurnosPaciente = () => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`http://localhost:4000/turnos/mis-datos`, {
+      const response = await fetch(`${API_URL}/turnos/mis-datos`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -76,7 +77,7 @@ const TurnosPaciente = () => {
 
   const fetchEspecialistas = useCallback(async () => {
     try {
-      const res = await fetch("http://localhost:4000/especialistas", {
+      const res = await fetch(`${API_URL}/especialistas`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -125,7 +126,7 @@ const TurnosPaciente = () => {
   const handleCancelarTurno = async (turnoId) => {
     try {
       const response = await fetch(
-        `http://localhost:4000/turnos/paciente/${turnoId}/cancelar`,
+        `${API_URL}/turnos/paciente/${turnoId}/cancelar`,
         {
           method: "PUT",
           headers: {
@@ -171,7 +172,7 @@ const TurnosPaciente = () => {
       }
 
       // Crear el turno directamente (el middleware isPacienteWithProfile ya verifica el perfil)
-      const response = await fetch("http://localhost:4000/turnos", {
+      const response = await fetch(`${API_URL}/turnos`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -205,7 +206,7 @@ const TurnosPaciente = () => {
   const handleEditarTurno = async (turnoId, turnoActualizado) => {
     try {
       const response = await fetch(
-        `http://localhost:4000/turnos/paciente/${turnoId}`,
+        `${API_URL}/turnos/paciente/${turnoId}`,
         {
           method: "PUT", // Asegurarse que es PUT
           headers: {

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import useAuthStore from "../../store/authStore";
 import "../../pages/css/AdminPanel.css";
+import { API_URL } from "../common/constants";
 
 const ModalDetallesUsuario = ({ user, partnerDetails, loading, onClose, onTogglePartner }) => {
   const [especialistaData, setEspecialistaData] = useState(null);
@@ -23,7 +24,7 @@ const ModalDetallesUsuario = ({ user, partnerDetails, loading, onClose, onToggle
       setLoadingEspecialista(true);
       setErrorEspecialista(null);
       
-      const res = await fetch(`http://localhost:4000/especialistas/user/${user._id}`, {
+      const res = await fetch(`${API_URL}/especialistas/user/${user._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

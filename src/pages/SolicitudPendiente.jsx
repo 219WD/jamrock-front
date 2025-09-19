@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 import "./css/Solicitud.css";
+import { API_URL } from "../common/constants";
 
 const SolicitudPendiente = () => {
   const [partnerData, setPartnerData] = useState({
@@ -44,7 +45,7 @@ const SolicitudPendiente = () => {
       console.log("Buscando datos de partner para usuario:", user._id);
       
       const response = await fetch(
-        `http://localhost:4000/partners/my-partner-data`,
+        `${API_URL}/partners/my-partner-data`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -142,8 +143,8 @@ const SolicitudPendiente = () => {
       }
 
       const url = partnerExists
-        ? `http://localhost:4000/partners/updatePartner/${partnerId}`
-        : "http://localhost:4000/partners/createPartner";
+        ? `${API_URL}/partners/updatePartner/${partnerId}`
+        : `${API_URL}/partners/createPartner`;
 
       const method = partnerExists ? "PUT" : "POST";
 

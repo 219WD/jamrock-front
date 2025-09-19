@@ -8,6 +8,7 @@ import ClientesHeader from "../components/Clientes/ClientesHeader";
 import TablaPendientes from "../components/Clientes/TablaPendientes";
 import TablaUsuarios from "../components/Clientes/TablaUsuarios";
 import ModalDetallesUsuario from "../components/Clientes/ModalDetallesUsuario";
+import { API_URL } from "../common/constants";
 
 const Clientes = () => {
   const [users, setUsers] = useState([]);
@@ -40,7 +41,7 @@ const Clientes = () => {
   const fetchPendingUsers = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:4000/users/getUsers", {
+      const res = await fetch(`${API_URL}/users/getUsers`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -55,7 +56,7 @@ const Clientes = () => {
 
   const fetchAllUsers = async () => {
     try {
-      const res = await fetch("http://localhost:4000/users/getUsers", {
+      const res = await fetch(`${API_URL}/users/getUsers`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -71,7 +72,7 @@ const Clientes = () => {
     try {
       setLoading(true);
       // Obtener datos del usuario
-      const userRes = await fetch(`http://localhost:4000/users/getUser/${userId}`, {
+      const userRes = await fetch(`${API_URL}/users/getUser/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const userData = await userRes.json();
@@ -82,7 +83,7 @@ const Clientes = () => {
       // Intentar obtener datos de socio, incluso si isPartner es false
       try {
         const partnerRes = await fetch(
-          `http://localhost:4000/partners/user/getPartnerByUserId/${userId}`,
+          `${API_URL}/partners/user/getPartnerByUserId/${userId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -111,7 +112,7 @@ const Clientes = () => {
     try {
       setLoading(true);
       const res = await fetch(
-        `http://localhost:4000/users/togglePartner/${userId}`,
+        `${API_URL}/users/togglePartner/${userId}`,
         {
           method: "PATCH",
           headers: {
@@ -137,7 +138,7 @@ const Clientes = () => {
   const toggleAdminStatus = async (userId) => {
     try {
       setLoading(true);
-      const res = await fetch(`http://localhost:4000/users/isAdmin/${userId}`, {
+      const res = await fetch(`${API_URL}/users/isAdmin/${userId}`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -279,7 +280,7 @@ const Clientes = () => {
                 try {
                   if (user.isMedico) {
                     const res = await fetch(
-                      `http://localhost:4000/partners/user/getPartnerByUserId/${user._id}`,
+                      `${API_URL}/partners/user/getPartnerByUserId/${user._id}`,
                       {
                         headers: { Authorization: `Bearer ${token}` },
                       }

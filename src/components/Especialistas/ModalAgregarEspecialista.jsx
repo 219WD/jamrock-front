@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import useAuthStore from "../../store/authStore";
 import "../../pages/css/AdminPanel.css";
+import { API_URL } from "../common/constants";
 
 const ModalAgregarEspecialista = ({ user, onClose, onSuccess }) => {
   const token = useAuthStore((state) => state.token);
@@ -25,7 +26,7 @@ const ModalAgregarEspecialista = ({ user, onClose, onSuccess }) => {
         throw new Error("Especialidad y matrícula son requeridos");
       }
 
-      const response = await fetch("http://localhost:4000/especialistas", {
+      const response = await fetch(`${API_URL}/especialistas`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -41,7 +42,7 @@ const ModalAgregarEspecialista = ({ user, onClose, onSuccess }) => {
 
       if (response.ok) {
         const updateUserRes = await fetch(
-          `http://localhost:4000/users/toggleMedico/${user._id}`,
+          `${API_URL}/users/toggleMedico/${user._id}`,
           {
             method: "PATCH",
             headers: {
