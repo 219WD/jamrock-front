@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import useAuthStore from "../../store/authStore";
 import "../../pages/css/AdminPanel.css";
-import { API_URL } from "../../common/constants";
+import API_URL from "../../common/constants";
 
 const ModalDetallesUsuario = ({ user, partnerDetails, loading, onClose, onTogglePartner }) => {
   const [especialistaData, setEspecialistaData] = useState(null);

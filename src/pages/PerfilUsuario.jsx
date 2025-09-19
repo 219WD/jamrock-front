@@ -16,7 +16,7 @@ import {
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import ForgotPasswordModal from "../components/ForgotPasswordModal";
-import { API_URL } from "../common/constants";
+import API_URL from "../common/constants";
 
 const PerfilUsuario = () => {
   const { user, token } = useAuthStore();

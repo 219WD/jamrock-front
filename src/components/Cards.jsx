@@ -3,7 +3,7 @@ import Card from "./Card";
 import "./css/Cards.css";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { API_URL } from "../common/constants";
+import API_URL from "../common/constants";
 
 // Registrar plugins de GSAP
 gsap.registerPlugin(ScrollTrigger);

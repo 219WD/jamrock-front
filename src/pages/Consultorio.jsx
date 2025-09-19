@@ -10,7 +10,7 @@ import ModalDetallesPaciente from "../components/Pacientes/ModalDetallesPaciente
 import "./css/ConsultorioPanel.css";
 import withGlobalLoader from "../utils/withGlobalLoader.js";
 import useProductStore from "../store/productStore";
-import { API_URL } from "../common/constants";
+import API_URL from "../common/constants";
 
 const Consultorio = () => {
   const token = useAuthStore((state) => state.token);

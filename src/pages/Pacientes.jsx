@@ -11,7 +11,7 @@ import ModalDetallesPaciente from "../components/Pacientes/ModalDetallesPaciente
 import PacientesVencimiento from "../components/Pacientes/PacientesVencimiento.jsx";
 import NuevoTurnoModal from "../components/Turnos/NuevoTurnoModal.jsx";
 import useNotify from "../hooks/useToast.jsx";
-import { API_URL } from "../common/constants";
+import API_URL from "../common/constants";
 
 const Pacientes = () => {
   const [pacientes, setPacientes] = useState([]);

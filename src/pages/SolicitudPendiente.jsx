@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 import "./css/Solicitud.css";
-import { API_URL } from "../common/constants";
+import API_URL from "../common/constants";
 
 const SolicitudPendiente = () => {
   const [partnerData, setPartnerData] = useState({

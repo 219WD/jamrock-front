@@ -14,7 +14,7 @@ import {
 import "./css/pedidos.css";
 import NavDashboard from "./NavDashboard";
 import withGlobalLoader from "../utils/withGlobalLoader";
-import { API_URL } from "../common/constants";
+import API_URL from "../common/constants";
 
 const Pedidos = () => {
   const [pedidos, setPedidos] = useState([]);

@@ -7,7 +7,7 @@ import NavBar from "../components/NavBar";
 import ShoppingCart from "../components/ShoppingCart/ShoppingCart";
 import useCartStore from "../store/cartStore";
 import useAuthStore from "../store/authStore";
-import { API_URL } from "../common/constants";
+import API_URL from "../common/constants";
 
 const Individual = () => {
   const { id } = useParams();

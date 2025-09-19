@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../../store/authStore";
 import withGlobalLoader from "../../utils/withGlobalLoader";
 import ForgotPasswordModal from "../ForgotPasswordModal";
-import { API_URL } from "../../common/constants";
+import API_URL from "../../common/constants";
 
 const Login = () => {
   const [email, setEmail] = useState("");

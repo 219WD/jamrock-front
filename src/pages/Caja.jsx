@@ -10,7 +10,7 @@ import TablaTurnos from "../components/Caja/TablaTurnos.jsx";
 import ModalConsulta from "../components/Caja/ModalConsulta.jsx";
 import EstadisticasCaja from "../components/Caja/EstadisticasCaja.jsx";
 import useProductStore from "../store/productStore";
-import { API_URL } from "../common/constants";
+import API_URL from "../common/constants";
 
 const Caja = () => {
   const token = useAuthStore((state) => state.token);

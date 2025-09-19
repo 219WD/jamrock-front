@@ -6,7 +6,7 @@ import TurnosTable from "../components/Turnos/TurnosTable";
 import NuevoTurnoModal from "../components/Turnos/NuevoTurnoModal";
 import EditarTurnoModal from "../components/Turnos/EditarTurnoModal";
 import "./css/TurnosPanel.css";
-import { API_URL } from "../common/constants";
+import API_URL from "../common/constants";
 
 const Turnos = () => {
   const token = useAuthStore((state) => state.token);

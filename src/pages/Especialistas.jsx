@@ -7,7 +7,7 @@ import EspecialistasTable from "../components/Especialistas/EspecialistasTable";
 import EspecialistasVencimiento from "../components/Especialistas/EspecialistasVencimiento";
 import EditarEspecialistaModal from "../components/Especialistas/EditarEspecialistaModal";
 import "./css/AdminPanel.css";
-import { API_URL } from "../common/constants";
+import API_URL from "../common/constants";
 
 const Especialistas = () => {
   const token = useAuthStore((state) => state.token);

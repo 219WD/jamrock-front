@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 import "./css/estadoEnvio.css";
 import RatingModal from "./ShoppingCart/RatingModal";
-import { API_URL } from "../common/constants";
+import API_URL from "../common/constants";
 
 const EstadoDelEnvio = () => {
   const [ultimoCarrito, setUltimoCarrito] = useState(null);

@@ -8,7 +8,7 @@ import ClientesHeader from "../components/Clientes/ClientesHeader";
 import TablaPendientes from "../components/Clientes/TablaPendientes";
 import TablaUsuarios from "../components/Clientes/TablaUsuarios";
 import ModalDetallesUsuario from "../components/Clientes/ModalDetallesUsuario";
-import { API_URL } from "../common/constants";
+import API_URL from "../common/constants";
 
 const Clientes = () => {
   const [users, setUsers] = useState([]);

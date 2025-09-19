@@ -4,7 +4,7 @@ import NavDashboard from "../components/NavDashboard";
 import useNotify from "../hooks/useToast";
 import { useNavigate } from "react-router-dom";
 import "./css/TurnosPaciente.css";
-import { API_URL } from "../common/constants";
+import API_URL from "../common/constants";
 
 const TurnosPaciente = () => {
   const token = useAuthStore((state) => state.token);

@@ -8,7 +8,7 @@ import ProductTable from "./Productos/ProductTable";
 import NuevoProductoModal from "./Productos/NuevoProductoModal.jsx";
 import EditarProductoModal from "./Productos/EditarProductoModal.jsx";
 import "./css/productos.css";
-import { API_URL } from "../common/constants";
+import API_URL from "../common/constants";
 
 const Products = () => {
   const [productos, setProductos] = useState([]);

@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faEye } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import LoaderGsap from "./LoaderGsap";
-import { API_URL } from "../common/constants";
+import API_URL from "../common/constants";
 
 function Dashboard() {
   const [pedidos, setPedidos] = useState([]);
