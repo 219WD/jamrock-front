@@ -4,7 +4,7 @@ import "../css/Register.css";
 import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../../store/authStore";
 import withGlobalLoader from "../../utils/withGlobalLoader";
-import { API_URL } from "../common/constants";
+import { API_URL } from "../../common/constants";
 
 const Register = () => {
   const [name, setName] = useState("");
