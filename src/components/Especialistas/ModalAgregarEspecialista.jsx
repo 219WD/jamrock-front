@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import useAuthStore from "../../store/authStore";
 import "../../pages/css/AdminPanel.css";
-import { API_URL } from "../common/constants";
+import { API_URL } from "../../common/constants";
 
 const ModalAgregarEspecialista = ({ user, onClose, onSuccess }) => {
   const token = useAuthStore((state) => state.token);
