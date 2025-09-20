@@ -240,7 +240,7 @@ const Pedidos = () => {
 
   const handleUpdateStatus = async (pedidoId, newStatus) => {
     await withGlobalLoader(async () => {
-      const response = await fetch(`${API_URL}/status/${pedidoId}`, {
+      const response = await fetch(`${API_URL}/cart/status/${pedidoId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
