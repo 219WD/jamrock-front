@@ -1,3 +1,4 @@
+/* dashboard.css */
 .dashboard {
   display: flex;
   min-height: 100vh;
@@ -345,6 +346,7 @@ h2 {
   display: flex;
   flex-direction: column;
     font-family: "Zen Dots", sans-serif;
+  transition: transform 0.3s ease;
 }
 
 .sidebar-header {
@@ -1021,4 +1023,178 @@ h2 {
 
 .modal-actions .close-btn:hover {
   background: rgba(0, 255, 255, 0.1);
+}
+
+/* ==================== RESPONSIVE MOBILE ==================== */
+.mobile-menu-toggle {
+  display: none;
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 1001;
+  background-color: var(--main-color);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 5px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Media Queries para Responsive */
+@media (max-width: 1024px) {
+  .dashboard {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    min-height: auto;
+  }
+  
+  .right-sidebar {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid #333;
+  }
+  
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .help {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: flex;
+  }
+  
+  .sidebar-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1000;
+    transform: translateX(-100%);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .sidebar-container.mobile-open {
+    transform: translateX(0);
+  }
+  
+  .main-content {
+    padding: 70px 15px 15px;
+  }
+  
+  .container-main {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+  
+  .stats {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .help {
+    grid-column: span 1;
+  }
+  
+  .header {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .header .search-bar {
+    width: 100%;
+  }
+  
+  .header .search-bar input {
+    width: 100%;
+  }
+  
+  .orders-table {
+    font-size: 0.8rem;
+  }
+  
+  .orders-table th,
+  .orders-table td {
+    padding: 8px 10px;
+  }
+  
+  .container-main h2 {
+    font-size: 1.5rem;
+  }
+  
+  .stat h3 {
+    font-size: 2rem;
+  }
+  
+  .modal-content {
+    width: 95%;
+    padding: 1.5rem;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-picture {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .user-name {
+    font-size: 12px;
+  }
+  
+  .user-role {
+    font-size: 10px;
+  }
+  
+  .menu-item {
+    padding: 10px;
+    font-size: 12px;
+  }
+  
+  .submenu-item {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  
+  .container-main {
+    padding: 1rem;
+    margin: 0.5rem;
+  }
+  
+  .orders-table {
+    font-size: 0.7rem;
+  }
+  
+  .orders-table th,
+  .orders-table td {
+    padding: 6px 8px;
+  }
+  
+  .status {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.6rem;
+  }
+  
+  .right-sidebar .item {
+    padding: 10px;
+  }
+  
+  .right-sidebar .view-btn {
+    font-size: 0.7rem;
+    padding: 6px 8px;
+  }
 }
