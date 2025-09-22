@@ -33,13 +33,13 @@ const EstadoDelEnvio = () => {
         let response;
 
         if (lastCartId) {
-          response = await fetch(`${API_URL}/${lastCartId}`, {
+          response = await fetch(`${API_URL}/cart/${lastCartId}`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
         } else {
-          response = await fetch(`${API_URL}/user/${userId}/last`, {
+          response = await fetch(`${API_URL}/cart/user/${userId}/last`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },

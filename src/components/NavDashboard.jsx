@@ -65,10 +65,19 @@ const NavDashboard = () => {
 
   return (
     <>
-      {/* Mobile Menu Toggle Button */}
-      <div className="mobile-menu-toggle" onClick={toggleMobileMenu}>
+      {/* Botón Toggle con estilo del NavBar */}
+      <button 
+        className="menu-toggle dashboard-toggle"
+        onClick={toggleMobileMenu}
+        aria-label="Toggle menu"
+      >
         <FontAwesomeIcon icon={isMobileMenuOpen ? faTimes : faBars} />
-      </div>
+      </button>
+
+      {/* Overlay para móvil */}
+      {isMobileMenuOpen && (
+        <div className="nav-overlay active" onClick={toggleMobileMenu}></div>
+      )}
 
       <div className={`sidebar-container ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
         {/* Header */}

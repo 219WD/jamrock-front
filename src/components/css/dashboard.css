@@ -17,7 +17,18 @@
 /* Agregar un color personalizado */
 :root {
   --main-color: #1f7b00;
-  /* Rojo por defecto */
+  --primary-color: #74B72C;
+  --primary-hover: #5e9423;
+  --accent-color: #E4FF00;
+  --text-light: #ffffff;
+  --text-dark: #333333;
+  --bg-dark: #012700;
+  --bg-transparent: rgba(1, 39, 0, 0.95);
+  --bg-scrolled: rgba(1, 39, 0, 0.98);
+  --border-radius: 12px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.25);
 }
 
 .sidebar {
