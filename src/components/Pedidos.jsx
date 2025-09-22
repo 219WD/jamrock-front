@@ -430,83 +430,86 @@ const Pedidos = () => {
                   <th>Acciones</th>
                 </tr>
               </thead>
-              <tbody>
-                {filteredPedidos.length > 0 ? (
-                  filteredPedidos.map((pedido) => (
-                    <tr key={pedido._id}>
-                      <td>
-                        <div className="user-email">
-                          {pedido.userId?.name || "Usuario eliminado"}
-                        </div>
-                      </td>
-                      <td>
-                        {pedido.items.map((item, index) => (
-                          <span key={index}>
-                            {item.productId?.title || "Producto eliminado"}
-                            {index < pedido.items.length - 1 && ", "}
-                          </span>
-                        ))}
-                      </td>
-                      <td className="total-cell">
-                        ${pedido.totalAmount.toFixed(2)}
-                      </td>
-                      <td>
-                        <div className="payment-method">
-                          {getPaymentIcon(pedido.paymentMethod)}
-                          <span>{pedido.paymentMethod}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="delivery-method">
-                          {getDeliveryIcon(pedido.deliveryMethod)}
-                          <span>{pedido.deliveryMethod}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <span
-                          className={`status-badge ${getStatusClass(
-                            pedido.status
-                          )}`}
-                        >
-                          {getStatusText(pedido.status)}
-                        </span>
-                      </td>
-                      <td>{new Date(pedido.createdAt).toLocaleDateString()}</td>
-                      <td>
-                        <div className="actions-cell">
-                          <button
-                            onClick={() => handleViewPedido(pedido)}
-                            className="view-btn"
-                            title="Ver detalle"
-                          >
-                            <FontAwesomeIcon icon={faEye} />
-                          </button>
-                          <select
-                            value={pedido.status}
-                            onChange={(e) =>
-                              handleUpdateStatus(pedido._id, e.target.value)
-                            }
-                            className="status-select"
-                          >
-                            <option value="inicializado">Inicializado</option>
-                            <option value="pendiente">Pendiente</option>
-                            <option value="pagado">Pagado</option>
-                            <option value="preparacion">En preparación</option>
-                            <option value="cancelado">Cancelado</option>
-                            <option value="entregado">Entregado</option>
-                          </select>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="8" className="no-results">
-                      No se encontraron pedidos que coincidan con los filtros
-                    </td>
-                  </tr>
-                )}
-              </tbody>
+              {/* Dentro del tbody, actualiza cada td para incluir data-label */}
+<tbody>
+  {filteredPedidos.length > 0 ? (
+    filteredPedidos.map((pedido) => (
+      <tr key={pedido._id}>
+        <td data-label="Usuario">
+          <div className="user-email">
+            {pedido.userId?.name || "Usuario eliminado"}
+          </div>
+        </td>
+        <td data-label="Productos">
+          {pedido.items.map((item, index) => (
+            <span key={index}>
+              {item.productId?.title || "Producto eliminado"}
+              {index < pedido.items.length - 1 && ", "}
+            </span>
+          ))}
+        </td>
+        <td data-label="Total" className="total-cell">
+          ${pedido.totalAmount.toFixed(2)}
+        </td>
+        <td data-label="Pago">
+          <div className="payment-method">
+            {getPaymentIcon(pedido.paymentMethod)}
+            <span>{pedido.paymentMethod}</span>
+          </div>
+        </td>
+        <td data-label="Entrega">
+          <div className="delivery-method">
+            {getDeliveryIcon(pedido.deliveryMethod)}
+            <span>{pedido.deliveryMethod}</span>
+          </div>
+        </td>
+        <td data-label="Estado">
+          <span
+            className={`status-badge ${getStatusClass(
+              pedido.status
+            )}`}
+          >
+            {getStatusText(pedido.status)}
+          </span>
+        </td>
+        <td data-label="Fecha">
+          {new Date(pedido.createdAt).toLocaleDateString()}
+        </td>
+        <td data-label="Acciones">
+          <div className="actions-cell">
+            <button
+              onClick={() => handleViewPedido(pedido)}
+              className="view-btn"
+              title="Ver detalle"
+            >
+              <FontAwesomeIcon icon={faEye} />
+            </button>
+            <select
+              value={pedido.status}
+              onChange={(e) =>
+                handleUpdateStatus(pedido._id, e.target.value)
+              }
+              className="status-select"
+            >
+              <option value="inicializado">Inicializado</option>
+              <option value="pendiente">Pendiente</option>
+              <option value="pagado">Pagado</option>
+              <option value="preparacion">En preparación</option>
+              <option value="cancelado">Cancelado</option>
+              <option value="entregado">Entregado</option>
+            </select>
+          </div>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="8" className="no-results">
+        No se encontraron pedidos que coincidan con los filtros
+      </td>
+    </tr>
+  )}
+</tbody>
             </table>
             {visibleCount < sortedPedidos.length && (
               <div className="ver-mas-container" ref={verMasRef}>

@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import useAuthStore from "../store/authStore";
+import useLoadingStore from "../store/loadingStore";
 import "./css/dashboard.css";
 import NavDashboard from "./NavDashboard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faEye } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
-import LoaderGsap from "./LoaderGsap";
+import GlobalLoader from "./GlobalLoader";
 import API_URL from "../common/constants";
 
 function Dashboard() {
@@ -20,10 +21,10 @@ function Dashboard() {
   const navigate = useNavigate();
   const hasAnimated = useRef(false);
 
-  // Fetch functions (unchanged)
+  // Fetch functions
   const fetchPedidos = async () => {
     try {
-      const response = await fetch(`${API_URL}/getAllCarts`, {
+      const response = await fetch(`${API_URL}/cart/getAllCarts`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -61,7 +62,7 @@ function Dashboard() {
   const handleUpdateStatus = async (pedidoId, newStatus) => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_URL}/status/${pedidoId}`, {
+      const response = await fetch(`${API_URL}/cart/status/${pedidoId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -99,6 +100,13 @@ function Dashboard() {
     return pedidos.filter((pedido) => pedido.status === "entregado");
   };
 
+  // Función para obtener pedidos pendientes de confirmación
+  const getPendingConfirmationOrders = () => {
+    return pedidos.filter((pedido) =>
+      ["pagado", "preparacion", "pendiente"].includes(pedido.status)
+    );
+  };
+
   const handleNavigate = () => {
     navigate("/pedidos");
   };
@@ -108,7 +116,7 @@ function Dashboard() {
     fetchUsers();
   }, []);
 
-  // GSAP Animation for dashboard
+  // GSAP Animation for dashboard - modificado para considerar si hay pedidos pendientes
   useEffect(() => {
     if (hasAnimated.current || loading) return;
 
@@ -122,26 +130,30 @@ function Dashboard() {
       { opacity: 1, x: 0, duration: 0.5 }
     );
 
-    tl.fromTo(
-      ".right-sidebar",
-      { opacity: 1, x: 50 },
-      { opacity: 1, x: 0, duration: 0.4, stagger: 0.1 },
-      "-=0.3"
-    );
+    // Solo animar el right-sidebar si hay pedidos pendientes
+    const pendingOrders = getPendingConfirmationOrders();
+    if (pendingOrders.length > 0) {
+      tl.fromTo(
+        ".right-sidebar",
+        { opacity: 1, x: 50 },
+        { opacity: 1, x: 0, duration: 0.4, stagger: 0.1 },
+        "-=0.3"
+      );
 
-    tl.fromTo(
-      ".right-sidebar h3",
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.4, stagger: 0.1 },
-      "-=0.3"
-    );
+      tl.fromTo(
+        ".right-sidebar h3",
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.4, stagger: 0.1 },
+        "-=0.3"
+      );
 
-    tl.fromTo(
-      ".right-sidebar .item",
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.4, stagger: 0.1 },
-      "-=0.3"
-    );
+      tl.fromTo(
+        ".right-sidebar .item",
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.4, stagger: 0.1 },
+        "-=0.3"
+      );
+    }
 
     tl.fromTo(
       ".stat",
@@ -166,19 +178,22 @@ function Dashboard() {
       "-=0.3"
     );
 
-    tl.fromTo(
-      ".container-main h2",
-      { opacity: 0, y: -20 },
-      { opacity: 1, y: 0, duration: 0.3 },
-      "-=0.3"
-    );
+    // Solo animar el h2 y orders-table si hay pedidos pendientes
+    if (pendingOrders.length > 0) {
+      tl.fromTo(
+        ".container-main h2",
+        { opacity: 0, y: -20 },
+        { opacity: 1, y: 0, duration: 0.3 },
+        "-=0.3"
+      );
 
-    tl.fromTo(
-      ".orders-table",
-      { opacity: 0, y: 50 },
-      { opacity: 1, y: 0, duration: 0.5 },
-      "-=0.3"
-    );
+      tl.fromTo(
+        ".orders-table",
+        { opacity: 0, y: 50 },
+        { opacity: 1, y: 0, duration: 0.5 },
+        "-=0.3"
+      );
+    }
 
     return () => {
       tl.kill();
@@ -202,14 +217,19 @@ function Dashboard() {
     );
   }, [selectedPedido]);
 
+  // El GlobalLoader se maneja automáticamente por el store, no necesitamos mostrarlo manualmente
+  // Solo mostramos el contenido cuando no está loading
   if (loading && pedidos.length === 0) {
-    return <LoaderGsap visible={true} loop={false} />;
+    return <GlobalLoader text="Cargando dashboard..." />;
   }
+
+  const pendingOrders = getPendingConfirmationOrders();
+  const hasPendingOrders = pendingOrders.length > 0;
 
   return (
     <div className="dashboard futurista">
       <NavDashboard />
-      {loading && <LoaderGsap visible={true} loop={false} />}
+      <GlobalLoader text="Cargando..." />
       <div className="main-content">
         <div className="container-main">
           <section className="stats">
@@ -242,110 +262,113 @@ function Dashboard() {
               <button>VER GRÁFICOS</button>
             </div>
           </section>
-          <h2>Últimos pedidos pendientes de confirmación</h2>
-          <section className="orders-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Usuario</th>
-                  <th>Productos</th>
-                  <th>Total</th>
-                  <th>Forma de Pago</th>
-                  <th>Fecha</th>
-                  <th>Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pedidos
-                  .filter((pedido) =>
-                    ["pagado", "preparacion", "pendiente"].includes(
-                      pedido.status
-                    )
-                  )
-                  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                  .slice(0, 3)
-                  .map((pedido) => (
-                    <tr key={pedido._id}>
-                      <td>{pedido.userId?.name || "Usuario eliminado"}</td>
-                      <td>
-                        {pedido.items.map((item, index) => (
-                          <span key={index}>
-                            {item.productId?.title || "Producto eliminado"}
-                            {index < pedido.items.length - 1 && ", "}
-                          </span>
-                        ))}
-                      </td>
-                      <td>${pedido.totalAmount?.toFixed(2)}</td>
-                      <td>{pedido.paymentMethod}</td>
-                      <td>{new Date(pedido.createdAt).toLocaleDateString()}</td>
-                      <td>
-                        <span className={`status ${pedido.status}`}>
-                          {pedido.status}
-                        </span>
-                      </td>
+          
+          {/* Solo mostrar si hay pedidos pendientes */}
+          {hasPendingOrders && (
+            <>
+              <h2>Últimos pedidos pendientes de confirmación</h2>
+              <section className="orders-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Usuario</th>
+                      <th>Productos</th>
+                      <th>Total</th>
+                      <th>Forma de Pago</th>
+                      <th>Fecha</th>
+                      <th>Estado</th>
                     </tr>
-                  ))}
-              </tbody>
-            </table>
-          </section>
+                  </thead>
+                  <tbody>
+                    {pendingOrders
+                      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                      .slice(0, 3)
+                      .map((pedido) => (
+                        <tr key={pedido._id}>
+                          <td>{pedido.userId?.name || "Usuario eliminado"}</td>
+                          <td>
+                            {pedido.items.map((item, index) => (
+                              <span key={index}>
+                                {item.productId?.title || "Producto eliminado"}
+                                {index < pedido.items.length - 1 && ", "}
+                              </span>
+                            ))}
+                          </td>
+                          <td>${pedido.totalAmount?.toFixed(2)}</td>
+                          <td>{pedido.paymentMethod}</td>
+                          <td>{new Date(pedido.createdAt).toLocaleDateString()}</td>
+                          <td>
+                            <span className={`status ${pedido.status}`}>
+                              {pedido.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </section>
+            </>
+          )}
         </div>
       </div>
-      <aside className="right-sidebar">
-        <h3>Últimos pedidos</h3>
-        <div className="items">
-          {pedidos
-            .filter((pedido) =>
-              ["pagado", "preparacion", "pendiente"].includes(pedido.status)
-            )
-            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-            .slice(0, 3)
-            .map((pedido) => (
-              <div key={pedido._id} className="item">
-                <div className="info">
-                  <p>
-                    <strong>Usuario:</strong> {pedido.userId?.name || "Anónimo"}
-                  </p>
-                  <p>
-                    <strong>Productos:</strong>{" "}
-                    {pedido.items
-                      .map((item) => item.productId?.title)
-                      .join(", ")}
-                  </p>
-                  <p>
-                    <strong>Total:</strong> ${pedido.totalAmount?.toFixed(2)}
-                  </p>
-                  <p>
-                    <strong>Estado:</strong> {pedido.status}
-                  </p>
-                  <div className="actions">
-                    <button
-                      onClick={() => setSelectedPedido(pedido)}
-                      className="view-btn"
-                    >
-                      <FontAwesomeIcon icon={faEye} /> Ver
-                    </button>
-                    <select
-                      value={pedido.status}
-                      onChange={(e) =>
-                        handleUpdateStatus(pedido._id, e.target.value)
-                      }
-                      className="status-select"
-                    >
-                      <option value="pagado">Pagado</option>
-                      <option value="pendiente">Pendiente</option>
-                      <option value="preparacion">En preparación</option>
-                      <option value="cancelado">Cancelado</option>
-                      <option value="entregado">Entregado</option>
-                    </select>
+      
+      {/* Solo mostrar el sidebar si hay pedidos pendientes */}
+      {hasPendingOrders && (
+        <aside className="right-sidebar">
+          <h3>Últimos pedidos</h3>
+          <div className="items">
+            {pendingOrders
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+              .slice(0, 3)
+              .map((pedido) => (
+                <div key={pedido._id} className="item">
+                  <div className="info">
+                    <p>
+                      <strong>Usuario:</strong> {pedido.userId?.name || "Anónimo"}
+                    </p>
+                    <p>
+                      <strong>Productos:</strong>{" "}
+                      {pedido.items
+                        .map((item) => item.productId?.title)
+                        .join(", ")}
+                    </p>
+                    <p>
+                      <strong>Total:</strong> ${pedido.totalAmount?.toFixed(2)}
+                    </p>
+                    <p>
+                      <strong>Estado:</strong> {pedido.status}
+                    </p>
+                    <div className="actions">
+                      <button
+                        onClick={() => setSelectedPedido(pedido)}
+                        className="view-btn"
+                      >
+                        <FontAwesomeIcon icon={faEye} /> Ver
+                      </button>
+                      <select
+                        value={pedido.status}
+                        onChange={(e) =>
+                          handleUpdateStatus(pedido._id, e.target.value)
+                        }
+                        className="status-select"
+                      >
+                        <option value="pagado">Pagado</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="preparacion">En preparación</option>
+                        <option value="cancelado">Cancelado</option>
+                        <option value="entregado">Entregado</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-        </div>
-        <button className="see-all" onClick={handleNavigate}>
-          Ver todos los pedidos
-        </button>
-      </aside>
+              ))}
+          </div>
+          <button className="see-all" onClick={handleNavigate}>
+            Ver todos los pedidos
+          </button>
+        </aside>
+      )}
+      
       {selectedPedido && (
         <div
           className="dashboard-modal-overlay"
