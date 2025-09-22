@@ -9,12 +9,14 @@ const TablaPendientes = ({ users, onDetails, onTogglePartner }) => (
       <tbody>
         {users.map((user) => (
           <tr key={user._id} className="user-row">
-            <td>{user.name}</td>
-            <td>{user.email}</td>
-            <td>{user.isPending ? "🟠 Pendiente" : "🟢 Completado"}</td>
-            <td className="actions">
+            <td data-label="Nombre">{user.name}</td>
+            <td data-label="Email">{user.email}</td>
+            <td data-label="Estado Formulario">{user.isPending ? "🟠 Pendiente" : "🟢 Completado"}</td>
+            <td data-label="Acciones" className="actions">
               <button onClick={() => onDetails(user._id)} className="view-btn">Ver Detalles</button>
-              <button onClick={() => onTogglePartner(user._id)} className="approve-btn">{user.isPartner ? "Revocar" : "Aprobar"}</button>
+              <button onClick={() => onTogglePartner(user._id)} className="approve-btn">
+                {user.isPartner ? "Revocar" : "Aprobar"}
+              </button>
             </td>
           </tr>
         ))}
