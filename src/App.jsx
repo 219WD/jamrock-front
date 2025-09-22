@@ -1,7 +1,6 @@
 // App.jsx
 import React from "react";
 import { lazy, Suspense } from "react";
-import Loader from "./components/GlobalLoader.jsx";
 import "./App.css";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet";
@@ -38,6 +37,27 @@ import { Toaster } from "react-hot-toast";
 import GlobalLoader from "./components/GlobalLoader.jsx";
 import Dashboard from "./components/Dashboard.jsx";
 
+// Componente simple para el fallback de Suspense
+const SuspenseFallback = () => (
+  <div style={{
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    backgroundColor: 'rgba(0, 5, 10, 0.9)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 9998,
+    fontFamily: '"Zen Dots", sans-serif',
+    color: '#00ff00',
+    fontSize: '1.2rem'
+  }}>
+    <div>Cargando sección...</div>
+  </div>
+);
+
 function App() {
   const {
     cart,
@@ -69,7 +89,7 @@ function App() {
   return (
     <>
       <GlobalLoader />
-      <Suspense fallback={<Loader text="Cargando sección..." />}>
+      <Suspense fallback={<SuspenseFallback />}>
         <Toaster position="top-right" reverseOrder={false} />
         <Helmet>
           <title>Jamrock ONG de la Salud - Res. 344/2023-DPJ</title>

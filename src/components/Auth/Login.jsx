@@ -12,6 +12,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [showForgotModal, setShowForgotModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const login = useAuthStore((state) => state.login);
 
@@ -76,6 +77,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setIsSubmitting(true);
 
     if (buttonRef.current) {
       gsap.to(buttonRef.current, {
@@ -86,40 +88,46 @@ const Login = () => {
       });
     }
 
-    await withGlobalLoader(async () => {
-      const res = await fetch(`${API_URL}/login/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Login fallido");
-      }
-
-      login(data.token, data.user);
-
-      if (formRef.current) {
-        gsap.to(formRef.current, {
-          opacity: 0,
-          y: -30,
-          duration: 0.5,
-          onComplete: () => {
-            if (data.user.isAdmin) {
-              navigate("/admin");
-            } else if (data.user.isPartner) {
-              navigate("/");
-            } else {
-              navigate("/socio");
-            }
+    try {
+      await withGlobalLoader(async () => {
+        const res = await fetch(`${API_URL}/login/login`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
+          body: JSON.stringify({ email, password }),
         });
-      }
-    }).catch((err) => setError(err.message));
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.message || "Login fallido");
+        }
+
+        login(data.token, data.user);
+
+        if (formRef.current) {
+          gsap.to(formRef.current, {
+            opacity: 0,
+            y: -30,
+            duration: 0.5,
+            onComplete: () => {
+              if (data.user.isAdmin) {
+                navigate("/admin");
+              } else if (data.user.isPartner) {
+                navigate("/");
+              } else {
+                navigate("/socio");
+              }
+            },
+          });
+        }
+      });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -137,6 +145,7 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={isSubmitting}
             />
           </div>
 
@@ -148,20 +157,29 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={isSubmitting}
             />
             <div
               className="forgot"
               ref={forgotRef}
               onClick={() => {
-                console.log("Abriendo modal");
-                setShowForgotModal(true);
+                if (!isSubmitting) {
+                  setShowForgotModal(true);
+                }
               }}
             >
-              <a href="#">Olvidaste tu contraseña?</a>
+              <a href="#" style={{ pointerEvents: isSubmitting ? 'none' : 'auto' }}>
+                Olvidaste tu contraseña?
+              </a>
             </div>
           </div>
-          <button className="sign" type="submit" ref={buttonRef}>
-            Iniciar Sesión
+          <button 
+            className="sign" 
+            type="submit" 
+            ref={buttonRef}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Iniciando Sesión..." : "Iniciar Sesión"}
           </button>
           {error && (
             <p className="error" ref={errorRef}>
@@ -170,7 +188,9 @@ const Login = () => {
           )}
           <p className="signin" ref={signinRef}>
             No tenés una cuenta?
-            <Link to="/register"> Registrate</Link>
+            <Link to="/register" style={{ pointerEvents: isSubmitting ? 'none' : 'auto' }}>
+              Registrate
+            </Link>
           </p>
         </form>
         <ForgotPasswordModal
