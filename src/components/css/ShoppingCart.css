@@ -667,3 +667,205 @@
     flex-direction: column;
   }
 }
+
+@media (max-width: 600px) {
+
+  /* Botón de cerrar */
+  .cart-close-btn {
+    font-size: 1.5rem;
+    width: 32px;
+    height: 32px;
+    top: 10px;
+    right: 10px;
+  }
+
+  /* Título del carrito */
+  .cart h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    text-align: left;
+    padding-right: 40px; /* Espacio para el botón de cerrar */
+  }
+
+  /* Elementos del carrito */
+  .cart-item {
+    flex-direction: column; /* Apila los elementos verticalmente */
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    margin: 0.75rem 0;
+    border-radius: 6px;
+  }
+
+  /* Imagen del producto */
+  .cart-item img {
+    width: 100%;
+    max-width: 100px;
+    height: auto;
+    border-radius: 6px;
+    align-self: center;
+  }
+
+  /* Información del producto */
+  .cart-item-info {
+    width: 100%;
+    text-align: left;
+  }
+
+  .cart-item h4 {
+    font-size: 0.95rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .cart-item p {
+    font-size: 0.85rem;
+  }
+
+  /* Botones de cantidad */
+  .buttons-cart {
+    flex-direction: row; /* Mantiene los botones en fila */
+    justify-content: space-between;
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .buttons-cart span {
+    font-size: 0.9rem;
+    min-width: 20px;
+  }
+
+  .cart-item button {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  /* Botón de eliminar */
+  .cart-item .delete-button {
+    width: 100%;
+    text-align: center;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  /* Total del carrito */
+  .cart-total {
+    font-size: 1.2rem;
+    padding: 0.75rem;
+    margin: 1rem 0;
+  }
+
+  /* Botón de pago */
+  .pay-button {
+    font-size: 1rem;
+    padding: 0.75rem;
+    border-radius: 6px;
+  }
+
+  /* Formulario */
+  .form-step {
+    gap: 1rem;
+  }
+
+  .form-step h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .form-step input {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+    border-radius: 4px;
+  }
+
+  /* Opciones de pago y entrega */
+  .payment-options,
+  .delivery-options {
+    gap: 0.75rem;
+  }
+
+  .payment-options h3,
+  .delivery-options h3 {
+    font-size: 1.1rem;
+  }
+
+  .payment-button {
+    font-size: 0.9rem;
+    padding: 0.75rem;
+    border-radius: 6px;
+  }
+
+  /* Botones de navegación y formulario */
+  .form-buttons {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .back-button,
+  .finish-button {
+    font-size: 0.9rem;
+    padding: 0.6rem;
+    border-radius: 6px;
+  }
+
+  /* Modal para móvil */
+  .modal-overlay {
+    padding: 0.5rem;
+    align-items: center;
+  }
+
+  .modal-container {
+    width: 100%;
+    max-width: 100%;
+    padding: 1rem;
+    border-radius: 12px;
+    max-height: 90vh;
+  }
+
+  .modal-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .modal-close-btn {
+    font-size: 1.5rem;
+    width: 32px;
+    height: 32px;
+    top: 10px;
+    right: 10px;
+  }
+
+  .modal-body {
+    font-size: 0.9rem;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .modal-btn {
+    font-size: 0.9rem;
+    padding: 0.6rem;
+    border-radius: 6px;
+  }
+
+  /* Botón para abrir el carrito */
+  .open-cart-button {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+
+  /* Scrollbar */
+  .cart::-webkit-scrollbar,
+  .modal-container::-webkit-scrollbar {
+    width: 3px !important;
+  }
+
+  .cart::-webkit-scrollbar-thumb,
+  .modal-container::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.6) !important;
+  }
+}

@@ -22,12 +22,12 @@ const EspecialistasTable = ({
         <tbody>
           {especialistas.map((e) => (
             <tr key={e._id} className="user-row">
-              <td>{e.userId?.name}</td>
-              <td>{e.userId?.email}</td>
-              <td>{e.especialidad}</td>
-              <td>{e.matricula}</td>
-              <td>{e.reprocann.status}</td>
-              <td className="actions">
+              <td data-label="Nombre">{e.userId?.name}</td>
+              <td data-label="Email">{e.userId?.email}</td>
+              <td data-label="Especialidad">{e.especialidad}</td>
+              <td data-label="Matrícula">{e.matricula}</td>
+              <td data-label="Reprocann">{e.reprocann.status}</td>
+              <td className="actions" data-label="Acciones">
                 <button
                   onClick={() => {
                     setSelectedEspecialista(e);

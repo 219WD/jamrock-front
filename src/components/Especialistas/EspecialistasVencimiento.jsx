@@ -24,10 +24,10 @@ const EspecialistasVencimiento = ({
               key={e._id}
               className={getReprocannClass(e.reprocann.fechaVencimiento)}
             >
-              <td>{e.userId?.name}</td>
-              <td>{e.userId?.email}</td>
-              <td>{e.especialidad}</td>
-              <td>
+              <td data-label="Nombre">{e.userId?.name}</td>
+              <td data-label="Email">{e.userId?.email}</td>
+              <td data-label="Especialidad">{e.especialidad}</td>
+              <td data-label="Vencimiento">
                 {new Date(e.reprocann.fechaVencimiento).toLocaleDateString()}
               </td>
             </tr>

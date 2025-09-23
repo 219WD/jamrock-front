@@ -308,7 +308,7 @@
   }
 
   .users-table tbody tr.user-row::before {
-    content: "";
+    content: '';
     position: absolute;
     top: 0;
     left: 0;
@@ -425,7 +425,7 @@
     width: 100% !important;
   }
 
-  .dashboard-modal-actions {
+.dashboard-modal-actions {
     flex-direction: column;
     gap: 1rem;
   }

@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 
 const useAuthStore = create(
   persist(
-    (set) => ({
+    (set, get) => ({
       token: null,
       user: null,
 
@@ -15,6 +15,22 @@ const useAuthStore = create(
 
       logout: () => {
         set({ token: null, user: null });
+      },
+
+      // Agrega esta función para actualizar solo el usuario
+      setUser: (updatedUser) => {
+        const normalizedUser = { ...updatedUser, _id: updatedUser._id || updatedUser.id };
+        set({ user: normalizedUser });
+      },
+
+      // También puedes agregar una función para actualizar datos específicos
+      updateUser: (updates) => {
+        const currentUser = get().user;
+        if (currentUser) {
+          const updatedUser = { ...currentUser, ...updates };
+          const normalizedUser = { ...updatedUser, _id: updatedUser._id || updatedUser.id };
+          set({ user: normalizedUser });
+        }
       },
     }),
     {

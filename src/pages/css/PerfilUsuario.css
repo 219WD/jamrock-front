@@ -1,28 +1,44 @@
 /* Estilos base */
-.admin-container {
-  padding: 1rem;
-  max-width: 1200px;
-  margin: 1rem auto;
+.perfil {
+  display: flex;
+  min-height: 100vh;
+  font-family: "Zen Dots", sans-serif;
 }
 
-.dashboard-title {
+.perfil-layout {
+  display: flex;
+  flex: 1;
+}
+
+.perfil-container {
+  flex: 0 0 750px; /* Increased width to 750px */
+  padding: 1rem;
+  margin: 1rem;
+}
+
+.dashboard-title-perfil {
   color: #00ff00;
   margin-bottom: 1rem;
   border-bottom: 2px solid rgba(0, 255, 0, 0.5);
   padding-bottom: 0.5rem;
+  font-family: "Zen Dots", sans-serif;
+  font-size: 1.8rem;
   text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
 }
 
 /* Pestañas */
-.dashboard-tabs {
+.dashboard-tabs-perfil {
   display: flex;
   gap: 10px;
   margin-bottom: 25px;
   border-bottom: 1px solid #e0e0e0;
   padding-bottom: 10px;
+  flex-wrap: wrap; /* Allow tabs to wrap if they exceed container width */
+  max-width: 100%; /* Ensure tabs stay within perfil-container */
+  justify-content: center; /* Center tabs within perfil-container */
 }
 
-.tab-btn {
+.tab-btn-perfil {
   padding: 10px 20px;
   border: none;
   border-radius: 8px;
@@ -34,24 +50,26 @@
   align-items: center;
   gap: 8px;
   transition: all 0.3s ease;
+  flex: 1 0 auto; /* Allow tabs to adjust size but not shrink too much */
+  min-width: 120px; /* Minimum width to prevent tabs from being too small */
 }
 
-.tab-btn:hover {
+.tab-btn-perfil:hover {
   background: #e0e0e0;
 }
 
-.tab-btn.active {
+.tab-btn-perfil.active {
   background: #1f7b00;
   color: white;
-  font-weight: bold; 
+  font-weight: bold;
 }
 
-.tab-btn svg {
+.tab-btn-perfil svg {
   font-size: 16px;
 }
 
 /* Secciones */
-.dashboard-section {
+.dashboard-section-perfil {
   background-color: rgba(20, 30, 40, 0.85);
   backdrop-filter: blur(4px);
   border-radius: 12px;
@@ -61,7 +79,7 @@
   border: 1px solid rgba(0, 255, 0, 0.3);
 }
 
-.section-title {
+.section-title-perfil {
   font-size: 20px;
   margin-bottom: 20px;
   color: #00ff00;
@@ -71,36 +89,36 @@
   gap: 10px;
 }
 
-.section-title svg {
+.section-title-perfil svg {
   color: #00ff00;
 }
 
 /* Formulario de perfil */
-.profile-form {
+.perfil-form {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.form-grid {
+.form-grid-perfil {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 15px;
 }
 
-.profile-field {
+.perfil-field {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
 
-.profile-label {
+.perfil-label {
   font-size: 14px;
   color: #555;
   font-weight: 500;
 }
 
-.profile-input {
+.perfil-input {
   padding: 10px 12px;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -108,18 +126,18 @@
   transition: border 0.3s;
 }
 
-.profile-input:focus {
+.perfil-input:focus {
   border-color: #3498db;
   outline: none;
 }
 
-.form-actions {
+.form-actions-perfil {
   display: flex;
   gap: 10px;
   margin-top: 10px;
 }
 
-.profile-submit-btn {
+.perfil-submit-btn {
   background: #27ae60;
   color: white;
   border: none;
@@ -130,11 +148,11 @@
   transition: background 0.3s;
 }
 
-.profile-submit-btn:hover {
+.perfil-submit-btn:hover {
   background: #219653;
 }
 
-.profile-password-btn {
+.perfil-password-btn {
   background: #3498db;
   color: white;
   border: none;
@@ -145,42 +163,41 @@
   transition: background 0.3s;
 }
 
-.profile-password-btn:hover {
+.perfil-password-btn:hover {
   background: #2980b9;
 }
 
 /* Info grid */
-.info-grid {
+.info-grid-perfil {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 15px;
 }
 
-.info-item {
+.info-item-perfil {
   display: flex;
   flex-direction: column;
   gap: 3px;
 }
 
-.info-label {
+.info-label-perfil {
   font-size: 13px;
   color: #7f8c8d;
 }
 
-.info-value {
+.info-value-perfil {
   font-size: 15px;
   font-weight: 500;
   color: #fff;
 }
 
-/* Productos más comprados */
-.top-products-grid {
+.top-products-grid-perfil {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 15px;
 }
 
-.top-product-card {
+.top-product-card-perfil {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -190,37 +207,37 @@
   color: white;
 }
 
-.product-thumbnail {
+.product-thumbnail-perfil {
   width: 50px;
   height: 50px;
   object-fit: cover;
   border-radius: 8px;
 }
 
-.product-details {
+.product-details-perfil {
   display: flex;
   flex-direction: column;
   gap: 3px;
 }
 
-.product-name {
+.product-name-perfil {
   font-weight: 500;
   font-size: 14px;
 }
 
-.product-count {
+.product-count-perfil {
   font-size: 12px;
   opacity: 0.9;
 }
 
 /* Pedidos */
-.orders-grid {
+.orders-grid-perfil {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
-.order-card {
+.order-card-perfil {
   box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
   border: 1px solid rgba(0, 255, 0, 0.3);
   border-radius: 10px;
@@ -228,97 +245,97 @@
   transition: box-shadow 0.3s;
 }
 
-.order-card:hover {
+.order-card-perfil:hover {
   box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
 }
 
-.order-header {
+.order-header-perfil {
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;
   padding-bottom: 8px;
-  border-bottom: 1px solid #00FF00;
+  border-bottom: 1px solid #00ff00;
 }
 
-.order-date {
+.order-date-perfil {
   font-size: 14px;
-  color: #00FF00;
+  color: #00ff00;
 }
 
-.order-status,
-.history-status {
+.order-status-perfil,
+.history-status-perfil {
   font-size: 13px;
   padding: 3px 8px;
   border-radius: 12px;
   font-weight: 500;
 }
 
-.order-method,
-.order-total {
+.order-method-perfil,
+.order-total-perfil {
   color: #fff;
 }
 
-.order-method span {
-  color: #00FF00;
+.order-method-perfil span {
+  color: #00ff00;
 }
 
-.order-status.pendiente,
-.history-status.pendiente {
+.order-status-perfil.pendiente,
+.history-status-perfil.pendiente {
   background: #f39c12;
   color: white;
 }
 
-.order-status.entregado,
-.history-status.completado {
+.order-status-perfil.entregado,
+.history-status-perfil.completado {
   background: #27ae60;
   color: white;
 }
 
-.order-status.preparacion {
+.order-status-perfil.preparacion {
   background: #f1c40f; /* Nuevo estilo para preparación */
   color: white;
 }
 
-.order-status.pagado {
+.order-status-perfil.pagado {
   background: #3498db; /* Nuevo estilo para pagado */
   color: white;
 }
 
-.order-status.cancelado,
-.history-status.cancelado {
+.order-status-perfil.cancelado,
+.history-status-perfil.cancelado {
   background: #e74c3c;
   color: white;
 }
 
-.order-details {
+.order-details-perfil {
   display: flex;
   gap: 15px;
   margin-bottom: 10px;
   font-size: 14px;
 }
 
-.order-details span {
+.order-details-perfil span {
   font-weight: 500;
   color: #555;
 }
 
-.order-products {
+.order-products-perfil {
   margin-top: 10px;
 }
 
-.order-products h4 {
+.order-products-perfil h4 {
   font-size: 14px;
   margin-bottom: 8px;
   color: #555;
 }
 
-.order-products ul {
+.order-products-perfil ul {
   list-style: none;
   padding-left: 0;
   margin: 0;
 }
 
-.order-products li {
+.order-products-perfil li {
   color: #fff;
   padding: 5px 0;
   border-bottom: 1px solid #f5f5f5;
@@ -328,11 +345,11 @@
   font-size: 13px;
 }
 
-.order-products li:last-child {
+.order-products-perfil li:last-child {
   border-bottom: none;
 }
 
-.rate-btn {
+.rate-btn-perfil {
   background: #f1c40f;
   border: none;
   padding: 3px 8px;
@@ -342,65 +359,65 @@
   transition: background 0.3s;
 }
 
-.rate-btn:hover {
+.rate-btn-perfil:hover {
   background: #f39c12;
 }
 
 /* Turnos */
-.appointments-grid {
+.appointments-grid-perfil {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
-.appointment-card {
+.appointment-card-perfil {
   border-radius: 10px;
   padding: 15px;
   box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
   border: 1px solid rgba(0, 255, 0, 0.3);
 }
 
-.appointment-header {
+.appointment-header-perfil {
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;
   padding-bottom: 8px;
-  border-bottom: 1px solid #00FF00;
+  border-bottom: 1px solid #00ff00;
 }
 
-.appointment-date {
+.appointment-date-perfil {
   font-weight: 500;
-  color: #00FF00;
+  color: #00ff00;
 }
 
-.appointment-status {
+.appointment-status-perfil {
   font-size: 13px;
   padding: 3px 8px;
   border-radius: 12px;
   font-weight: 500;
 }
 
-.appointment-status.pendiente {
+.appointment-status-perfil.pendiente {
   background: #f39c12;
   color: white;
 }
 
-.appointment-status.confirmado {
+.appointment-status-perfil.confirmado {
   background: #27ae60;
   color: white;
 }
 
-.appointment-status.cancelado {
+.appointment-status-perfil.cancelado {
   background: #e74c3c;
   color: white;
 }
 
-.appointment-status.completado {
+.appointment-status-perfil.completado {
   background: #3498db;
   color: white;
 }
 
-.appointment-details {
+.appointment-details-perfil {
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -408,202 +425,202 @@
   font-size: 14px;
 }
 
-.appointment-specialist,
-.appointment-reason {
+.appointment-specialist-perfil,
+.appointment-reason-perfil {
   font-weight: 500;
   color: #fff;
 }
 
-.appointment-details span {
+.appointment-details-perfil span {
   font-weight: 500;
   color: #555;
 }
 
-.appointment-products {
+.appointment-products-perfil {
   margin-top: 10px;
 }
 
-.appointment-products h4 {
+.appointment-products-perfil h4 {
   font-size: 14px;
   margin-bottom: 8px;
   color: #555;
 }
 
-.appointment-products ul {
+.appointment-products-perfil ul {
   list-style: none;
   padding-left: 0;
   margin: 0;
 }
 
-.appointment-products li {
+.appointment-products-perfil li {
   padding: 5px 0;
   border-bottom: 1px solid #f5f5f5;
   font-size: 13px;
 }
 
 /* Recetas */
-.prescriptions-grid {
+.prescriptions-grid-perfil {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
-.prescription-card {
+.prescription-card-perfil {
   box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
   border: 1px solid rgba(0, 255, 0, 0.3);
   border-radius: 10px;
   padding: 15px;
 }
 
-.prescription-header {
+.prescription-header-perfil {
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;
   padding-bottom: 8px;
-  border-bottom: 1px solid #00FF00;
+  border-bottom: 1px solid #00ff00;
 }
 
-.prescription-date {
+.prescription-date-perfil {
   font-weight: 500;
-  color: #00FF00;
+  color: #00ff00;
 }
 
-.prescription-doctor {
+.prescription-doctor-perfil {
   font-size: 14px;
-  color: #00FF00;
+  color: #00ff00;
 }
 
-.prescription-products {
+.prescription-products-perfil {
   margin: 10px 0;
 }
 
-.prescription-products h4 {
+.prescription-products-perfil h4 {
   font-size: 14px;
   margin-bottom: 8px;
   color: #555;
 }
 
-.prescription-products ul {
+.prescription-products-perfil ul {
   list-style: none;
   padding-left: 0;
   margin: 0;
 }
 
-.prescription-products li {
+.prescription-products-perfil li {
   padding: 8px 0;
-  border-bottom: 1px solid #00FF00;
+  border-bottom: 1px solid #00ff00;
   font-size: 14px;
   display: flex;
   flex-direction: column;
   gap: 3px;
-  color: #00FF00;
+  color: #00ff00;
 }
 
-.prescription-products li strong {
+.prescription-products-perfil li strong {
   color: #fff;
 }
 
-.dosis {
+.dosis-perfil {
   font-size: 12px;
   color: #7f8c8d;
   font-style: italic;
 }
 
-.prescription-notes {
+.prescription-notes-perfil {
   margin-top: 15px;
 }
 
-.prescription-notes h4 {
+.prescription-notes-perfil h4 {
   font-size: 14px;
   margin-bottom: 8px;
   color: #555;
 }
 
-.prescription-notes p {
+.prescription-notes-perfil p {
   font-size: 13px;
   color: #fff;
   line-height: 1.5;
 }
 
 /* Historial médico */
-.medical-history {
+.medical-history-perfil {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
-.history-card {
+.history-card-perfil {
   box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
   border: 1px solid rgba(0, 255, 0, 0.3);
   border-radius: 10px;
   padding: 15px;
 }
 
-.history-header {
+.history-header-perfil {
   display: flex;
   justify-content: space-between;
   margin-bottom: 15px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #00FF00;
+  border-bottom: 1px solid #00ff00;
 }
 
-.history-date {
+.history-date-perfil {
   font-weight: 500;
-  color: #00FF00;
+  color: #00ff00;
 }
 
-.history-doctor {
+.history-doctor-perfil {
   font-size: 14px;
   color: #555;
 }
 
-.history-content {
+.history-content-perfil {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
-.history-section {
+.history-section-perfil {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
 
-.history-section h4 {
+.history-section-perfil h4 {
   font-size: 14px;
   color: #555;
   margin: 0;
 }
 
-.history-section p {
+.history-section-perfil p {
   font-size: 13px;
   color: #fff;
   line-height: 1.5;
   margin: 0;
 }
 
-.product-list {
-  color: #00FF00;
+.product-list-perfil {
+  color: #00ff00;
 }
 
-.history-section ul {
+.history-section-perfil ul {
   list-style: none;
   padding-left: 0;
   margin: 0;
 }
 
-.history-section li {
+.history-section-perfil li {
   padding: 5px 0;
   border-bottom: 1px solid #f5f5f5;
   font-size: 13px;
 }
 
-.history-section li:last-child {
+.history-section-perfil li:last-child {
   border-bottom: none;
 }
 
 /* Mensaje cuando no hay datos */
-.no-data {
+.no-data-perfil {
   text-align: center;
   padding: 20px;
   color: #7f8c8d;
@@ -613,11 +630,12 @@
 }
 
 /* Estilos para el sistema de calificación */
-.product-rating-container {
+.product-rating-container-perfil {
   margin-top: 8px;
 }
 
-.rate-btn, .view-rating-btn {
+.rate-btn-perfil,
+.view-rating-btn-perfil {
   background: none;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -631,44 +649,44 @@
   transition: all 0.2s;
 }
 
-.rate-btn {
+.rate-btn-perfil {
   color: #ffc107;
   border-color: #ffc107;
 }
 
-.rate-btn:hover {
+.rate-btn-perfil:hover {
   background-color: #fff8e1;
 }
 
-.view-rating-btn {
+.view-rating-btn-perfil {
   color: #2196f3;
   border-color: #2196f3;
 }
 
-.view-rating-btn:hover {
+.view-rating-btn-perfil:hover {
   background-color: #e3f2fd;
 }
 
 /* Estilos para el modal de calificación en modo visualización */
-.rating-view {
+.rating-view-perfil {
   text-align: center;
 }
 
-.existing-rating-stars {
+.existing-rating-stars-perfil {
   margin: 20px 0;
 }
 
-.star-view {
+.star-view-perfil {
   font-size: 2rem;
   color: #ddd;
   margin: 0 4px;
 }
 
-.star-view.active {
+.star-view-perfil.active {
   color: #ffc107;
 }
 
-.existing-comment {
+.existing-comment-perfil {
   margin: 20px 0;
   padding: 15px;
   background-color: #f9f9f9;
@@ -676,12 +694,12 @@
   text-align: left;
 }
 
-.existing-comment h4 {
+.existing-comment-perfil h4 {
   margin-top: 0;
   color: #333;
 }
 
-.existing-comment p {
+.existing-comment-perfil p {
   margin-bottom: 0;
   line-height: 1.5;
   color: #555;
@@ -689,24 +707,39 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .dashboard-tabs {
-    flex-wrap: wrap;
+  .perfil {
+    flex-direction: column;
   }
 
-  .tab-btn {
+  .perfil-layout {
+    flex-direction: column;
+  }
+
+  .perfil-container {
+    flex: 1; /* Allow full width on smaller screens */
+    margin: 1rem 0;
+  }
+
+  .dashboard-tabs-perfil {
+    flex-wrap: wrap;
+    justify-content: center; /* Maintain centering on mobile */
+  }
+
+  .tab-btn-perfil {
     padding: 8px 12px;
     font-size: 14px;
+    min-width: 100px; /* Slightly smaller min-width for mobile */
   }
 
-  .form-grid {
+  .form-grid-perfil {
     grid-template-columns: 1fr;
   }
 
-  .info-grid {
+  .info-grid-perfil {
     grid-template-columns: 1fr;
   }
 
-  .top-products-grid {
+  .top-products-grid-perfil {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   }
 }
