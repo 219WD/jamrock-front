@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { gsap } from "gsap";
 import useAuthStore from "../store/authStore";
 import "./css/AdminPanel.css";
@@ -9,14 +9,14 @@ import TablaPendientes from "../components/Clientes/TablaPendientes";
 import TablaUsuarios from "../components/Clientes/TablaUsuarios";
 import ModalDetallesUsuario from "../components/Clientes/ModalDetallesUsuario";
 import API_URL from "../common/constants";
+import withGlobalLoader from "../utils/withGlobalLoader"; // Importar withGlobalLoader
 
 const Clientes = () => {
-  const [users, setUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [partnerDetails, setPartnerDetails] = useState(null);
-  const [allUsers, setAllUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showModalEspecialista, setShowModalEspecialista] = useState(false);
   const [userToConvert, setUserToConvert] = useState(null);
@@ -37,127 +37,89 @@ const Clientes = () => {
 
   const token = useAuthStore((state) => state.token);
 
-  // Fetch users
-  const fetchPendingUsers = async () => {
+  // Fetch all users - ahora con withGlobalLoader
+  const fetchAllUsers = useCallback(async () => {
     try {
-      setLoading(true);
-      const res = await fetch(`${API_URL}/users/getUsers`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error al obtener usuarios");
-      setUsers(data.filter((u) => !u.isPartner));
+      setError(null);
+      await withGlobalLoader(async () => {
+        const res = await fetch(`${API_URL}/users/getUsers`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Error al obtener usuarios");
+        setAllUsers(data);
+      }, "Cargando usuarios...");
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
-  const fetchAllUsers = async () => {
-    try {
-      const res = await fetch(`${API_URL}/users/getUsers`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error al obtener todos los usuarios");
-      setAllUsers(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // Función para obtener detalles del usuario y su partner
+  // Obtener detalles de usuario + partner - ahora con withGlobalLoader
   const fetchUserDetails = async (userId) => {
     try {
-      setLoading(true);
-      // Obtener datos del usuario
-      const userRes = await fetch(`${API_URL}/users/getUser/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const userData = await userRes.json();
-      if (!userRes.ok) throw new Error(userData.error || "Error al obtener usuario");
+      setError(null);
+      await withGlobalLoader(async () => {
+        const userRes = await fetch(`${API_URL}/users/getUser/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const userData = await userRes.json();
+        if (!userRes.ok) throw new Error(userData.error || "Error al obtener usuario");
 
-      setSelectedUser(userData);
+        setSelectedUser(userData);
 
-      // Intentar obtener datos de socio, incluso si isPartner es false
-      try {
         const partnerRes = await fetch(
           `${API_URL}/partners/user/getPartnerByUserId/${userId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         const partnerData = await partnerRes.json();
-        if (partnerRes.ok) {
-          setPartnerDetails(partnerData);
-        } else {
-          setPartnerDetails(null); // No hay datos de socio
-        }
-      } catch (err) {
-        console.error("Error al obtener datos de socio:", err);
-        setPartnerDetails(null);
-      }
+        setPartnerDetails(partnerRes.ok ? partnerData : null);
+      }, "Cargando detalles del usuario...");
     } catch (err) {
       setError(err.message);
       setSelectedUser(null);
       setPartnerDetails(null);
-    } finally {
-      setLoading(false);
     }
   };
 
-  // Función para cambiar estado de socio
-  const togglePartnerStatus = async (userId) => {
+  // Cambiar estado de usuario (partner o admin) - ahora con withGlobalLoader
+  const toggleUserStatus = async (userId, type) => {
     try {
-      setLoading(true);
-      const res = await fetch(
-        `${API_URL}/users/togglePartner/${userId}`,
-        {
+      setError(null);
+      
+      const endpoints = {
+        partner: `${API_URL}/users/togglePartner/${userId}`,
+        admin: `${API_URL}/users/isAdmin/${userId}`,
+      };
+
+      const actionText = {
+        partner: "Actualizando estado de socio...",
+        admin: "Actualizando estado de administrador..."
+      };
+
+      await withGlobalLoader(async () => {
+        const res = await fetch(endpoints[type], {
           method: "PATCH",
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        }
-      );
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error al actualizar estado");
-      await fetchPendingUsers();
-      await fetchAllUsers();
-      setSelectedUser(null);
-      setPartnerDetails(null);
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Error al actualizar estado");
+
+        await fetchAllUsers();
+        setSelectedUser(null);
+        setPartnerDetails(null);
+      }, actionText[type]);
     } catch (err) {
       setError(err.message);
-    } finally {
-      setLoading(false);
     }
   };
 
-  // Función para cambiar estado de admin
-  const toggleAdminStatus = async (userId) => {
-    try {
-      setLoading(true);
-      const res = await fetch(`${API_URL}/users/isAdmin/${userId}`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error al actualizar admin");
-      await fetchAllUsers();
-      setSelectedUser(null);
-      setPartnerDetails(null);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Apply filters and pagination
+  // Filtros
   const filteredUsers = allUsers.filter((user) => {
     const matchesSearch =
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -173,14 +135,14 @@ const Clientes = () => {
     return matchesSearch && matchesPartner && matchesAdmin && matchesMedico;
   });
 
-  // Sort users
+  // Orden
   const sortedUsers = [...filteredUsers].sort((a, b) => {
     const dateA = new Date(a.createdAt);
     const dateB = new Date(b.createdAt);
     return filters.sortBy === "newest" ? dateB - dateA : dateA - dateB;
   });
 
-  // Pagination logic
+  // Paginación
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = sortedUsers.slice(indexOfFirstUser, indexOfLastUser);
@@ -188,63 +150,49 @@ const Clientes = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  // Usuarios pendientes
+  const pendingUsers = allUsers.filter((u) => !u.isPartner);
+
   // GSAP Animation
   useEffect(() => {
     if (hasAnimated.current || loading) return;
-
     hasAnimated.current = true;
 
     const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
-
-    tl.fromTo(
-      adminContainerRef.current,
-      { opacity: 0, x: -50 },
-      { opacity: 1, x: 0, duration: 0.5 }
-    );
-
-    tl.fromTo(
-      titleRef.current.querySelectorAll("h2"),
-      { opacity: 0, y: -20 },
-      { opacity: 1, y: 0, duration: 0.3, stagger: 0.1 },
-      "-=0.3"
-    );
-
-    tl.fromTo(
-      searchRef.current,
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.3 },
-      "-=0.2"
-    );
-
-    tl.fromTo(
-      tableRef.current.querySelectorAll(".users-table"),
-      { opacity: 0, y: 50 },
-      { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 },
-      "-=0.2"
-    );
+    tl.fromTo(adminContainerRef.current, { opacity: 0, x: -50 }, { opacity: 1, x: 0, duration: 0.5 });
+    tl.fromTo(titleRef.current.querySelectorAll("h2"), { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.3, stagger: 0.1 }, "-=0.3");
+    tl.fromTo(searchRef.current, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.3 }, "-=0.2");
+    tl.fromTo(tableRef.current.querySelectorAll(".users-table"), { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 }, "-=0.2");
 
     return () => tl.kill();
   }, [loading]);
 
   useEffect(() => {
-    fetchPendingUsers();
-    fetchAllUsers();
-  }, []);
+    // Cargar datos iniciales con loader global
+    const loadInitialData = async () => {
+      try {
+        await withGlobalLoader(async () => {
+          await fetchAllUsers();
+        }, "Cargando datos de clientes...");
+      } catch (err) {
+        console.error("Error loading initial data:", err);
+      }
+    };
 
-  if (loading && users.length === 0) {
-    return (
-      <div className="dashboard-loading">
-        <div className="spinner"></div>
-        <p>Cargando datos...</p>
-      </div>
-    );
-  }
+    loadInitialData();
+  }, [fetchAllUsers]);
+
+  // Eliminar el loader manual ya que usamos el GlobalLoader global
+  // El GlobalLoader se mostrará automáticamente a través del store
 
   return (
     <div className="dashboard clientes">
       <NavDashboard />
+      {/* GlobalLoader se mostrará automáticamente cuando withGlobalLoader active el loading state */}
       <div className="clientes-wrapper" ref={adminContainerRef}>
         <div className="clientes-container">
+          {error && <div className="error-banner">{error}</div>}
+
           <div ref={searchRef}>
             <ClientesHeader
               searchQuery={searchQuery}
@@ -260,42 +208,40 @@ const Clientes = () => {
 
           <div ref={tableRef}>
             <TablaPendientes
-              users={users.filter(
+              users={pendingUsers.filter(
                 (user) =>
                   user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                   user.email.toLowerCase().includes(searchQuery.toLowerCase())
               )}
               onDetails={fetchUserDetails}
-              onTogglePartner={togglePartnerStatus}
+              onTogglePartner={(id) => toggleUserStatus(id, "partner")}
             />
 
             <h2>Todos los Usuarios</h2>
-            
             <TablaUsuarios
               users={currentUsers}
               onDetails={fetchUserDetails}
-              onTogglePartner={togglePartnerStatus}
-              onToggleAdmin={toggleAdminStatus}
+              onTogglePartner={(id) => toggleUserStatus(id, "partner")}
+              onToggleAdmin={(id) => toggleUserStatus(id, "admin")}
               onConvertToEspecialista={async (user) => {
                 try {
                   if (user.isMedico) {
-                    const res = await fetch(
-                      `${API_URL}/partners/user/getPartnerByUserId/${user._id}`,
-                      {
+                    await withGlobalLoader(async () => {
+                      const res = await fetch(`${API_URL}/partners/user/getPartnerByUserId/${user._id}`, {
                         headers: { Authorization: `Bearer ${token}` },
+                      });
+                      const partnerData = await res.json();
+                      if (res.ok && partnerData) {
+                        setPartnerDetails(partnerData);
+                        setSelectedUser(user);
                       }
-                    );
-                    const partnerData = await res.json();
-                    if (res.ok && partnerData) {
-                      setPartnerDetails(partnerData);
-                      setSelectedUser(user);
-                    }
+                    }, "Obteniendo información del médico...");
                   } else {
                     setUserToConvert(user);
                     setShowModalEspecialista(true);
                   }
-                } catch (err) {
-                  console.error("Error al obtener info de médico:", err);
+                } catch {
+                  setError("Error al obtener info de médico");
                 }
               }}
             />
@@ -334,7 +280,7 @@ const Clientes = () => {
             setSelectedUser(null);
             setPartnerDetails(null);
           }}
-          onTogglePartner={togglePartnerStatus}
+          onTogglePartner={(id) => toggleUserStatus(id, "partner")}
         />
       )}
 

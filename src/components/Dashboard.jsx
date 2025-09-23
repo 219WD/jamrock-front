@@ -9,6 +9,7 @@ import { faSearch, faEye } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import GlobalLoader from "./GlobalLoader";
 import API_URL from "../common/constants";
+import withGlobalLoader from "../utils/withGlobalLoader"; // Importar withGlobalLoader
 
 function Dashboard() {
   const [pedidos, setPedidos] = useState([]);
@@ -21,19 +22,21 @@ function Dashboard() {
   const navigate = useNavigate();
   const hasAnimated = useRef(false);
 
-  // Fetch functions
+  // Fetch functions - ahora usando withGlobalLoader
   const fetchPedidos = async () => {
     try {
-      const response = await fetch(`${API_URL}/cart/getAllCarts`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error("Error al obtener los pedidos");
-      }
-      const data = await response.json();
-      setPedidos(data);
+      await withGlobalLoader(async () => {
+        const response = await fetch(`${API_URL}/cart/getAllCarts`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error("Error al obtener los pedidos");
+        }
+        const data = await response.json();
+        setPedidos(data);
+      }, "Cargando pedidos...");
     } catch (err) {
       console.error("Error fetching orders:", err);
       setError(err.message);
@@ -44,16 +47,18 @@ function Dashboard() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch(`${API_URL}/users/getUsers`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || "Error al obtener usuarios");
-      }
-      setUsers(data);
+      await withGlobalLoader(async () => {
+        const response = await fetch(`${API_URL}/users/getUsers`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || "Error al obtener usuarios");
+        }
+        setUsers(data);
+      }, "Cargando usuarios...");
     } catch (err) {
       console.error("Error fetching users:", err);
     }
@@ -61,30 +66,29 @@ function Dashboard() {
 
   const handleUpdateStatus = async (pedidoId, newStatus) => {
     try {
-      setLoading(true);
-      const response = await fetch(`${API_URL}/cart/status/${pedidoId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      if (!response.ok) {
-        throw new Error("Error al actualizar el estado");
-      }
-      const updatedPedido = await response.json();
-      setPedidos((prev) =>
-        prev.map((pedido) => (pedido._id === pedidoId ? updatedPedido : pedido))
-      );
-      if (selectedPedido && selectedPedido._id === pedidoId) {
-        setSelectedPedido(updatedPedido);
-      }
+      await withGlobalLoader(async () => {
+        const response = await fetch(`${API_URL}/cart/status/${pedidoId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: newStatus }),
+        });
+        if (!response.ok) {
+          throw new Error("Error al actualizar el estado");
+        }
+        const updatedPedido = await response.json();
+        setPedidos((prev) =>
+          prev.map((pedido) => (pedido._id === pedidoId ? updatedPedido : pedido))
+        );
+        if (selectedPedido && selectedPedido._id === pedidoId) {
+          setSelectedPedido(updatedPedido);
+        }
+      }, "Actualizando estado...");
     } catch (err) {
       console.error("Error updating order status:", err);
       setError(err.message);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -100,7 +104,6 @@ function Dashboard() {
     return pedidos.filter((pedido) => pedido.status === "entregado");
   };
 
-  // Función para obtener pedidos pendientes de confirmación
   const getPendingConfirmationOrders = () => {
     return pedidos.filter((pedido) =>
       ["pagado", "preparacion", "pendiente"].includes(pedido.status)
@@ -112,8 +115,18 @@ function Dashboard() {
   };
 
   useEffect(() => {
-    fetchPedidos();
-    fetchUsers();
+    // Cargar ambos datos cuando el componente se monta
+    const loadDashboardData = async () => {
+      try {
+        await withGlobalLoader(async () => {
+          await Promise.all([fetchPedidos(), fetchUsers()]);
+        }, "Cargando dashboard...");
+      } catch (err) {
+        console.error("Error loading dashboard data:", err);
+      }
+    };
+
+    loadDashboardData();
   }, []);
 
   // GSAP Animation for dashboard - modificado para considerar si hay pedidos pendientes
@@ -217,11 +230,8 @@ function Dashboard() {
     );
   }, [selectedPedido]);
 
-  // El GlobalLoader se maneja automáticamente por el store, no necesitamos mostrarlo manualmente
-  // Solo mostramos el contenido cuando no está loading
-  if (loading && pedidos.length === 0) {
-    return <GlobalLoader text="Cargando dashboard..." />;
-  }
+  // Remover el GlobalLoader manual y confiar en el GlobalLoader global
+  // que se muestra automáticamente a través del store
 
   const pendingOrders = getPendingConfirmationOrders();
   const hasPendingOrders = pendingOrders.length > 0;
@@ -229,7 +239,7 @@ function Dashboard() {
   return (
     <div className="dashboard futurista">
       <NavDashboard />
-      <GlobalLoader text="Cargando..." />
+      {/* GlobalLoader se mostrará automáticamente cuando withGlobalLoader active el loading state */}
       <div className="main-content">
         <div className="container-main">
           <section className="stats">
