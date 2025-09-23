@@ -16,7 +16,7 @@ const useProductStore = create(
       fetchProducts: async () => {
         set({ loading: true });
         try {
-          const res = await fetch(`${API_URL}/getProducts`);
+          const res = await fetch(`${API_URL}/products/getProducts`);
           if (!res.ok) throw new Error("Error al obtener productos");
           const data = await res.json();
           
@@ -37,7 +37,7 @@ const useProductStore = create(
       fetchAllProductsForAdmin: async () => {
         set({ loading: true });
         try {
-          const res = await fetch(`${API_URL}/getProducts`);
+          const res = await fetch(`${API_URL}/products/getProducts`);
           if (!res.ok) throw new Error("Error al obtener productos");
           const data = await res.json();
           set({ products: data, filteredProducts: data, error: null });
@@ -51,7 +51,7 @@ const useProductStore = create(
       // 🔹 Obtener un producto por id (sin filtros para admin)
       fetchProductById: async (id) => {
         try {
-          const res = await fetch(`${API_URL}/getProducts/${id}`);
+          const res = await fetch(`${API_URL}/products/getProducts/${id}`);
           if (!res.ok) throw new Error("Error al obtener producto");
           return await res.json();
         } catch (err) {
@@ -69,7 +69,7 @@ const useProductStore = create(
             newProduct.isActive = false;
           }
           
-          const res = await fetch(`${API_URL}/createProduct`, {
+          const res = await fetch(`${API_URL}/products/createProduct`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -102,7 +102,7 @@ const useProductStore = create(
             updatedData.isActive = false;
           }
           
-          const res = await fetch(`${API_URL}/updateProduct/${id}`, {
+          const res = await fetch(`${API_URL}/products/updateProduct/${id}`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
@@ -178,7 +178,7 @@ const useProductStore = create(
         }
 
         try {
-          const res = await fetch(`${API_URL}/toggle-status/${id}`, {
+          const res = await fetch(`${API_URL}/products/toggle-status/${id}`, {
             method: "PATCH",
             headers: {
               Authorization: `Bearer ${token}`,
@@ -205,7 +205,7 @@ const useProductStore = create(
       deleteProduct: async (id) => {
         const { token } = useAuthStore.getState();
         try {
-          const res = await fetch(`${API_URL}/deleteProduct/${id}`, {
+          const res = await fetch(`${API_URL}/products/deleteProduct/${id}`, {
             method: "DELETE",
             headers: {
               Authorization: `Bearer ${token}`,
@@ -225,7 +225,7 @@ const useProductStore = create(
       // 🔹 Agregar rating
       addReview: async (id, rating, cartId = null) => {
         try {
-          const res = await fetch(`${API_URL}/${id}/review${cartId ? `?cartId=${cartId}` : ""}`, {
+          const res = await fetch(`${API_URL}/products/${id}/review${cartId ? `?cartId=${cartId}` : ""}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ rating }),
@@ -268,7 +268,7 @@ const useProductStore = create(
       restoreStock: async (productId, quantity) => {
         const { token } = useAuthStore.getState();
         try {
-          const res = await fetch(`${API_URL}/${productId}/restore-stock`, {
+          const res = await fetch(`${API_URL}/products/${productId}/restore-stock`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
