@@ -5,6 +5,7 @@ import useNotify from "../hooks/useToast";
 import TurnosTable from "../components/Turnos/TurnosTable";
 import NuevoTurnoModal from "../components/Turnos/NuevoTurnoModal";
 import EditarTurnoModal from "../components/Turnos/EditarTurnoModal";
+import VerTurnoModal from "../components/Turnos/VerTurnoModal";
 import "./css/TurnosPanel.css";
 import API_URL from "../common/constants";
 
@@ -25,6 +26,8 @@ const Turnos = () => {
   const [showNuevoTurnoModal, setShowNuevoTurnoModal] = useState(false);
   const [showEditarTurnoModal, setShowEditarTurnoModal] = useState(false);
   const [turnoAEditar, setTurnoAEditar] = useState(null);
+  const [showVerTurnoModal, setShowVerTurnoModal] = useState(false);
+  const [turnoAVer, setTurnoAVer] = useState(null);
 
   const adminContainerRef = useRef(null);
   const notify = useNotify();
@@ -209,7 +212,12 @@ const Turnos = () => {
             <h1>Gestión de Turnos</h1>
             <div className="search-container">
               <button type="button">
-                <svg width="17" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg
+                  width="17"
+                  height="16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
                   <path
                     d="M7.667 12.667A5.333 5.333 0 107.667 2a5.333 5.333 0 000 10.667zM14.334 14l-2.9-2.9"
                     stroke="currentColor"
@@ -231,7 +239,12 @@ const Turnos = () => {
                 type="reset"
                 onClick={() => setSearchQuery("")}
               >
-                <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg
+                  width="16"
+                  height="16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
                   <path
                     d="M12 4L4 12M4 4l8 8"
                     stroke="currentColor"
@@ -315,7 +328,6 @@ const Turnos = () => {
               </div>
             </div>
           </div>
-
           <TurnosTable
             turnos={filterTurnos()}
             loading={loading}
@@ -323,6 +335,10 @@ const Turnos = () => {
             onReprogramar={(turno) => {
               setTurnoAEditar(turno);
               setShowEditarTurnoModal(true);
+            }}
+            onVer={(turno) => {
+              setTurnoAVer(turno);
+              setShowVerTurnoModal(true);
             }}
           />
         </div>
@@ -349,6 +365,13 @@ const Turnos = () => {
           onSave={handleReprogramarTurno}
           currentUserId={user._id}
           canEditEspecialista={user.isAdmin || user.isSecretaria}
+        />
+      )}
+
+      {showVerTurnoModal && turnoAVer && (
+        <VerTurnoModal
+          turno={turnoAVer}
+          onClose={() => setShowVerTurnoModal(false)}
         />
       )}
     </div>

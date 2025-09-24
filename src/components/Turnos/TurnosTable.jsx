@@ -2,7 +2,13 @@ import React from "react";
 import PropTypes from "prop-types";
 import useAuthStore from "../../store/authStore";
 
-const TurnosTable = ({ turnos, loading, onEstadoChange, onReprogramar }) => {
+const TurnosTable = ({
+  turnos,
+  loading,
+  onEstadoChange,
+  onReprogramar,
+  onVer,
+}) => {
   const user = useAuthStore((state) => state.user);
 
   if (loading) {
@@ -18,7 +24,8 @@ const TurnosTable = ({ turnos, loading, onEstadoChange, onReprogramar }) => {
     if (!turno || !user) return false;
     if (user.isAdmin || user.isSecretaria) return true;
     if (user.isMedico) {
-      const especialistaUserId = turno.especialistaId?.userId?._id || turno.especialistaId?.userId;
+      const especialistaUserId =
+        turno.especialistaId?.userId?._id || turno.especialistaId?.userId;
       return especialistaUserId?.toString() === user._id.toString();
     }
     return false;
@@ -27,7 +34,10 @@ const TurnosTable = ({ turnos, loading, onEstadoChange, onReprogramar }) => {
   // Función mejorada para obtener información del especialista
   const getEspecialistaInfo = (turno) => {
     if (!turno?.especialistaId) {
-      return { name: "Especialista no especificado", especialidad: "Sin especialidad" };
+      return {
+        name: "Especialista no especificado",
+        especialidad: "Sin especialidad",
+      };
     }
     // Caso 1: Cuando el especialista está completamente poblado
     if (turno.especialistaId?.userId?.name) {
@@ -68,11 +78,17 @@ const TurnosTable = ({ turnos, loading, onEstadoChange, onReprogramar }) => {
           const especialistaInfo = getEspecialistaInfo(turno);
 
           return (
-            <tr key={turno._id} className={`turno-row ${turno.estado || "pendiente"}`}>
-              <td>{turno.pacienteId?.fullName || "Paciente no especificado"}</td>
+            <tr
+              key={turno._id}
+              className={`turno-row ${turno.estado || "pendiente"}`}
+            >
+              <td>
+                {turno.pacienteId?.fullName || "Paciente no especificado"}
+              </td>
               <td>
                 {especialistaInfo.name}
-                {especialistaInfo.especialidad && ` (${especialistaInfo.especialidad})`}
+                {especialistaInfo.especialidad &&
+                  ` (${especialistaInfo.especialidad})`}
               </td>
               <td>
                 {turno.fecha
@@ -91,9 +107,39 @@ const TurnosTable = ({ turnos, loading, onEstadoChange, onReprogramar }) => {
               <td className="acciones-turno">
                 {editable ? (
                   <>
+                    <button
+                      className="btn-ver"
+                      onClick={() => onVer(turno)}
+                      title="Ver detalles del turno"
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </button>
                     <select
                       value={turno.estado || "pendiente"}
-                      onChange={(e) => onEstadoChange(turno._id, e.target.value)}
+                      onChange={(e) =>
+                        onEstadoChange(turno._id, e.target.value)
+                      }
                       className="estado-select"
                     >
                       <option value="pendiente">Pendiente</option>

@@ -5,6 +5,7 @@ import useNotify from "../hooks/useToast";
 import { useNavigate } from "react-router-dom";
 import "./css/TurnosPaciente.css";
 import API_URL from "../common/constants";
+import VerTurnoPacienteModal from "./VerTurnoPacienteModal";
 
 const TurnosPaciente = () => {
   const token = useAuthStore((state) => state.token);
@@ -19,6 +20,8 @@ const TurnosPaciente = () => {
   const [showNuevoTurnoModal, setShowNuevoTurnoModal] = useState(false);
   const [showEditarTurnoModal, setShowEditarTurnoModal] = useState(false);
   const [turnoAEditar, setTurnoAEditar] = useState(null);
+  const [showVerTurnoModal, setShowVerTurnoModal] = useState(false);
+  const [turnoAVer, setTurnoAVer] = useState(null);
   const [filters, setFilters] = useState({
     search: "",
     status: "todos",
@@ -205,17 +208,14 @@ const TurnosPaciente = () => {
 
   const handleEditarTurno = async (turnoId, turnoActualizado) => {
     try {
-      const response = await fetch(
-        `${API_URL}/turnos/paciente/${turnoId}`,
-        {
-          method: "PUT", // Asegurarse que es PUT
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(turnoActualizado),
-        }
-      );
+      const response = await fetch(`${API_URL}/turnos/paciente/${turnoId}`, {
+        method: "PUT", // Asegurarse que es PUT
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(turnoActualizado),
+      });
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -449,6 +449,37 @@ const TurnosPaciente = () => {
                       </span>
                     </td>
                     <td className="actions-cell">
+                      <button
+                        className="btn-ver-paciente"
+                        onClick={() => {
+                          setTurnoAVer(turno);
+                          setShowVerTurnoModal(true);
+                        }}
+                        title="Ver detalles de la consulta"
+                      >
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <path
+                            d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </button>
                       {turno.estado === "pendiente" && (
                         <>
                           <button
@@ -634,6 +665,12 @@ const TurnosPaciente = () => {
             </form>
           </div>
         </div>
+      )}
+      {showVerTurnoModal && turnoAVer && (
+        <VerTurnoPacienteModal
+          turno={turnoAVer}
+          onClose={() => setShowVerTurnoModal(false)}
+        />
       )}
     </div>
   );

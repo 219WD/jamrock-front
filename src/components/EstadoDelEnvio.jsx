@@ -31,29 +31,22 @@ const EstadoDelEnvio = () => {
         }
 
         let response;
-
         if (lastCartId) {
           response = await fetch(`${API_URL}/cart/${lastCartId}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           });
         } else {
           response = await fetch(`${API_URL}/cart/user/${userId}/last`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           });
         }
 
-        if (!response.ok) {
-          throw new Error("Error al obtener el pedido");
-        }
+        if (!response.ok) throw new Error("Error al obtener el pedido");
 
         const data = await response.json();
         setUltimoCarrito(data);
 
-        if (data.ratings && data.ratings.length > 0) {
+        if (data.ratings?.length > 0) {
           const ratedIds = data.ratings.map((rating) =>
             rating.productId.toString()
           );
@@ -68,17 +61,15 @@ const EstadoDelEnvio = () => {
     };
 
     fetchUltimoCarrito();
-  }, [userId, token, notify]);
+    // ⚠️ sacamos notify de las dependencias
+  }, [userId, token]);
 
   const getStatusStyles = (status) => {
     switch (status) {
       case "inicializado":
         return { className: "status-inicializado", text: "Carrito creado" };
       case "pendiente":
-        return {
-          className: "status-pendiente",
-          text: "Pendiente de confirmación",
-        };
+        return { className: "status-pendiente", text: "Pendiente de confirmación" };
       case "pagado":
         return { className: "status-pagado", text: "Pagado" };
       case "preparacion":
@@ -108,15 +99,12 @@ const EstadoDelEnvio = () => {
     setShowRatingModal(false);
   };
 
-  const isProductRated = (productId) => {
-    return ratedProducts.includes(productId.toString());
-  };
+  const isProductRated = (productId) =>
+    ratedProducts.includes(productId.toString());
 
-  if (loading)
-    return <div className="loading">Cargando tu último pedido...</div>;
+  if (loading) return <div className="loading">Cargando tu último pedido...</div>;
   if (error) return <div className="error-message">{error}</div>;
-  if (!ultimoCarrito)
-    return <div className="no-carrito">No tienes pedidos recientes</div>;
+  if (!ultimoCarrito) return <div className="no-carrito">No tienes pedidos recientes</div>;
 
   const statusInfo = getStatusStyles(ultimoCarrito.status);
   const shipping = ultimoCarrito.shippingAddress || {};
@@ -134,7 +122,7 @@ const EstadoDelEnvio = () => {
                 {statusInfo.text}
               </div>
             </div>
-            
+
             <div className="tipo-entrega">
               <h3>Tipo de entrega</h3>
               <div className="tipo-entrega-info">
@@ -146,7 +134,7 @@ const EstadoDelEnvio = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="info-contacto border-bottom">
             <h3>Información de contacto</h3>
             <div className="info-contacto-detalles">
@@ -168,7 +156,7 @@ const EstadoDelEnvio = () => {
         <div className="productos-section">
           <h3>Productos en tu pedido</h3>
           <ul className="productos-list">
-            {ultimoCarrito.items.map((item, index) => {
+            {ultimoCarrito.items?.map((item, index) => {
               const product = item.productId;
               const productId = product?._id || product;
 
@@ -183,10 +171,7 @@ const EstadoDelEnvio = () => {
                     <div className="product-rating-container">
                       {isProductRated(productId) ? (
                         <span className="rated-label">
-                          <FontAwesomeIcon
-                            icon={faStar}
-                            className="rated-star"
-                          />
+                          <FontAwesomeIcon icon={faStar} className="rated-star" />
                           ¡Gracias por tu calificación!
                         </span>
                       ) : (

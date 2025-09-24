@@ -591,3 +591,342 @@
     padding: 1rem;
   }
 }
+
+.btn-ver {
+  background: linear-gradient(45deg, #0066cc, #0099ff);
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 8px;
+  font-family: "Zen Dots", sans-serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 153, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+}
+
+.btn-ver:hover {
+  background: linear-gradient(45deg, #0088ff, #00aaff);
+  box-shadow: 0 6px 20px rgba(0, 153, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.btn-ver svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Estilos para adjuntos */
+.adjuntos-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.adjunto-item {
+  padding: 0.5rem;
+  background: rgba(0, 20, 40, 0.3);
+  border-radius: 4px;
+  border: 1px solid rgba(0, 255, 0, 0.2);
+}
+
+.adjunto-link {
+  color: #00ff00;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.adjunto-link:hover {
+  color: #00cc00;
+  text-decoration: underline;
+}
+
+/* Ajustes para los botones de acciones */
+.acciones-turno {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Responsive para acciones */
+@media (max-width: 768px) {
+  .acciones-turno {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .btn-ver,
+  .estado-select,
+  .btn-reprogramar {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Agrega estos estilos al archivo TurnosPanel.css */
+
+/* Ajustes para los botones de acciones - Mantener en línea */
+.acciones-turno {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: nowrap; /* Cambiado de wrap a nowrap */
+  min-width: 280px; /* Ancho mínimo para evitar que se compriman demasiado */
+  justify-content: flex-start;
+}
+
+/* Botones individuales */
+.btn-ver,
+.btn-reprogramar,
+.estado-select {
+  flex-shrink: 0; /* Evita que se encojan */
+  white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+}
+
+/* Botón de Ver */
+.btn-ver {
+  background: linear-gradient(45deg, #0066cc, #0099ff);
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 8px;
+  font-family: "Zen Dots", sans-serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 153, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.btn-ver:hover {
+  background: linear-gradient(45deg, #0088ff, #00aaff);
+  box-shadow: 0 6px 20px rgba(0, 153, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.btn-ver svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Select de estado más compacto */
+.estado-select {
+  background: linear-gradient(45deg, #006600, #00aa00);
+  border: 1px solid #00ff00;
+  color: white;
+  padding: 0.5rem;
+  border-radius: 8px;
+  font-family: "Zen Dots", sans-serif;
+  font-size: 0.8rem; /* Un poco más pequeño */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 255, 0, 0.3);
+  min-width: 120px; /* Ancho mínimo fijo */
+  height: 36px;
+}
+
+/* Botón reprogramar más compacto */
+.btn-reprogramar {
+  background: linear-gradient(45deg, #006600, #00cc00);
+  color: white;
+  padding: 0.5rem 0.8rem; /* Padding reducido */
+  border: none;
+  border-radius: 8px;
+  font-family: "Zen Dots", sans-serif;
+  font-size: 0.8rem; /* Un poco más pequeño */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 255, 0, 0.3);
+  height: 36px;
+  white-space: nowrap;
+}
+
+/* Estilos específicos para el modal de ver turno */
+.ver-turno-modal {
+  max-width: 800px; /* Más ancho para acomodar más información */
+  max-height: 90vh;
+}
+
+.ver-turno-modal .modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.seccion-turno,
+.seccion-consulta,
+.seccion-medica,
+.seccion-adjuntos,
+.seccion-productos,
+.seccion-comprobante {
+  background: rgba(0, 20, 40, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid rgba(0, 255, 0, 0.2);
+}
+
+.seccion-turno h3,
+.seccion-consulta h3,
+.seccion-medica h3,
+.seccion-adjuntos h3,
+.seccion-productos h3,
+.seccion-comprobante h3 {
+  color: #00ff00;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  border-bottom: 1px solid rgba(0, 255, 0, 0.3);
+  padding-bottom: 0.5rem;
+}
+
+.grid-datos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.texto-largo {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.5rem;
+  border-radius: 4px;
+  border-left: 3px solid #00ff00;
+}
+
+/* Estilos para adjuntos mejorados */
+.adjuntos-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.adjunto-item {
+  padding: 0.75rem;
+  background: rgba(0, 20, 40, 0.5);
+  border-radius: 6px;
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.adjunto-link {
+  color: #00ff00;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: color 0.3s ease;
+  flex-grow: 1;
+}
+
+.adjunto-link:hover {
+  color: #00cc00;
+  text-decoration: underline;
+}
+
+.tipo-adjunto {
+  font-size: 0.8rem;
+  color: #ccc;
+  font-style: italic;
+}
+
+.fecha-adjunto {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+/* Estilos para productos */
+.productos-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.producto-item {
+  padding: 0.5rem;
+  background: rgba(0, 20, 40, 0.3);
+  border-radius: 4px;
+  border-left: 3px solid #0099ff;
+}
+
+.producto-nombre {
+  font-weight: bold;
+  color: #00ff00;
+}
+
+.producto-detalle {
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+/* Responsive para el modal */
+@media (max-width: 768px) {
+  .ver-turno-modal {
+    width: 95%;
+    padding: 1rem;
+  }
+  
+  .grid-datos {
+    grid-template-columns: 1fr;
+  }
+  
+  .adjunto-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  /* En móviles, los botones de acciones se mantienen en línea pero con scroll horizontal */
+  .acciones-turno {
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+  
+  .acciones-turno::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .acciones-turno::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 255, 0, 0.5);
+    border-radius: 2px;
+  }
+}
+
+/* Para pantallas muy pequeñas */
+@media (max-width: 480px) {
+  .acciones-turno {
+    min-width: 250px;
+    gap: 0.3rem;
+  }
+  
+  .estado-select {
+    min-width: 110px;
+    font-size: 0.75rem;
+  }
+  
+  .btn-reprogramar {
+    font-size: 0.75rem;
+    padding: 0.5rem;
+  }
+}

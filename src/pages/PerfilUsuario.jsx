@@ -21,7 +21,11 @@ const PerfilUsuario = () => {
   const { user, token, setUser } = useAuthStore();
   const notify = useNotify(); // ✅ CORRECTO: Obtener la función del hook
   const [formData, setFormData] = useState({ name: "", email: "" });
-  const [partnerFormData, setPartnerFormData] = useState({ dni: "", adress: "", phone: "" });
+  const [partnerFormData, setPartnerFormData] = useState({
+    dni: "",
+    adress: "",
+    phone: "",
+  });
   const [partnerData, setPartnerData] = useState(null);
   const [carts, setCarts] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
@@ -42,7 +46,7 @@ const PerfilUsuario = () => {
     });
 
     // Cargar datos del partner
-    fetch(`${API_URL}/partners/user/getPartnerByUserId/${user._id}`, {
+    fetch(`${API_URL}/partners/my-partner-data`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -81,7 +85,9 @@ const PerfilUsuario = () => {
               cartId: cart._id,
             }))
           );
-          setRatedProducts(allRatings.map((rating) => rating.productId.toString()));
+          setRatedProducts(
+            allRatings.map((rating) => rating.productId.toString())
+          );
         })
         .catch((err) => console.log("Error carritos:", err));
     }
@@ -128,15 +134,21 @@ const PerfilUsuario = () => {
   };
 
   const handlePartnerChange = (e) => {
-    setPartnerFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setPartnerFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log('Sending request to:', `${API_URL}/users/updateUser/${user._id}`);
-      console.log('Token:', token);
-      console.log('Request body:', formData);
+      console.log(
+        "Sending request to:",
+        `${API_URL}/users/updateUser/${user._id}`
+      );
+      console.log("Token:", token);
+      console.log("Request body:", formData);
       const res = await fetch(`${API_URL}/users/updateUser/${user._id}`, {
         method: "PUT",
         headers: {
@@ -146,22 +158,30 @@ const PerfilUsuario = () => {
         body: JSON.stringify(formData),
       });
 
-      console.log('Response status:', res.status);
+      console.log("Response status:", res.status);
       if (!res.ok) {
         const text = await res.text();
-        console.log('Response text:', text);
+        console.log("Response text:", text);
         let errorData;
         try {
           errorData = JSON.parse(text);
-          throw new Error(errorData.error || `Error ${res.status}: No se pudo actualizar el perfil`);
+          throw new Error(
+            errorData.error ||
+              `Error ${res.status}: No se pudo actualizar el perfil`
+          );
         } catch (jsonError) {
-          throw new Error(`Error ${res.status}: Respuesta no es JSON válida - ${text.slice(0, 100)}`);
+          throw new Error(
+            `Error ${res.status}: Respuesta no es JSON válida - ${text.slice(
+              0,
+              100
+            )}`
+          );
         }
       }
 
       const data = await res.json();
       setUser(data.user); // ✅ CORRECTO: Usar setUser del hook
-      notify("Perfil actualizado correctamente", "success")
+      notify("Perfil actualizado correctamente", "success");
     } catch (err) {
       console.error("Error en la actualización:", err.message);
       notify("Error al actualizar perfil", "error"); // ✅ CORRECTO
@@ -171,34 +191,48 @@ const PerfilUsuario = () => {
   const handlePartnerSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log('Sending partner request to:', `${API_URL}/partners/updatePartner/${partnerData._id}`);
-      console.log('Partner request body:', partnerFormData);
-      const res = await fetch(`${API_URL}/partners/updatePartner/${partnerData._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(partnerFormData),
-      });
+      console.log(
+        "Sending partner request to:",
+        `${API_URL}/partners/updatePartner/${partnerData._id}`
+      );
+      console.log("Partner request body:", partnerFormData);
+      const res = await fetch(
+        `${API_URL}/partners/updatePartner/${partnerData._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(partnerFormData),
+        }
+      );
 
-      console.log('Partner response status:', res.status);
+      console.log("Partner response status:", res.status);
       if (!res.ok) {
         const text = await res.text();
-        console.log('Partner response text:', text);
+        console.log("Partner response text:", text);
         let errorData;
         try {
           errorData = JSON.parse(text);
-          throw new Error(errorData.error || `Error ${res.status}: No se pudo actualizar los datos del socio`);
+          throw new Error(
+            errorData.error ||
+              `Error ${res.status}: No se pudo actualizar los datos del socio`
+          );
         } catch (jsonError) {
-          throw new Error(`Error ${res.status}: Respuesta no es JSON válida - ${text.slice(0, 100)}`);
+          throw new Error(
+            `Error ${res.status}: Respuesta no es JSON válida - ${text.slice(
+              0,
+              100
+            )}`
+          );
         }
       }
 
       const data = await res.json();
       setPartnerData(data);
-      
-      notify("Datos del socio actualizados correctamente","success"); // ✅ CORRECTO
+
+      notify("Datos del socio actualizados correctamente", "success"); // ✅ CORRECTO
     } catch (err) {
       notify("Error al actualizar datos del socio", "error"); // ✅ CORRECTO
     }
@@ -209,7 +243,8 @@ const PerfilUsuario = () => {
     carts.forEach((cart) => {
       (cart.items || cart.products || []).forEach((item) => {
         const id = item.productId?._id || item.productId;
-        const name = item.productId?.title || item.productId?.name || "Producto";
+        const name =
+          item.productId?.title || item.productId?.name || "Producto";
         const image = item.productId?.image || "";
         if (id) {
           productos[id] = productos[id] || { image, name, count: 0 };
@@ -286,14 +321,18 @@ const PerfilUsuario = () => {
           <h2 className="dashboard-title-perfil">Mi Perfil</h2>
           <div className="dashboard-tabs-perfil">
             <button
-              className={`tab-btn-perfil ${activeTab === "perfil" ? "active" : ""}`}
+              className={`tab-btn-perfil ${
+                activeTab === "perfil" ? "active" : ""
+              }`}
               onClick={() => setActiveTab("perfil")}
             >
               <FontAwesomeIcon icon={faUser} /> Perfil
             </button>
             {user?.isPartner && (
               <button
-                className={`tab-btn-perfil ${activeTab === "pedidos" ? "active" : ""}`}
+                className={`tab-btn-perfil ${
+                  activeTab === "pedidos" ? "active" : ""
+                }`}
                 onClick={() => setActiveTab("pedidos")}
               >
                 <FontAwesomeIcon icon={faShoppingCart} /> Mis Pedidos
@@ -302,13 +341,17 @@ const PerfilUsuario = () => {
             {user?.isPaciente && (
               <>
                 <button
-                  className={`tab-btn-perfil ${activeTab === "turnos" ? "active" : ""}`}
+                  className={`tab-btn-perfil ${
+                    activeTab === "turnos" ? "active" : ""
+                  }`}
                   onClick={() => setActiveTab("turnos")}
                 >
                   <FontAwesomeIcon icon={faCalendarAlt} /> Mis Turnos
                 </button>
                 <button
-                  className={`tab-btn-perfil ${activeTab === "recetas" ? "active" : ""}`}
+                  className={`tab-btn-perfil ${
+                    activeTab === "recetas" ? "active" : ""
+                  }`}
                   onClick={() => setActiveTab("recetas")}
                 >
                   <FontAwesomeIcon icon={faPills} /> Recetas
@@ -386,7 +429,10 @@ const PerfilUsuario = () => {
                     <h2 className="section-title-perfil">
                       <FontAwesomeIcon icon={faUser} /> Datos del Socio
                     </h2>
-                    <form onSubmit={handlePartnerSubmit} className="perfil-form">
+                    <form
+                      onSubmit={handlePartnerSubmit}
+                      className="perfil-form"
+                    >
                       <div className="form-grid-perfil">
                         <div className="perfil-field">
                           <label className="perfil-label" htmlFor="dni">
@@ -430,12 +476,6 @@ const PerfilUsuario = () => {
                             required
                           />
                         </div>
-                        <div className="perfil-field">
-                          <label className="perfil-label">REPROCANN</label>
-                          <span className="info-value-perfil">
-                            {partnerData.reprocann ? "Sí" : "No"}
-                          </span>
-                        </div>
                       </div>
                       <div className="form-actions-perfil">
                         <button type="submit" className="perfil-submit-btn">
@@ -460,7 +500,9 @@ const PerfilUsuario = () => {
                           />
                           <div className="product-details-perfil">
                             <h3 className="product-name-perfil">{prod.name}</h3>
-                            <p className="product-count-perfil">{prod.count} unidades</p>
+                            <p className="product-count-perfil">
+                              {prod.count} unidades
+                            </p>
                           </div>
                         </div>
                       ))}
@@ -472,7 +514,8 @@ const PerfilUsuario = () => {
             {activeTab === "pedidos" && user?.isPartner && (
               <div className="dashboard-section-perfil">
                 <h2 className="section-title-perfil">
-                  <FontAwesomeIcon icon={faShoppingCart} /> Mis Pedidos Recientes
+                  <FontAwesomeIcon icon={faShoppingCart} /> Mis Pedidos
+                  Recientes
                 </h2>
                 {carts.length > 0 ? (
                   <div className="orders-grid-perfil">
@@ -482,7 +525,9 @@ const PerfilUsuario = () => {
                           <span className="order-date-perfil">
                             {new Date(cart.createdAt).toLocaleDateString()}
                           </span>
-                          <span className={`order-status-perfil ${cart.status}`}>
+                          <span
+                            className={`order-status-perfil ${cart.status}`}
+                          >
                             {cart.status || "No definido"}
                           </span>
                         </div>
@@ -499,41 +544,56 @@ const PerfilUsuario = () => {
                         <div className="order-products-perfil">
                           <h4>Productos:</h4>
                           <ul>
-                            {(cart.items || cart.products || []).map((item, idx) => {
-                              const product = item.productId || {};
-                              const productId = product._id || item.productId;
-                              const productName =
-                                product.title || product.name || "Producto";
-                              const existingRating = findProductRating(productId, cart);
-                              const isRated = existingRating || isProductRated(productId);
-                              return (
-                                <li key={idx}>
-                                  {productName} x{item.quantity} - $
-                                  {item.price || product.price * item.quantity}
-                                  {cart.status === "entregado" && (
-                                    <div className="product-rating-container-perfil">
-                                      {isRated ? (
-                                        <button
-                                          onClick={() =>
-                                            handleRateClick(item, cart, existingRating)
-                                          }
-                                          className="view-rating-btn-perfil"
-                                        >
-                                          <FontAwesomeIcon icon={faEye} /> Ver Calificación
-                                        </button>
-                                      ) : (
-                                        <button
-                                          onClick={() => handleRateClick(item, cart)}
-                                          className="rate-btn-perfil"
-                                        >
-                                          <FontAwesomeIcon icon={faStar} /> Calificar
-                                        </button>
-                                      )}
-                                    </div>
-                                  )}
-                                </li>
-                              );
-                            })}
+                            {(cart.items || cart.products || []).map(
+                              (item, idx) => {
+                                const product = item.productId || {};
+                                const productId = product._id || item.productId;
+                                const productName =
+                                  product.title || product.name || "Producto";
+                                const existingRating = findProductRating(
+                                  productId,
+                                  cart
+                                );
+                                const isRated =
+                                  existingRating || isProductRated(productId);
+                                return (
+                                  <li key={idx}>
+                                    {productName} x{item.quantity} - $
+                                    {item.price ||
+                                      product.price * item.quantity}
+                                    {cart.status === "entregado" && (
+                                      <div className="product-rating-container-perfil">
+                                        {isRated ? (
+                                          <button
+                                            onClick={() =>
+                                              handleRateClick(
+                                                item,
+                                                cart,
+                                                existingRating
+                                              )
+                                            }
+                                            className="view-rating-btn-perfil"
+                                          >
+                                            <FontAwesomeIcon icon={faEye} /> Ver
+                                            Calificación
+                                          </button>
+                                        ) : (
+                                          <button
+                                            onClick={() =>
+                                              handleRateClick(item, cart)
+                                            }
+                                            className="rate-btn-perfil"
+                                          >
+                                            <FontAwesomeIcon icon={faStar} />{" "}
+                                            Calificar
+                                          </button>
+                                        )}
+                                      </div>
+                                    )}
+                                  </li>
+                                );
+                              }
+                            )}
                           </ul>
                         </div>
                       </div>
@@ -552,23 +612,31 @@ const PerfilUsuario = () => {
                 {turnos.length > 0 ? (
                   <div className="appointments-grid-perfil">
                     {turnos
-                      .filter((t) => ["pendiente", "confirmado"].includes(t.estado))
+                      .filter((t) =>
+                        ["pendiente", "confirmado"].includes(t.estado)
+                      )
                       .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
                       .slice(0, 3)
                       .map((turno) => (
-                        <div key={turno._id} className="appointment-card-perfil">
+                        <div
+                          key={turno._id}
+                          className="appointment-card-perfil"
+                        >
                           <div className="appointment-header-perfil">
                             <span className="appointment-date-perfil">
                               {formatDate(turno.fecha)}
                             </span>
-                            <span className={`appointment-status-perfil ${turno.estado}`}>
+                            <span
+                              className={`appointment-status-perfil ${turno.estado}`}
+                            >
                               {turno.estado}
                             </span>
                           </div>
                           <div className="appointment-details-perfil">
                             <div className="appointment-specialist-perfil">
                               <span>Especialista:</span>{" "}
-                              {turno.especialistaId?.userId?.name || "No especificado"}
+                              {turno.especialistaId?.userId?.name ||
+                                "No especificado"}
                             </div>
                             <div className="appointment-reason-perfil">
                               <span>Motivo:</span> {turno.motivo}
@@ -600,20 +668,26 @@ const PerfilUsuario = () => {
                 <h2 className="section-title-perfil">
                   <FontAwesomeIcon icon={faPills} /> Mis Últimas Recetas
                 </h2>
-                {turnos.filter((t) => t.consulta?.productos?.length > 0).length > 0 ? (
+                {turnos.filter((t) => t.consulta?.productos?.length > 0)
+                  .length > 0 ? (
                   <div className="prescriptions-grid-perfil">
                     {turnos
                       .filter((t) => t.consulta?.productos?.length > 0)
                       .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
                       .slice(0, 5)
                       .map((turno) => (
-                        <div key={turno._id} className="prescription-card-perfil">
+                        <div
+                          key={turno._id}
+                          className="prescription-card-perfil"
+                        >
                           <div className="prescription-header-perfil">
                             <span className="prescription-date-perfil">
                               {formatDate(turno.fecha)}
                             </span>
                             <span className="prescription-doctor-perfil">
-                              Dr. {turno.especialistaId?.userId?.name || "No especificado"}
+                              Dr.{" "}
+                              {turno.especialistaId?.userId?.name ||
+                                "No especificado"}
                             </span>
                           </div>
                           <div className="prescription-products-perfil">
@@ -621,10 +695,12 @@ const PerfilUsuario = () => {
                             <ul>
                               {turno.consulta.productos.map((prod, idx) => (
                                 <li key={idx}>
-                                  <strong>{prod.nombreProducto}</strong> - {prod.cantidad}{" "}
-                                  unidad(es)
+                                  <strong>{prod.nombreProducto}</strong> -{" "}
+                                  {prod.cantidad} unidad(es)
                                   {prod.dosis && (
-                                    <span className="dosis-perfil">Dosis: {prod.dosis}</span>
+                                    <span className="dosis-perfil">
+                                      Dosis: {prod.dosis}
+                                    </span>
                                   )}
                                 </li>
                               ))}
@@ -641,14 +717,17 @@ const PerfilUsuario = () => {
                       ))}
                   </div>
                 ) : (
-                  <p className="no-data-perfil">No tienes recetas registradas</p>
+                  <p className="no-data-perfil">
+                    No tienes recetas registradas
+                  </p>
                 )}
               </div>
             )}
             {activeTab === "historial" && user?.isPaciente && (
               <div className="dashboard-section-perfil">
                 <h2 className="section-title-perfil">
-                  <FontAwesomeIcon icon={faFileMedicalAlt} /> Mi Historial Completo
+                  <FontAwesomeIcon icon={faFileMedicalAlt} /> Mi Historial
+                  Completo
                 </h2>
                 {turnos.length > 0 ? (
                   <div className="medical-history-perfil">
@@ -660,7 +739,9 @@ const PerfilUsuario = () => {
                             <span className="history-date-perfil">
                               {formatDate(turno.fecha)}
                             </span>
-                            <span className={`history-status-perfil ${turno.estado}`}>
+                            <span
+                              className={`history-status-perfil ${turno.estado}`}
+                            >
                               {turno.estado}
                             </span>
                           </div>
@@ -668,7 +749,8 @@ const PerfilUsuario = () => {
                             <div className="history-section-perfil">
                               <h4>Especialista:</h4>
                               <p>
-                                {turno.especialistaId?.userId?.name || "No especificado"}
+                                {turno.especialistaId?.userId?.name ||
+                                  "No especificado"}
                               </p>
                             </div>
                             <div className="history-section-perfil">
@@ -682,7 +764,9 @@ const PerfilUsuario = () => {
                             {turno.reprocannRelacionado && (
                               <div className="history-section-perfil">
                                 <h4>REPROCANN:</h4>
-                                <p>Consulta relacionada con trámite REPROCANN</p>
+                                <p>
+                                  Consulta relacionada con trámite REPROCANN
+                                </p>
                               </div>
                             )}
                             {turno.consulta && (
@@ -690,11 +774,15 @@ const PerfilUsuario = () => {
                                 <div className="history-section-perfil">
                                   <h4>Detalles de la consulta:</h4>
                                   <p>
-                                    Estado: {turno.consulta.pagado ? "Pagado" : "Pendiente de pago"}
+                                    Estado:{" "}
+                                    {turno.consulta.pagado
+                                      ? "Pagado"
+                                      : "Pendiente de pago"}
                                   </p>
                                   <p>
                                     Método de pago:{" "}
-                                    {turno.consulta.formaPago || "No especificado"}
+                                    {turno.consulta.formaPago ||
+                                      "No especificado"}
                                   </p>
                                   {turno.consulta.notasConsulta && (
                                     <p>Notas: {turno.consulta.notasConsulta}</p>
@@ -704,19 +792,33 @@ const PerfilUsuario = () => {
                                   <div className="history-section-perfil">
                                     <h4>Productos recetados:</h4>
                                     <ul className="product-list-perfil">
-                                      {turno.consulta.productos.map((prod, idx) => (
-                                        <li key={idx}>
-                                          <strong>{prod.nombreProducto}</strong> - Cantidad:{" "}
-                                          {prod.cantidad} - Precio unitario: $
-                                          {prod.precioUnitario} - Total: $
-                                          {(prod.precioUnitario * prod.cantidad).toFixed(2)}
-                                          {prod.dosis && <span> (Dosis: {prod.dosis})</span>}
-                                        </li>
-                                      ))}
+                                      {turno.consulta.productos.map(
+                                        (prod, idx) => (
+                                          <li key={idx}>
+                                            <strong>
+                                              {prod.nombreProducto}
+                                            </strong>{" "}
+                                            - Cantidad: {prod.cantidad} - Precio
+                                            unitario: ${prod.precioUnitario} -
+                                            Total: $
+                                            {(
+                                              prod.precioUnitario *
+                                              prod.cantidad
+                                            ).toFixed(2)}
+                                            {prod.dosis && (
+                                              <span>
+                                                {" "}
+                                                (Dosis: {prod.dosis})
+                                              </span>
+                                            )}
+                                          </li>
+                                        )
+                                      )}
                                     </ul>
                                     <p className="total-amount-perfil">
                                       Total consulta: $
-                                      {turno.consulta.total?.toFixed(2) || "0.00"}
+                                      {turno.consulta.total?.toFixed(2) ||
+                                        "0.00"}
                                     </p>
                                   </div>
                                 )}
