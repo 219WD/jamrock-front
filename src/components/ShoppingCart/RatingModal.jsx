@@ -8,11 +8,11 @@ import useNotify from '../../hooks/useToast';
 import './css/RatingModal.css';
 import API_URL from '../../common/constants';
 
-const RatingModal = ({ 
-  productId, 
-  productName, 
-  cartId, 
-  onClose, 
+const RatingModal = ({
+  productId,
+  productName,
+  cartId,
+  onClose,
   onRateSuccess,
   existingRating = null
 }) => {
@@ -22,10 +22,10 @@ const RatingModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isViewMode] = useState(!!existingRating);
-  
+
   const token = useAuthStore((state) => state.token);
   const notify = useNotify();
-  
+
   const overlayRef = useRef(null);
   const containerRef = useRef(null);
 
@@ -84,26 +84,44 @@ const RatingModal = ({
 
     setIsSubmitting(true);
     try {
+      const requestBody = {
+        stars: rating,
+        comment: comment.trim() || undefined,
+      };
+      console.log("Token usado:", token);
+      console.log("Enviando calificación:", {
+        url: `${API_URL}/cart/${cartId}/rate/${productId}`,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: requestBody,
+      });
+
       const response = await fetch(`${API_URL}/cart/${cartId}/rate/${productId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ 
-          stars: rating,
-          comment: comment.trim(),
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Error al enviar la calificación');
+        if (response.status === 401 || response.status === 403) {
+          throw new Error("Sesión inválida. Por favor, inicia sesión nuevamente.");
+        }
+        if (response.status === 404) {
+          throw new Error("Producto o carrito no encontrado. Verifica el ID del producto.");
+        }
+        throw new Error(errorData.message || `Error al enviar la calificación (HTTP ${response.status})`);
       }
 
-      await response.json();
+      const responseData = await response.json();
+      console.log("Respuesta del backend:", responseData);
       notify('¡Gracias por tu calificación y comentario!', 'success');
-      onRateSuccess();
+      onRateSuccess(productId, responseData.productUpdate || {});
       handleClose();
     } catch (error) {
       console.error('Error al calificar:', error);
@@ -118,8 +136,8 @@ const RatingModal = ({
       <div className="modal-container" ref={containerRef}>
         <div className="modal-header">
           <h2>{isViewMode ? 'Tu Calificación' : 'Calificar Producto'}</h2>
-          <button 
-            className="modal-close-btn" 
+          <button
+            className="modal-close-btn"
             onClick={handleClose}
             disabled={isSubmitting}
           >
@@ -142,7 +160,7 @@ const RatingModal = ({
                   </span>
                 ))}
               </div>
-              
+
               {comment && (
                 <div className="existing-comment">
                   <h4>Tu comentario:</h4>
@@ -196,8 +214,8 @@ const RatingModal = ({
                 >
                   Cancelar
                 </button>
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="modal-btn modal-btn-primary"
                   disabled={isSubmitting || rating === 0}
                 >

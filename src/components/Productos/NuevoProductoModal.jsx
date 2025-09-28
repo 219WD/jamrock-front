@@ -9,6 +9,7 @@ const NuevoProductoModal = ({ onClose, onSubmit }) => {
     stock: "",
     price: "",
     category: "",
+    cartRatings: []
   });
   const [errors, setErrors] = useState({});
 
