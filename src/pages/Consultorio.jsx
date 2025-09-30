@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import useAuthStore from "../store/authStore";
 import useNotify from "../hooks/useToast";
 import NavDashboard from "../components/NavDashboard";
@@ -38,6 +38,9 @@ const Consultorio = () => {
     nombre: "",
     tipo: "receta",
   });
+
+  // ✅ CORREGIDO: Usar useRef en lugar de useState
+  const isAddingProductsRef = useRef(false);
 
   // Nuevos estados para el modal de pacientes
   const [showPacienteModal, setShowPacienteModal] = useState(false);
@@ -103,7 +106,6 @@ const Consultorio = () => {
       const data = await res.json();
       console.log("Paciente data fetched:", data);
 
-      // Devuelve data.data en lugar de solo data
       return data.data;
     } catch (err) {
       console.error("Fetch paciente data error:", err.message);
@@ -114,246 +116,185 @@ const Consultorio = () => {
     }
   };
 
-  const handleAddProductos = async () => {
-    try {
-      setLoading(true);
-      console.log("Adding productos:", selectedProducts);
+const handleAddProductos = async () => {
+  if (isAddingProductsRef.current) {
+    console.log("🛑 handleAddProductos ya en ejecución, ignorando llamada duplicada...");
+    return;
+  }
 
-      // 🔹 Actualizar stock localmente para feedback visual inmediato
-      selectedProducts.forEach((product) => {
-        useProductStore
-          .getState()
-          .updateLocalStock(product.productoId, product.cantidad);
-      });
+  try {
+    isAddingProductsRef.current = true;
+    setLoading(true);
+    console.log("🔄 INICIANDO handleAddProductos - ÚNICA EJECUCIÓN");
+    console.log("📦 Productos a agregar:", selectedProducts);
+    console.log("🆔 Turno ID:", selectedTurno?._id);
 
-      const res = await fetch(
-        `${API_URL}/turnos/${selectedTurno._id}/agregar-productos`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            productos: selectedProducts,
-            formaPago,
-            notasConsulta,
-            reemplazarProductos: true,
-          }),
-        }
-      );
-
-      const responseData = await res.json();
-
-      // 🔹 IGNORAR ERRORES DE STOCK INSUFICIENTE - LA OPERACIÓN SÍ FUNCIONA
-      if (
-        !res.ok &&
-        responseData.error &&
-        responseData.error.includes("Stock insuficiente")
-      ) {
-        // 🔹 EL BACKEND PROCESÓ LA OPERACIÓN PERO DEVOLVIÓ ERROR - IGNORARLO
-        console.log(
-          "Error de stock ignorado (operación exitosa):",
-          responseData.error
-        );
-
-        // Forzar recarga para obtener los datos actualizados del backend
-        await fetchProducts();
-
-        const productNames = selectedProducts
-          .map((p) => p.nombreProducto)
-          .join(", ");
-        notify(`${productNames} agregado(s) correctamente`, "success");
-
-        setSelectedProducts([]);
-        return;
+    const res = await fetch(
+      `${API_URL}/turnos/${selectedTurno._id}/agregar-productos`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productos: selectedProducts,
+          formaPago,
+          notasConsulta,
+          reemplazarProductos: true,
+        }),
       }
+    );
 
-      if (!res.ok) {
-        // 🔹 PARA OTROS TIPOS DE ERRORES, RESTAURAR STOCK Y MOSTRAR MENSAJE
-        selectedProducts.forEach((product) => {
-          useProductStore
-            .getState()
-            .restoreLocalStock(product.productoId, product.cantidad);
-        });
-        throw new Error(responseData.error || `Error ${res.status}`);
-      }
+    console.log("📡 Respuesta del servidor - Status:", res.status);
 
-      // 🔹 ÉXITO NORMAL: Actualizar con datos del backend
-      await fetchProducts();
+    const responseData = await res.json();
+    console.log("📊 Datos de respuesta:", responseData);
 
-      const productNames = selectedProducts
-        .map((p) => p.nombreProducto)
-        .join(", ");
-      notify(`${productNames} agregado(s) correctamente`, "success");
-
-      setSelectedTurno((prev) => ({ ...prev, ...responseData.data }));
-      setSelectedProducts([]);
-    } catch (err) {
-      console.error("Add productos error:", err.message);
-
-      // 🔹 SOLO MOSTRAR ERRORES QUE NO SEAN DE VALIDACIÓN DE STOCK
-      if (!err.message.includes("Stock insuficiente")) {
-        notify("Error al agregar productos: " + err.message, "error");
-      }
-
-      // Restaurar stock en backend si es necesario
-      if (selectedProducts.length > 0) {
-        await restoreStockOnError(selectedProducts);
-      }
-    } finally {
-      setLoading(false);
+    if (!res.ok) {
+      console.error("❌ Error del servidor:", responseData);
+      throw new Error(responseData.error || `Error ${res.status}`);
     }
-  };
 
-  const restoreStockOnError = async (productos) => {
-    try {
-      for (const item of productos) {
-        try {
-          const response = await fetch(
-            `${API_URL}/products/${item.productoId}/restore-stock`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({ quantity: item.cantidad }),
-            }
-          );
+    console.log("✅ Productos agregados exitosamente al backend");
 
-          if (!response.ok) {
-            console.warn(
-              `No se pudo restaurar stock para producto ${item.productoId}`
-            );
-          }
-        } catch (error) {
-          console.error("Error en restore stock:", error);
-        }
+    const productNames = selectedProducts
+      .map((p) => p.nombreProducto)
+      .join(", ");
+    notify(`${productNames} agregado(s) correctamente`, "success");
+
+    // Actualizar el turno y limpiar selectedProducts
+    setSelectedTurno((prev) => ({ ...prev, ...responseData.data }));
+    setSelectedProducts([]); // Limpiar productos seleccionados
+    await fetchTurnos(); // Refrescar los turnos para asegurar consistencia
+
+    console.log("✅ handleAddProductos completado exitosamente");
+    return true; // Indicar que la operación fue exitosa
+  } catch (err) {
+    console.error("❌ Add productos error:", err.message);
+    notify("Error al agregar productos: " + err.message, "error");
+    return false; // Indicar que la operación falló
+  } finally {
+    setLoading(false);
+    isAddingProductsRef.current = false;
+  }
+};
+
+const handleSaveHistorial = async () => {
+  try {
+    setLoading(true);
+
+    const productosRecetados = selectedProducts.map((p) => ({
+      nombre: p.nombreProducto,
+      cantidad: p.cantidad,
+      dosis: p.dosis || "",
+    }));
+
+    // Solo intentar agregar productos si no hay productos en la consulta y selectedProducts no está vacío
+    if (
+      selectedProducts.length > 0 &&
+      (!selectedTurno.consulta?.productos || selectedTurno.consulta.productos.length === 0)
+    ) {
+      console.log("📝 Guardando productos antes del historial...");
+      const success = await handleAddProductos();
+      if (!success) {
+        throw new Error("No se pudieron agregar los productos al turno");
       }
-
-      // Recargar productos para actualizar la vista
-      await fetchProducts();
-    } catch (error) {
-      console.error("Error general restaurando stock:", error);
     }
-  };
 
-  const handleSaveHistorial = async () => {
-    try {
-      setLoading(true);
-
-      const productosRecetados = selectedProducts.map((p) => ({
-        nombre: p.nombreProducto,
-        cantidad: p.cantidad,
-        dosis: p.dosis || "",
-      }));
-
-      if (
-        !selectedTurno.consulta?.productos ||
-        selectedTurno.consulta.productos.length === 0
-      ) {
-        await handleAddProductos();
+    const res = await fetch(
+      `${API_URL}/pacientes/${selectedTurno.pacienteId._id}/historial`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          turnoId: selectedTurno._id,
+          diagnostico,
+          tratamiento,
+          observaciones,
+          productosRecetados,
+          documentosAdjuntos,
+        }),
       }
+    );
 
-      const res = await fetch(
-        `${API_URL}/pacientes/${selectedTurno.pacienteId._id}/historial`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            turnoId: selectedTurno._id,
-            diagnostico,
-            tratamiento,
-            observaciones,
-            productosRecetados,
-            documentosAdjuntos,
-          }),
-        }
-      );
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("Error response from handleSaveHistorial:", text);
+      throw new Error(`Error ${res.status}: ${text}`);
+    }
 
-      if (!res.ok) {
+    const data = await res.json();
+    notify("Consulta guardada en el historial del paciente", "success");
+    await fetchTurnos();
+    resetForm();
+  } catch (err) {
+    console.error("Save historial error:", err.message);
+    notify("Error al guardar historial: " + err.message, "error");
+  } finally {
+    setLoading(false);
+  }
+};
+
+const handleCompleteTurno = async () => {
+  try {
+    setGuardando(true);
+    console.log("🔄 INICIANDO handleCompleteTurno");
+
+    // Guardar historial (que manejará los productos si es necesario)
+    console.log("📝 Guardando historial...");
+    await handleSaveHistorial();
+
+    // Completar turno
+    console.log("✅ Completando turno...");
+    const res = await fetch(
+      `${API_URL}/turnos/medico/${selectedTurno._id}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          estado: "completado",
+          precioConsulta,
+          notasConsulta,
+          diagnostico,
+          tratamiento,
+          observaciones,
+          documentosAdjuntos,
+        }),
+      }
+    );
+
+    if (!res.ok) {
+      let errorMsg = "Error al completar turno";
+      try {
+        const errorData = await res.json();
+        errorMsg = errorData.message || errorMsg;
+      } catch {
         const text = await res.text();
-        console.error("Error response from handleSaveHistorial:", text);
-        throw new Error(`Error ${res.status}: ${text}`);
+        errorMsg = text.includes("<!DOCTYPE html>")
+          ? "Error en el servidor"
+          : text;
       }
-
-      const data = await res.json();
-      notify("Consulta guardada en el historial del paciente", "success");
-      await fetchTurnos();
-      resetForm();
-    } catch (err) {
-      console.error("Save historial error:", err.message);
-      notify("Error al guardar historial: " + err.message, "error");
-    } finally {
-      setLoading(false);
+      throw new Error(errorMsg);
     }
-  };
 
-  const handleCompleteTurno = async () => {
-    try {
-      setGuardando(true);
-
-      // 1. Guardar productos si hay
-      if (
-        selectedProducts.length > 0 &&
-        (!selectedTurno.consulta?.productos ||
-          selectedTurno.consulta.productos.length === 0)
-      ) {
-        await handleAddProductos();
-      }
-
-      // 2. Guardar historial
-      await handleSaveHistorial();
-
-      // 3. Completar turno
-      const res = await fetch(
-        `${API_URL}/turnos/medico/${selectedTurno._id}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            estado: "completado",
-            precioConsulta: precioConsulta,
-            notasConsulta,
-            diagnostico,
-            tratamiento,
-            observaciones,
-            documentosAdjuntos,
-          }),
-        }
-      );
-
-      if (!res.ok) {
-        let errorMsg = "Error al completar turno";
-        try {
-          const errorData = await res.json();
-          errorMsg = errorData.message || errorMsg;
-        } catch {
-          const text = await res.text();
-          errorMsg = text.includes("<!DOCTYPE html>")
-            ? "Error en el servidor"
-            : text;
-        }
-        throw new Error(errorMsg);
-      }
-
-      notify("Turno completado exitosamente", "success");
-      await fetchTurnos();
-      resetForm();
-    } catch (err) {
-      console.error("Error completando turno:", err);
-      notify(err.message || "Error al completar turno", "error");
-    } finally {
-      setGuardando(false);
-    }
-  };
+    notify("Turno completado exitosamente", "success");
+    await fetchTurnos();
+    resetForm();
+    console.log("🎉 handleCompleteTurno completado exitosamente");
+  } catch (err) {
+    console.error("Error completando turno:", err);
+    notify(err.message || "Error al completar turno", "error");
+  } finally {
+    setGuardando(false);
+  }
+};
 
   const resetForm = () => {
     setSelectedTurno(null);
@@ -420,20 +361,17 @@ const Consultorio = () => {
       });
   };
 
-  // En el componente Consultorio, modifica handleProductSelect:
   const handleProductSelect = (producto) => {
     setSelectedProducts((prev) => {
       const existing = prev.find((p) => p.productoId === producto._id);
 
       if (existing) {
-        // Si ya existe, sumar la cantidad
         return prev.map((p) =>
           p.productoId === producto._id
             ? { ...p, cantidad: p.cantidad + producto.cantidad }
             : p
         );
       } else {
-        // Si es nuevo, agregarlo
         return [
           ...prev,
           {
@@ -495,10 +433,8 @@ const Consultorio = () => {
     return totalProductos + (precioConsulta || 0);
   };
 
-  // 📝 FUNCIÓN ACTUALIZADA: updatePaciente con soporte para refresco
   const updatePaciente = async (pacienteId, updatedData) => {
     try {
-      // Si updatedData es null, significa que solo queremos refrescar los datos
       if (updatedData === null) {
         const pacienteData = await fetchPacienteData(pacienteId);
         if (pacienteData && selectedTurno && selectedTurno.pacienteId._id === pacienteId) {
@@ -529,7 +465,6 @@ const Consultorio = () => {
 
       const data = await response.json();
 
-      // Actualizar el estado del turno seleccionado con los nuevos datos del paciente
       if (selectedTurno && selectedTurno.pacienteId._id === pacienteId) {
         setSelectedTurno((prev) => ({
           ...prev,
@@ -544,7 +479,6 @@ const Consultorio = () => {
     }
   };
 
-  // 📝 FUNCIÓN ACTUALIZADA: updateDatosClinicos con soporte para refresco
   const updateDatosClinicos = async (pacienteId, datosClinicos) => {
     try {
       const response = await fetch(
@@ -568,9 +502,7 @@ const Consultorio = () => {
 
       const data = await response.json();
 
-      // Actualizar el estado del turno seleccionado con los nuevos datos clínicos
       if (selectedTurno && selectedTurno.pacienteId._id === pacienteId) {
-        // 📝 ACTUALIZAR también refrescando los datos completos del paciente
         const pacienteData = await fetchPacienteData(pacienteId);
         if (pacienteData) {
           setSelectedTurno((prev) => ({
@@ -587,13 +519,11 @@ const Consultorio = () => {
     }
   };
 
-  // Función para abrir el modal de pacientes
   const handleOpenPacienteModal = (paciente) => {
     setSelectedPaciente(paciente);
     setShowPacienteModal(true);
   };
 
-  // Función para cerrar el modal de pacientes
   const handleClosePacienteModal = () => {
     setShowPacienteModal(false);
     setSelectedPaciente(null);
@@ -613,7 +543,7 @@ const Consultorio = () => {
         if (pacienteData) {
           setSelectedTurno((prev) => ({
             ...prev,
-            pacienteId: pacienteData, // Usa los datos directamente
+            pacienteId: pacienteData,
           }));
         }
       }
@@ -743,7 +673,7 @@ const Consultorio = () => {
       <ProductosModal
         showProductosModal={showProductosModal}
         setShowProductosModal={setShowProductosModal}
-        productosDisponibles={useProductStore.getState().getActiveProducts()}
+        productosDisponibles={products}
         handleProductSelect={handleProductSelect}
         selectedProducts={selectedProducts}
       />

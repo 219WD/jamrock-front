@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Cloudinary from "../../components/Cloudinary";
 import useAuthStore from "../../store/authStore";
-
 const TurnoDetail = ({
   selectedTurno,
   selectedProducts,
@@ -32,20 +31,18 @@ const TurnoDetail = ({
   loading,
   guardando,
   setSelectedTurno,
-  handleOpenPacienteModal, // Nueva prop
+  handleOpenPacienteModal,
 }) => {
   const [patientData, setPatientData] = useState(
     selectedTurno?.pacienteId || {}
   );
   const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
-
   useEffect(() => {
     if (selectedTurno?.pacienteId) {
       setPatientData(selectedTurno.pacienteId);
     }
   }, [selectedTurno?.pacienteId]);
-
   return (
     <div className="turno-detail">
       {selectedTurno ? (
@@ -78,7 +75,6 @@ const TurnoDetail = ({
               Info Paciente
             </button>
           </div>
-
           <div className="productos-section">
             <h4>Productos Recetados</h4>
             {(!selectedTurno.consulta?.productos ||
@@ -95,55 +91,64 @@ const TurnoDetail = ({
               )}
             {(selectedTurno.consulta?.productos?.length > 0 ||
               selectedProducts.length > 0) && (
-              <table className="productos-table">
-                <thead>
-                  <tr>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Precio Unitario</th>
-                    <th>Subtotal</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(selectedTurno.consulta?.productos || []).map(
-                    (item, index) => (
-                      <tr key={index}>
+              <>
+                <table className="productos-table">
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th>Cantidad</th>
+                      <th>Precio Unitario</th>
+                      <th>Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(selectedTurno.consulta?.productos || []).map(
+                      (item, index) => (
+                        <tr key={index}>
+                          <td>{item.nombreProducto}</td>
+                          <td>{item.cantidad}</td>
+                          <td>${item.precioUnitario}</td>
+                          <td>${item.precioUnitario * item.cantidad}</td>
+                        </tr>
+                      )
+                    )}
+                    {selectedProducts.map((item, index) => (
+                      <tr key={`selected-${index}`}>
                         <td>{item.nombreProducto}</td>
                         <td>{item.cantidad}</td>
                         <td>${item.precioUnitario}</td>
                         <td>${item.precioUnitario * item.cantidad}</td>
                       </tr>
-                    )
-                  )}
-                  {selectedProducts.map((item, index) => (
-                    <tr key={`selected-${index}`}>
-                      <td>{item.nombreProducto}</td>
-                      <td>{item.cantidad}</td>
-                      <td>${item.precioUnitario}</td>
-                      <td>${item.precioUnitario * item.cantidad}</td>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colSpan="3">
+                        <strong>Total:</strong>
+                      </td>
+                      <td>
+                        <strong>${calculateTotal()}</strong>
+                      </td>
                     </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  <tr>
-                    <td colSpan="3">
-                      <strong>Total:</strong>
-                    </td>
-                    <td>
-                      <strong>${calculateTotal()}</strong>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td colSpan="2">
-                      <strong>Forma de Pago:</strong>
-                    </td>
-                    <td colSpan="2">{formaPago}</td>
-                  </tr>
-                </tfoot>
-              </table>
+                    <tr>
+                      <td colSpan="2">
+                        <strong>Forma de Pago:</strong>
+                      </td>
+                      <td colSpan="2">{formaPago}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+                <div className="add-productos-section">
+                  <button
+                    className="btn-add-productos"
+                    onClick={() => setShowProductosModal(true)}
+                  >
+                    Agregar Más Productos
+                  </button>
+                </div>
+              </>
             )}
           </div>
-
           <div className="price-section">
             <label>Precio de Consulta:</label>
             <input
@@ -155,7 +160,6 @@ const TurnoDetail = ({
               placeholder="Precio de la consulta"
             />
           </div>
-
           <div className="payment-section">
             <label>Forma de Pago:</label>
             <select
@@ -168,7 +172,6 @@ const TurnoDetail = ({
               <option value="mercadoPago">Mercado Pago</option>
             </select>
           </div>
-
           <div className="notes-section">
             <label>Notas de la Consulta:</label>
             <textarea
@@ -177,11 +180,9 @@ const TurnoDetail = ({
               placeholder="Observaciones, diagnóstico, etc."
             />
           </div>
-
           <div className="total-section">
             <strong>Total:</strong> ${calculateTotal()}
           </div>
-
           {selectedProducts.length > 0 && (
             <div className="selected-products">
               <h4>Productos Seleccionados</h4>
@@ -201,14 +202,6 @@ const TurnoDetail = ({
                           )
                         }
                       />
-                      <input
-                        type="text"
-                        placeholder="Dosis"
-                        value={item.dosis}
-                        onChange={(e) =>
-                          updateProductDosis(item.productoId, e.target.value)
-                        }
-                      />
                     </div>
                     <span>${item.precioUnitario * item.cantidad}</span>
                   </li>
@@ -216,7 +209,6 @@ const TurnoDetail = ({
               </ul>
             </div>
           )}
-
           <div className="historial-section">
             <h4>Datos Clínicos</h4>
             <div className="form-group">
@@ -227,7 +219,6 @@ const TurnoDetail = ({
                 placeholder="Ingrese el diagnóstico..."
               />
             </div>
-
             <div className="form-group">
               <label>Tratamiento:</label>
               <textarea
@@ -236,7 +227,6 @@ const TurnoDetail = ({
                 placeholder="Describa el tratamiento indicado..."
               />
             </div>
-
             <div className="form-group">
               <label>Observaciones:</label>
               <textarea
@@ -245,7 +235,6 @@ const TurnoDetail = ({
                 placeholder="Observaciones adicionales..."
               />
             </div>
-
             <div className="documentos-section">
               <h4>Documentos Adjuntos</h4>
               <div className="nuevo-documento">
@@ -283,7 +272,6 @@ const TurnoDetail = ({
                   buttonText="Adjuntar documento"
                 />
               </div>
-
               {documentosAdjuntos.length > 0 && (
                 <ul className="documentos-list">
                   {documentosAdjuntos.map((doc, index) => (
@@ -314,7 +302,6 @@ const TurnoDetail = ({
               )}
             </div>
           </div>
-
           <div className="action-buttons">
             <button
               className="btn-submit btn-complete-turno"
@@ -333,5 +320,4 @@ const TurnoDetail = ({
     </div>
   );
 };
-
 export default TurnoDetail;

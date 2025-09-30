@@ -5,37 +5,24 @@ const ProductosModal = ({
   setShowProductosModal,
   productosDisponibles,
   handleProductSelect,
-  selectedProducts, // Nuevo prop para productos ya seleccionados
+  selectedProducts,
 }) => {
   const [quantities, setQuantities] = useState({});
   const [availableStock, setAvailableStock] = useState({});
+  const [isAdding, setIsAdding] = useState({}); // Nuevo estado para rastrear si se está agregando un producto
 
-  // Sincronizar el stock disponible considerando productos ya seleccionados
   useEffect(() => {
-    const updatedAvailableStock = {};
     const updatedQuantities = {};
+    const stockMap = {};
 
     productosDisponibles.forEach((producto) => {
-      // Encontrar si el producto ya está seleccionado
-      const selectedProduct = selectedProducts?.find(
-        (p) => p.productoId === producto._id
-      );
-      
-      const alreadySelectedQuantity = selectedProduct?.cantidad || 0;
-      
-      // Stock realmente disponible = stock total - ya seleccionado
-      updatedAvailableStock[producto._id] = Math.max(
-        0,
-        producto.stock - alreadySelectedQuantity
-      );
-      
-      // Inicializar cantidad en 0 o mantener la actual si existe
       updatedQuantities[producto._id] = quantities[producto._id] || 0;
+      stockMap[producto._id] = producto.stock;
     });
 
-    setAvailableStock(updatedAvailableStock);
     setQuantities(updatedQuantities);
-  }, [productosDisponibles, selectedProducts, showProductosModal]);
+    setAvailableStock(stockMap);
+  }, [productosDisponibles, showProductosModal]);
 
   const handleIncrement = (productId) => {
     setQuantities((prev) => ({
@@ -51,17 +38,24 @@ const ProductosModal = ({
     }));
   };
 
-  const handleAddProduct = (producto) => {
-    const quantity = quantities[producto._id] || 0;
-    if (quantity > 0 && quantity <= (availableStock[producto._id] || 0)) {
-      handleProductSelect({
-        ...producto,
-        cantidad: quantity,
-      });
-      setQuantities((prev) => ({
-        ...prev,
-        [producto._id]: 0,
-      }));
+  const handleAddProduct = async (producto) => {
+    if (isAdding[producto._id]) return; // Evitar múltiples clics
+    setIsAdding((prev) => ({ ...prev, [producto._id]: true }));
+
+    try {
+      const quantity = quantities[producto._id] || 0;
+      if (quantity > 0 && quantity <= (availableStock[producto._id] || 0)) {
+        handleProductSelect({
+          ...producto,
+          cantidad: quantity,
+        });
+        setQuantities((prev) => ({
+          ...prev,
+          [producto._id]: 0,
+        }));
+      }
+    } finally {
+      setIsAdding((prev) => ({ ...prev, [producto._id]: false }));
     }
   };
 
@@ -98,7 +92,7 @@ const ProductosModal = ({
                   {productosDisponibles.map((producto) => {
                     const currentAvailableStock = availableStock[producto._id] || 0;
                     const currentQuantity = quantities[producto._id] || 0;
-                    
+
                     return (
                       <tr key={producto._id}>
                         <td>{producto.title || "Sin título"}</td>
@@ -173,9 +167,9 @@ const ProductosModal = ({
                             <button
                               className="btn-add"
                               onClick={() => handleAddProduct(producto)}
-                              disabled={currentAvailableStock <= 0 || currentQuantity <= 0}
+                              disabled={currentAvailableStock <= 0 || currentQuantity <= 0 || isAdding[producto._id]}
                             >
-                              Agregar
+                              {isAdding[producto._id] ? "Agregando..." : "Agregar"}
                             </button>
                           </div>
                         </td>
