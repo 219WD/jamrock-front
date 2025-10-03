@@ -206,7 +206,7 @@ const Clientes = () => {
             <h2>Solicitudes Pendientes de Socio</h2>
           </div>
 
-          <div ref={tableRef}>
+          <div className="table-container" ref={tableRef}>
             <TablaPendientes
               users={pendingUsers.filter(
                 (user) =>
